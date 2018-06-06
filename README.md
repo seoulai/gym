@@ -3,6 +3,9 @@
 **Seoul AI Gym is a toolkit for developing AI algorithms.**
 This `gym` simulates environments and enables you to apply any teaching technique on agent.
 
+<img src="https://api.travis-ci.com/seoulai/gym.svg?branch=master" />
+[![Build Status](https://api.travis-ci.com/seoulai/gym.svg?branch=master)](https://travis-ci.org/seoulai/gym)
+
 Seoul AI Gym was inspired by [OpenAI gym](https://github.com/openai/gym) and tries to follow its API very closely.
 
 
