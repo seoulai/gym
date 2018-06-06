@@ -1,1 +1,5 @@
 include seoulai_gym/envs/checkers/board.png
+recursive-include seoulai_gym *.py
+include README.md
+include LICENSE
+include requirements.txt
