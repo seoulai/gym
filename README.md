@@ -7,13 +7,13 @@ Seoul AI Gym was inspired by [OpenAI gym](https://github.com/openai/gym) and tri
 
 
 ### Contents
-* [Basics](https://github.com/martinkersner/checkers#basics)
-* [Installation](https://github.com/martinkersner/checkers#installation)
-  * [`pip`](https://github.com/martinkersner/checkers#pip)
-  * [From source](https://github.com/martinkersner/checkers#from-source)
-* [Environments](https://github.com/martinkersner/checkers#environments)
-* [Examples](https://github.com/martinkersner/checkers#examples)
-* [Testing](https://github.com/martinkersner/checkers#testing)
+* [Basics](https://github.com/seoulai/gym#basics)
+* [Installation](https://github.com/seoulai/gym#installation)
+  * [`pip`](https://github.com/seoulai/gym#pip)
+  * [From source](https://github.com/seoulai/gym#from-source)
+* [Environments](https://github.com/seoulai/gym#environments)
+* [Examples](https://github.com/seoulai/gym#examples)
+* [Testing](https://github.com/seoulai/gym#testing)
 
 ## Basics
 There are two terms that are important to understand: *Environment* and *Agent*.
@@ -78,6 +78,7 @@ env.render()
 ```
 
 ## Examples
+https://github.com/seoulai/gym/blob/master/examples/checkers_example.py
 
 ## Testing
 All test are written using [pytest](http://doc.pytest.org/).
