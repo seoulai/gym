@@ -9,7 +9,7 @@ Seoul AI Gym was inspired by [OpenAI gym](https://github.com/openai/gym) and tri
 ### Contents
 * [Basics](https://github.com/seoulai/gym#basics)
 * [Installation](https://github.com/seoulai/gym#installation)
-  * [`pip`](https://github.com/seoulai/gym#pip)
+  * [`pip3`](https://github.com/seoulai/gym#pip3)
   * [From source](https://github.com/seoulai/gym#from-source)
 * [Environments](https://github.com/seoulai/gym#environments)
 * [Examples](https://github.com/seoulai/gym#examples)
@@ -48,10 +48,10 @@ Display state of game on a screen.
 ## Installation
 There are two ways to install `seoulai-gym`.
 
-#### `pip`
-The recommended way for developers creating an agent is to install `seoulai-gym` using `pip`.
+#### `pip3`
+The recommended way for developers creating an agent is to install `seoulai-gym` using `pip3`.
 ```
-pip install seoulai-gym
+pip3 install seoulai-gym
 ```
 
 #### From source
@@ -61,7 +61,7 @@ This option is for developers that want to create new environments or modify exi
 ```shell
 git clone https://github.com/seoulai/gym.git
 cd gym
-pip install -e .
+pip3 install -e .
 ```
 
 #### Supported systems
