@@ -1,8 +1,13 @@
 from setuptools import setup
 
+with open("README.md", "r") as f:
+    long_description = f.read()
+
 setup(name="seoulai-gym",
       version="0.1",
       description="The Seoul AI Gym: Seoul AI Gym is a toolkit for developing AI algorithms.",
+      long_description=long_description,
+      long_description_content_type="text/markdown",
       url="https://github.com/seoulai/gym",
       author="Seoul AI",
       author_email="m.kersner@gmail.com",
