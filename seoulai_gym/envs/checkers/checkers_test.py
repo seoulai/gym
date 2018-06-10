@@ -148,3 +148,39 @@ class TestInitialization(object):
     def test_board_init(self):
         B = Board(size=8)
         assert len(set(sum(B.board_list, []))) == 1 + (4 + 4 + 4) * 2
+
+
+class TestKings(object):
+    def test_become_king(self, empty_board):
+        # Dark piece
+        empty_board.board_list[5][5] = DarkPiece()
+        empty_board.move(Constants().DARK, 5, 5, 6, 6)
+        assert empty_board.board_list[6][6].is_king() is False
+        empty_board.move(Constants().DARK, 6, 6, 7, 7)
+        assert empty_board.board_list[7][7].is_king() is True
+
+        # Light piece
+        empty_board.board_list[2][2] = LightPiece()
+        empty_board.move(Constants().LIGHT, 2, 2, 1, 1)
+        assert empty_board.board_list[1][1].is_king() is False
+        empty_board.move(Constants().LIGHT, 1, 1, 0, 0)
+        assert empty_board.board_list[0][0].is_king() is True
+
+    def test_move(self, empty_board):
+        # Dark piece
+        empty_board.board_list[5][5] = DarkPiece()
+        with pytest.raises(ValueError):
+            empty_board.move(Constants().DARK, 5, 5, 4, 4)
+        # move any direction
+        empty_board.board_list[5][5].make_king()
+        empty_board.move(Constants().DARK, 5, 5, 4, 4)
+        empty_board.move(Constants().DARK, 4, 4, 5, 5)
+
+        # Light Piece
+        empty_board.board_list[5][5] = LightPiece()
+        with pytest.raises(ValueError):
+            empty_board.move(Constants().LIGHT, 5, 5, 6, 6)
+        # move any direction
+        empty_board.board_list[5][5].make_king()
+        empty_board.move(Constants().LIGHT, 5, 5, 6, 6)
+        empty_board.move(Constants().LIGHT, 6, 6, 5, 5)
