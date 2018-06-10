@@ -52,6 +52,7 @@ class Graphics(Constants):
         """
         self.dark_piece_color = (0, 0, 255)
         self.light_piece_color = (255, 0, 0)
+        self.king_piece_color = (255, 255, 255)
         self.original_piece_square_color = (160, 0, 255)
         self.possible_moves_square_color = (160, 190, 255)
 
@@ -122,7 +123,6 @@ class Graphics(Constants):
         """
         def get_pixel_coord(piece_pos: int):
             return int(piece_pos * self.square_size + self.piece_size)
-        # get_pixel_coord = lambda piece_pos: int(piece_pos * self.square_size + self.piece_size)
 
         for row in range(self.num_squares):
             for col in range(self.num_squares):
@@ -132,6 +132,13 @@ class Graphics(Constants):
                         self._get_piece_color(board[row][col]),
                         (get_pixel_coord(col), get_pixel_coord(row)),
                         self.piece_size)
+
+                    if board[row][col].is_king():
+                        pygame.draw.circle(
+                            self.screen,
+                            self.king_piece_color,
+                            (get_pixel_coord(col), get_pixel_coord(row)),
+                            self.piece_size // 2)
 
     def _get_piece_color(
         self,

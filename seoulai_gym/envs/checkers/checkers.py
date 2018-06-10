@@ -6,6 +6,7 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
+import copy
 from typing import Dict
 from typing import List
 from typing import Tuple
@@ -65,7 +66,7 @@ class Checkers(Constants, Rules):
         self.possible_moves = self.get_valid_moves(self.board.board_list, from_row, from_col)
         self.piece_location = (from_row, from_col)
         obs, rew, done, info = self.board.move(agent.ptype, from_row, from_col, to_row, to_col)
-        return obs, rew, done, info
+        return copy.deepcopy(obs), rew, done, info
 
     def reset(
         self,

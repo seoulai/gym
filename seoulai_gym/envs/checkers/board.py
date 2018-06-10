@@ -34,14 +34,14 @@ class Board(Constants, Rules):
         Note: Dark pieces should be ALWAYS on the top of the board.
         """
         self.board_list = [
-            [DarkPiece(), None] * (self.size//2),
-            [None, DarkPiece()] * (self.size//2),
-            [DarkPiece(), None] * (self.size//2),
-            [None] * self.size,
-            [None] * self.size,
-            [None, LightPiece()] * (self.size//2),
-            [LightPiece(), None] * (self.size//2),
-            [None, LightPiece()] * (self.size//2),
+            sum([[DarkPiece(), None] for _ in range(self.size//2)], []),
+            sum([[None, DarkPiece()] for _ in range(self.size//2)], []),
+            sum([[DarkPiece(), None] for _ in range(self.size//2)], []),
+            sum([[None] for _ in range(self.size)], []),
+            sum([[None] for _ in range(self.size)], []),
+            sum([[None, LightPiece()] for _ in range(self.size//2)], []),
+            sum([[LightPiece(), None] for _ in range(self.size//2)], []),
+            sum([[None, LightPiece()] for _ in range(self.size//2)], []),
         ]
 
     def move(
