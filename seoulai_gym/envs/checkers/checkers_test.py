@@ -142,3 +142,9 @@ class TestRules(object):
         # DOWN RIGHT
         assert rules.get_between_position(4, 4, 5, 5) == (None, None)
         assert rules.get_between_position(4, 4, 6, 6) == (5, 5)
+
+
+class TestInitialization(object):
+    def test_board_init(self):
+        B = Board(size=8)
+        assert len(set(sum(B.board_list, []))) == 1 + (4 + 4 + 4) * 2
