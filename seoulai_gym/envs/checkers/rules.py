@@ -3,6 +3,8 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
+import numpy as np
+
 from typing import Tuple
 from typing import Dict
 from typing import List
@@ -225,3 +227,17 @@ def generate_all_moves(
     ]
 
     return moves
+
+
+def board_list2numpy(
+    board_list: List[List],
+) -> np.array:
+    board_size = len(board_list)
+    board_numpy = Constants().EMPTY * np.ones((board_size, board_size))
+
+    for row in range(board_size):
+        for col in range(board_size):
+            if board_list[row][col] is not None:
+                board_numpy[row][col] = board_list[row][col].ptype
+
+    return board_numpy
