@@ -3,7 +3,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-import numpy as np
 from typing import Tuple
 from typing import Dict
 from typing import List

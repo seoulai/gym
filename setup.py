@@ -21,5 +21,5 @@ setup(name="seoulai-gym",
       ],
       tests_require=["pytest"],
       include_package_data=True,
-      keywords = ["gym", "ai", "machine-learning", "artificial-intelligence"],
+      keywords=["gym", "ai", "machine-learning", "artificial-intelligence"],
       )

@@ -168,6 +168,7 @@ def validate_move(
 
     return True
 
+
 def get_between_position(
     from_row: int,
     from_col: int,
@@ -189,12 +190,12 @@ def get_between_position(
     """
     if abs(from_row-to_row) == 2 and abs(from_col-to_col) == 2:
         if from_row-to_row > 0:  # UP
-            if from_col-to_col > 0: # LEFT
+            if from_col-to_col > 0:  # LEFT
                 return from_row-1, from_col-1
             else:  # RIGHT
                 return from_row-1, from_col+1
-        else: # DOWN
-            if from_col-to_col > 0: # LEFT
+        else:  # DOWN
+            if from_col-to_col > 0:  # LEFT
                 return from_row+1, from_col-1
             else:  # RIGHT
                 return from_row+1, from_col+1

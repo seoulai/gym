@@ -6,18 +6,11 @@ seoulai.com
 import random
 from abc import ABC
 from abc import abstractmethod
-from typing import Dict
 from typing import List
 from typing import Tuple
 
 from seoulai_gym.envs.checkers.base import Constants
-from seoulai_gym.envs.checkers.checkers import Checkers
 from seoulai_gym.envs.checkers.rules import generate_valid_moves
-from seoulai_gym.envs.checkers.rules import get_valid_moves
-from seoulai_gym.envs.checkers.rules import get_between_position
-from seoulai_gym.envs.checkers.rules import get_opponent_type
-from seoulai_gym.envs.checkers.rules import get_positions
-from seoulai_gym.envs.checkers.rules import validate_move
 
 
 class Agent(Constants, ABC):
@@ -53,7 +46,7 @@ class Agent(Constants, ABC):
     @property
     def name(self, _name):
         if self.ptype == self.DARK:
-            return  f"DARK {_name}"
+            return f"DARK {_name}"
         elif self.ptype == self.LIGHT:
             return f"LIGHT {_name}"
 

@@ -3,7 +3,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-from typing import List
 
 
 class Constants(object):

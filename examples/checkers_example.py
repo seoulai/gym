@@ -3,8 +3,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-import sys
-
 import seoulai_gym as gym
 from seoulai_gym.envs.checkers.agents import RandomAgentLight
 from seoulai_gym.envs.checkers.agents import RandomAgentDark

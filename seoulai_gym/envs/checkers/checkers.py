@@ -6,7 +6,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-from pathlib import Path
 from typing import Dict
 from typing import List
 from typing import Tuple
