@@ -12,7 +12,7 @@ from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.board import Board
 from seoulai_gym.envs.checkers.board import DarkPiece
 from seoulai_gym.envs.checkers.board import LightPiece
-from seoulai_gym.envs.checkers.rules import get_between_position
+from seoulai_gym.envs.checkers.rules import Rules
 
 
 @pytest.fixture
@@ -126,18 +126,19 @@ class TestEndOfGame(object):
 
 class TestRules(object):
     def test_get_between_position(self):
+        rules = Rules()
         # UP LEFT
-        assert get_between_position(4, 4, 3, 3) == (None, None)
-        assert get_between_position(4, 4, 2, 2) == (3, 3)
+        assert rules.get_between_position(4, 4, 3, 3) == (None, None)
+        assert rules.get_between_position(4, 4, 2, 2) == (3, 3)
 
         # UP RIGHT
-        assert get_between_position(4, 4, 3, 5) == (None, None)
-        assert get_between_position(4, 4, 2, 6) == (3, 5)
+        assert rules.get_between_position(4, 4, 3, 5) == (None, None)
+        assert rules.get_between_position(4, 4, 2, 6) == (3, 5)
 
         # DOWN LEFT
-        assert get_between_position(4, 4, 5, 3) == (None, None)
-        assert get_between_position(4, 4, 6, 2) == (5, 3)
+        assert rules.get_between_position(4, 4, 5, 3) == (None, None)
+        assert rules.get_between_position(4, 4, 6, 2) == (5, 3)
 
         # DOWN RIGHT
-        assert get_between_position(4, 4, 5, 5) == (None, None)
-        assert get_between_position(4, 4, 6, 6) == (5, 5)
+        assert rules.get_between_position(4, 4, 5, 5) == (None, None)
+        assert rules.get_between_position(4, 4, 6, 6) == (5, 5)

@@ -10,10 +10,10 @@ from typing import List
 from typing import Tuple
 
 from seoulai_gym.envs.checkers.base import Constants
-from seoulai_gym.envs.checkers.rules import generate_valid_moves
+from seoulai_gym.envs.checkers.rules import Rules
 
 
-class Agent(Constants, ABC):
+class Agent(ABC, Constants, Rules):
     @abstractmethod
     def __init__(
         self,
@@ -87,7 +87,7 @@ class RandomAgent(Agent):
             Current and new location of piece.
         """
         board_size = len(board)
-        valid_moves = generate_valid_moves(board, self.ptype, board_size)
+        valid_moves = self.generate_valid_moves(board, self.ptype, board_size)
         rand_from_row, rand_from_col = random.choice(list(valid_moves.keys()))
         rand_to_row, rand_to_col = random.choice(valid_moves[(rand_from_row, rand_from_col)])
         return rand_from_row, rand_from_col, rand_to_row, rand_to_col
