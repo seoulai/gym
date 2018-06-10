@@ -8,7 +8,6 @@ from typing import Dict
 from typing import List
 
 from seoulai_gym.envs.checkers.base import Constants
-from seoulai_gym.envs.checkers.base import Piece
 from seoulai_gym.envs.checkers.base import DarkPiece
 from seoulai_gym.envs.checkers.base import LightPiece
 from seoulai_gym.envs.checkers.rules import Rules
