@@ -120,7 +120,9 @@ class Graphics(Constants):
         Args:
             board: information about positions of pieces.
         """
-        get_pixel_coord = lambda piece_pos: int(piece_pos * self.square_size + self.piece_size)
+        def get_pixel_coord(piece_pos: int):
+            return int(piece_pos * self.square_size + self.piece_size)
+        # get_pixel_coord = lambda piece_pos: int(piece_pos * self.square_size + self.piece_size)
 
         for row in range(self.num_squares):
             for col in range(self.num_squares):

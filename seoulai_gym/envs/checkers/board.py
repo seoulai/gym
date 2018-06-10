@@ -3,7 +3,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-import numpy as np
 from typing import Tuple
 from typing import Dict
 from typing import List
@@ -11,14 +10,10 @@ from typing import List
 from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.base import DarkPiece
 from seoulai_gym.envs.checkers.base import LightPiece
-from seoulai_gym.envs.checkers.rules import get_between_position
-from seoulai_gym.envs.checkers.rules import get_opponent_type
-from seoulai_gym.envs.checkers.rules import get_positions
-from seoulai_gym.envs.checkers.rules import validate_move
-from seoulai_gym.envs.checkers.rules import generate_valid_moves
+from seoulai_gym.envs.checkers.rules import Rules
 
 
-class Board(Constants):
+class Board(Constants, Rules):
     def __init__(
         self,
         size: int=8,
@@ -78,7 +73,7 @@ class Board(Constants):
         rew = 0  # TODO compute reward
         info = {}
 
-        if not validate_move(self.board_list, from_row, from_col, to_row, to_col):
+        if not self.validate_move(self.board_list, from_row, from_col, to_row, to_col):
             raise ValueError(f"Attempt to move to invalid position.")
         else:
             info.update({"moved": ((from_row, from_col), (to_row, to_col))})
@@ -92,7 +87,7 @@ class Board(Constants):
         self.board_list[from_row][from_col] = None
 
         # remove opponent's piece
-        between_row, between_col = get_between_position(from_row, from_col, to_row, to_col)
+        between_row, between_col = self.get_between_position(from_row, from_col, to_row, to_col)
         if between_row is not None and between_col is not None:
             p_between = self.board_list[between_row][between_col]
             if p_between is not None:
@@ -106,10 +101,10 @@ class Board(Constants):
             info.update({"king": (to_row, to_col)})
 
         # end of game?
-        if len(get_positions(self.board_list, get_opponent_type(p.ptype), self.size)) == 0:
+        if len(self.get_positions(self.board_list, self.get_opponent_type(p.ptype), self.size)) == 0:
             # opponent lost all his pieces
             done = True
-        elif len(generate_valid_moves(self.board_list, get_opponent_type(p.ptype), self.size)) == 0:
+        elif len(self.generate_valid_moves(self.board_list, self.get_opponent_type(p.ptype), self.size)) == 0:
             # opponent cannot make any move
             done = True
         else:

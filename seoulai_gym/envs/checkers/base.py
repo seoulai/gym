@@ -3,9 +3,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-from typing import List
-
-import numpy as np
 
 
 class Constants(object):
@@ -45,18 +42,3 @@ class DarkPiece(Constants, Piece):
 class LightPiece(Constants, Piece):
     def __init__(self):
         super().__init__(ptype=self.LIGHT, direction=self.UP)
-
-
-def board_list2numpy(board_list: List[List]) -> np.array:
-    """
-    TODO flatten in separate function
-    """
-    board_size = len(board_list)
-    board_numpy = Constants().EMPTY * np.ones((board_size, board_size))
-
-    for row in range(board_size):
-        for col in range(board_size):
-            if board_list[row][col] is not None:
-                board_numpy[row][col] = board_list[row][col].ptype
-
-    return board_numpy

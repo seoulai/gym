@@ -6,7 +6,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-from pathlib import Path
 from typing import Dict
 from typing import List
 from typing import Tuple
@@ -18,10 +17,10 @@ from seoulai_gym.envs.checkers.base import Piece
 from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.board import Board
 from seoulai_gym.envs.checkers.graphics import Graphics
-from seoulai_gym.envs.checkers.rules import get_valid_moves
+from seoulai_gym.envs.checkers.rules import Rules
 
 
-class Checkers(Constants):
+class Checkers(Constants, Rules):
     def __init__(
         self,
         state: str=None,
@@ -63,7 +62,7 @@ class Checkers(Constants):
             done: Information about end of game.
             info: Additional information about current step.
         """
-        self.possible_moves = get_valid_moves(self.board.board_list, from_row, from_col)
+        self.possible_moves = self.get_valid_moves(self.board.board_list, from_row, from_col)
         self.piece_location = (from_row, from_col)
         obs, rew, done, info = self.board.move(agent.ptype, from_row, from_col, to_row, to_col)
         return obs, rew, done, info

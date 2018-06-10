@@ -6,21 +6,14 @@ seoulai.com
 import random
 from abc import ABC
 from abc import abstractmethod
-from typing import Dict
 from typing import List
 from typing import Tuple
 
 from seoulai_gym.envs.checkers.base import Constants
-from seoulai_gym.envs.checkers.checkers import Checkers
-from seoulai_gym.envs.checkers.rules import generate_valid_moves
-from seoulai_gym.envs.checkers.rules import get_valid_moves
-from seoulai_gym.envs.checkers.rules import get_between_position
-from seoulai_gym.envs.checkers.rules import get_opponent_type
-from seoulai_gym.envs.checkers.rules import get_positions
-from seoulai_gym.envs.checkers.rules import validate_move
+from seoulai_gym.envs.checkers.rules import Rules
 
 
-class Agent(Constants, ABC):
+class Agent(ABC, Constants, Rules):
     @abstractmethod
     def __init__(
         self,
@@ -53,7 +46,7 @@ class Agent(Constants, ABC):
     @property
     def name(self, _name):
         if self.ptype == self.DARK:
-            return  f"DARK {_name}"
+            return f"DARK {_name}"
         elif self.ptype == self.LIGHT:
             return f"LIGHT {_name}"
 
@@ -94,7 +87,7 @@ class RandomAgent(Agent):
             Current and new location of piece.
         """
         board_size = len(board)
-        valid_moves = generate_valid_moves(board, self.ptype, board_size)
+        valid_moves = self.generate_valid_moves(board, self.ptype, board_size)
         rand_from_row, rand_from_col = random.choice(list(valid_moves.keys()))
         rand_to_row, rand_to_col = random.choice(valid_moves[(rand_from_row, rand_from_col)])
         return rand_from_row, rand_from_col, rand_to_row, rand_to_col
