@@ -67,7 +67,7 @@ pip3 install -e .
 ```
 
 #### Supported systems
-`seoulai-gym` requires to have at least Python 3.6 and was tested on Arch Linux and macOS High Sierra.
+`seoulai-gym` requires to have at least Python 3.6 and was tested on Arch Linux, macOS High Sierra and Windows 10.
 
 ## Environments
 Currently, one environment simulating game of [Checkers](https://en.wikipedia.org/wiki/Draughts) is provided.
