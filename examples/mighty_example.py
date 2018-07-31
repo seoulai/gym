@@ -4,15 +4,19 @@ seoulai.com
 2018
 """
 import seoulai_gym as gym
-from seoulai_gym.envs.mighty.agent.AlangAgent import AlangAgent
-from seoulai_gym.envs.mighty.agent.RandomAgent import  RandomAgent
+from seoulai_gym.envs.mighty.agent.RandomAgent import RandomAgent
+
 
 def main():
-    #gym 환경명
+    # gym 환경명
     env = gym.make("Mighty")
 
     # 플레이어 이름, uid
-    players = [RandomAgent("Agent 1", 0), RandomAgent("Agent 2", 1), RandomAgent("Agent 3", 2), RandomAgent("Agent 4", 3), RandomAgent("Agent 5", 4)]
+    players = [RandomAgent("Agent 1", 0), 
+               RandomAgent("Agent 2", 1), 
+               RandomAgent("Agent 3", 2), 
+               RandomAgent("Agent 4", 3), 
+               RandomAgent("Agent 5", 4)]
 
     # 환경 초기화
     obs = env.reset()
@@ -24,10 +28,10 @@ def main():
     reward = 0
     done = False
 
-    num_of_game = 10 # 구동할 게임 수
+    num_of_game = 10  # 구동할 게임 수
     while True:
-        act = players[turn].act(obs,reward,done)
-        print('\t %s' % (act),end=':')
+        act = players[turn].act(obs, reward, done)
+        print('\t %s' % (act), end=':')
         print(obs['board'].PLAYER_CARDS[turn])
         obs, rew, done, info = env.step(players[turn], act)
 
@@ -48,5 +52,6 @@ def main():
     input('end play')
     env.close()
 
+    
 if __name__ == "__main__":
     main()
