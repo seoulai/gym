@@ -12,10 +12,10 @@ def main():
     env = gym.make("Mighty")
 
     # 플레이어 이름, uid
-    players = [RandomAgent("Agent 1", 0), 
-               RandomAgent("Agent 2", 1), 
-               RandomAgent("Agent 3", 2), 
-               RandomAgent("Agent 4", 3), 
+    players = [RandomAgent("Agent 1", 0),
+               RandomAgent("Agent 2", 1),
+               RandomAgent("Agent 3", 2),
+               RandomAgent("Agent 4", 3),
                RandomAgent("Agent 5", 4)]
 
     # 환경 초기화
@@ -52,6 +52,6 @@ def main():
     input('end play')
     env.close()
 
-    
+
 if __name__ == "__main__":
     main()
