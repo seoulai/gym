@@ -4,14 +4,8 @@ seoulai.com
 2018
 """
 import seoulai_gym as gym
-#from seoulai_gym.envs.mighty.agents import RandomAgent, AlangAgent
 from seoulai_gym.envs.mighty.agent.AlangAgent import AlangAgent
 from seoulai_gym.envs.mighty.agent.RandomAgent import  RandomAgent
-
-'''
-from seoulai_gym.envs.checkers.agents import RandomAgentLight
-from seoulai_gym.envs.checkers.agents import RandomAgentDark
-'''
 
 def main():
     #gym 환경명
