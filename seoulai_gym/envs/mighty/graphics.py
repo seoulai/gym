@@ -5,6 +5,7 @@ seoulai.com
 """
 # -*- coding: utf-8 -*-
 import sys
+import re
 import os
 import platform
 import random
@@ -900,14 +901,14 @@ class GiboBoard(QWidget):
 
                         self.label[r][c].setStyleSheet(style)
 
-
     def refreshGibo(self):
         for c in range(1, 6):  # 기보 가로줄 1-5
             self.label[0][c].setStyleSheet('color: black')
-        for r in range(1,11): # 기보 세로줄 1-10
-            for c in range(1,6): # 기보 가로줄 1-5
+        for r in range(1, 11):  # 기보 세로줄 1-10
+            for c in range(1, 6):  # 기보 가로줄 1-5
                 self.label[r][c].setText(".")
                 self.label[r][c].setStyleSheet('color: black')
+
 
 class MenuBoard(QWidget):
     def __init__(self, parent=None):
@@ -936,25 +937,22 @@ class MenuBoard(QWidget):
         qApp.quit()
         sys.exit(0)
 
-def show(param,msg='done', time=300):
+
+def show(param, msg='done', time=300):
     loop = QEventLoop()
     QTimer.singleShot(time, loop.quit)
     loop.exec_()
 
-    #print(msg)
     graphics.update(param)
     graphics.setVisible(True)
 
 
-
-import sys
-import re
 def countHangul(text):
-    #Check the Python Version
-    pyVer3 =  sys.version_info >= (3, 0)
-    if pyVer3 : # for Ver 3 or later
+    # Check the Python Version
+    pyVer3 = sys.version_info >= (3, 0)
+    if pyVer3:  # for Ver 3 or later
         encText = text
-    else: # for Ver 2.x
+    else:  # for Ver 2.x
         if type(text) is not unicode:
             encText = text.decode('utf-8')
         else:
@@ -964,6 +962,7 @@ def countHangul(text):
         hanCount += len(re.findall(u'[\u3130-\u318F\uAC00-\uD7A3]+', encText[i]))
     return hanCount
 
+
 def suitSymbol(x):
     return {
         's-': '♠',
@@ -971,7 +970,8 @@ def suitSymbol(x):
         'h-': '♥',
         'c-': '♣',
         'jo': '☆'
-    }.get(x,'')
+    }.get(x, '')
+
 
 def cardRank(x):
     return {
@@ -992,10 +992,12 @@ def cardRank(x):
         'od': '♦',
         'oh': '♥',
         'oc': '♣'
-    }.get(x,'')
+    }.get(x, '')
+
 
 def test():
     print('Sonte Carlo')
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
