@@ -2,8 +2,7 @@
 Seung-Hyun Kim, kimseunghyun@gmail.com
 seoulai.com
 2018
-"""
-"""
+
 Mighty
 https://en.wikipedia.org/wiki/Mighty_(card_game)
 https://ko.wikipedia.org/wiki/%EB%A7%88%EC%9D%B4%ED%8B%B0_(%EC%B9%B4%EB%93%9C_%EA%B2%8C%EC%9E%84)
@@ -394,7 +393,7 @@ class Mighty(Constants, Rules):
                                     point -= len(self.board.POINT_CARDS[agent_uid])
 
                         if point >= self.GAME.contract:
-                            # 여당(declarer's team) 승리점수 = 
+                            # 여당(declarer's team) 승리점수 =
                             # (공약 장수(contract) - 14) × 2 + (여당(declarer's team) 획득장수 - 공약 장수(bid))
                             game_score = (self.GAME.contract - 14)*2 + (point - self.GAME.contract)
                             # 주공은 +2*point, 프렌드는 +1*point, 야당은 -1*point
@@ -520,7 +519,7 @@ class Mighty(Constants, Rules):
     # 화면 출력. graphics에서 사용할 보드, 게임 변수를 param 으로 작성 및 전달
     def render(
         self,
-        wait = RENDER_TIME,
+        wait=RENDER_TIME,
     ) -> None:
         """Display current state of board.
 
@@ -547,7 +546,7 @@ class Mighty(Constants, Rules):
         '''
 
         param = {}
-        
+
         # agent
         param[Constants.param_agent] = {}
         for i in range(0, 5):
