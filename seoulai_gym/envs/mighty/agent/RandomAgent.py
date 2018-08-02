@@ -4,8 +4,6 @@ seoulai.com
 2018
 """
 from seoulai_gym.envs.mighty.agents import Agent
-from typing import List
-from typing import Tuple
 from typing import Dict
 
 from seoulai_gym.envs.mighty.base import Constants
@@ -13,12 +11,12 @@ from seoulai_gym.envs.mighty.rules import Rules
 
 import random
 
+
 class RandomAgent(Agent):
     def __init__(
         self,
         name: str,
         uid: int,
-        #ptype: int,
     ):
         """Initialize random agent.
 
@@ -26,7 +24,7 @@ class RandomAgent(Agent):
             name: name of agent.
             ptype: type of piece that agent is responsible for.
         """
-        super().__init__(name,uid)
+        super().__init__(name, uid)
 
         print('Initialize random agent : %ith player %s ' % (uid, name))
 
@@ -36,7 +34,6 @@ class RandomAgent(Agent):
         reward: int,
         done: bool,
     ) -> int:
-    #) -> Tuple[int, int, int, int]:
         """
         Choose a piece and its possible moves randomly.
         Pieces and moves are chosen from all current valid possibilities.
@@ -49,28 +46,23 @@ class RandomAgent(Agent):
         Returns:
             Current and new location of piece.
         """
-        #board_size = len(board)
-        #valid_moves = self.generate_valid_cards(board, self, board_size)
-
-
         board = obs['board']
         game = obs['game']
-
 
         print('[agent-act] %s %dth player (%s)' % (game.status, self._uid, self._name))
         if game.status == Constants.status_bidding:
             hand_cards = board.PLAYER_CARDS[self._uid]
             max_contract = game.contract
 
-            #최고 공약보다 높은 공약 있으면 제시
-            contract = random.choice(range(0,17))
-            suit = random.choice(['s','d','c','h'])
+            # 최고 공약보다 높은 공약 있으면 제시
+            contract = random.choice(range(0, 17))
+            suit = random.choice(['s', 'd', 'c', 'h'])
 
             if contract > 13 and contract > max_contract:
                 act = {}
                 act['contract'] = contract
                 act['suit'] = suit
-                print ('\t%d %s' % (contract, suit))
+                print('\t%d %s' % (contract, suit))
                 return act
             else:
                 print('\tNone')
@@ -107,8 +99,7 @@ class RandomAgent(Agent):
 
         elif game.status == Constants.status_play:
             # 카드 제출
-            #hand_cards = board.PLAYER_CARDS[self._uid]
-            valid_cards = Rules.get_valid_cards(self._uid,board,game)
+            valid_cards = Rules.get_valid_cards(self._uid, board, game)
 
             act = {}
             act['card'] = random.choice(valid_cards)
@@ -119,4 +110,3 @@ class RandomAgent(Agent):
 
         else:
             raise ("not implemented status " + game.status)
-
