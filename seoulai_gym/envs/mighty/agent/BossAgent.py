@@ -4,8 +4,6 @@ seoulai.com
 2018
 """
 from seoulai_gym.envs.mighty.agents import Agent
-from typing import List
-from typing import Tuple
 from typing import Dict
 
 from seoulai_gym.envs.mighty.base import Constants
@@ -13,12 +11,12 @@ from seoulai_gym.envs.mighty.rules import Rules
 
 import random
 
+
 class BossAgent(Agent):
     def __init__(
         self,
         name: str,
         uid: int,
-        #ptype: int,
     ):
         """Initialize random agent.
 
@@ -26,7 +24,7 @@ class BossAgent(Agent):
             name: name of agent.
             ptype: type of piece that agent is responsible for.
         """
-        super().__init__(name,uid)
+        super().__init__(name, uid)
 
         print('Initialize boss agent : %ith player %s ' % (uid, name))
 
@@ -45,10 +43,10 @@ class BossAgent(Agent):
             hand_cards = board.PLAYER_CARDS[self._uid]
             max_contract = game.contract
 
-            quality = [0,10, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 4, 6]
+            quality = [0, 10, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 4, 6]
             quantity = [0, 0, 9, 13, 14, 16, 18, 20, 20, 20, 20]
-            myQualtity = {'s':0,'d':0,'c':0,'h':0} #무늬별 퀄리티
-            myQuantity = {'s':0,'d':0,'c':0,'h':0} #무늬별 갯수
+            myQualtity = {'s': 0, 'd': 0, 'c': 0, 'h': 0}  # 무늬별 퀄리티
+            myQuantity = {'s': 0, 'd': 0, 'c': 0, 'h': 0}  # 무늬별 갯수
 
             for card in hand_cards:
                 suit = card[0]
@@ -60,9 +58,9 @@ class BossAgent(Agent):
                 elif num == 'k':
                     num = 13
 
-                #jok
+                # jok
                 if card == 'jok':
-                    for i in range(0,4):
+                    for i in range(0, 4):
                         myQuantity[i] = myQuantity[i] + 6
                         myQuantity[i] = myQuantity[i] + 1
                 else:
@@ -73,7 +71,7 @@ class BossAgent(Agent):
                 if myQualtity[s] > 20:
                     myQualtity[s] = 20
 
-            #가장 높은 score를 가지는 suit 선택
+            # 가장 높은 score를 가지는 suit 선택
             max_suit = 'c'
             max_score = -1
             for s in myQualtity.keys():
@@ -82,21 +80,21 @@ class BossAgent(Agent):
                 if scoreQuality + scoreQuantity == 0:
                     continue
 
-                score = (2 * scoreQuality * scoreQuantity / (scoreQuality + scoreQuantity)) #조화평균
+                score = (2 * scoreQuality * scoreQuantity / (scoreQuality + scoreQuantity))  # 조화평균
                 if score > max_score:
                     max_score = score
                     max_suit = s
 
-            #마이티 있으면 +2
+            # 마이티 있으면 +2
             mighty = 's-1'
             if max_suit == 's':
                 mighty = 'd-1'
             if mighty in hand_cards:
                 max_score += 2
 
-            #초구 없으면 -1 or -2
-            cards = ['s-1','d-1','h-1','c-1','d-k','s-k']
-            cards.remove(max_suit+'-1') #기루다-1
+            # 초구 없으면 -1 or -2
+            cards = ['s-1', 'd-1', 'h-1', 'c-1', 'd-k', 's-k']
+            cards.remove(max_suit+'-1')  # 기루다-1
             cards.remove(mighty)
             if max_suit == 's':
                 cards.remove('s-k')
@@ -105,10 +103,10 @@ class BossAgent(Agent):
             needFirstWin = True
             for card in cards:
                 if card in hand_cards:
-                    needFirstWin = False
+                    # TODO needFirstWin = False
                     break
             max_score -= 1
-            if max_score > 16: #공약 높으면 초구 위력이 커진다
+            if max_score > 16:  # 공약 높으면 초구 위력이 커진다
                 max_score -= 1
 
             if max_score > 13 and max_score > max_contract:
@@ -157,7 +155,7 @@ class BossAgent(Agent):
 
         elif game.status == Constants.status_play:
             # 카드 제출
-            valid_cards = Rules.get_valid_cards(self._uid,board,game)
+            valid_cards = Rules.get_valid_cards(self._uid, board, game)
 
             act = {}
             act['card'] = random.choice(valid_cards)
