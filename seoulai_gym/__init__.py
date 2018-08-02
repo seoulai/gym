@@ -6,6 +6,7 @@ seoulai.com
 from seoulai_gym.envs.checkers.checkers import Checkers
 from seoulai_gym.envs.mighty.mighty import Mighty
 
+
 def make(name: str):
     if name == "Checkers":
         return Checkers()
