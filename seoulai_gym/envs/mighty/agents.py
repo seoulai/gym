@@ -18,7 +18,7 @@ class Agent(ABC, Rules):
     ):
         self._name = name
         self._uid = uid
-    
+
     @abstractmethod
     def act(
         self,
