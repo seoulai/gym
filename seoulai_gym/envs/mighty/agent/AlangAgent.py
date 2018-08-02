@@ -38,7 +38,7 @@ class AlangAgent(Agent):
     # 공약 설정
     def makeContract(self,
                      hand_card: List,
-                     ) -> Tuple[int,str,str]:  # 공약, 기루다, 프렌드
+                     ) -> Tuple[int, str, str]:  # 공약, 기루다, 프렌드
         '''
         contract = random.choice(range(0, 20))
         suit = random.choice(['s', 'd', 'c', 'h'])
@@ -309,7 +309,7 @@ class AlangAgent(Agent):
                         # 1.1.3.1. 기루다 다음으로 많은 무늬 중 가장 낮은 카드
                         card = low_card
                 else:  # 노기루다
-                    #todo 노기루다 로직
+                    # todo 노기루다 로직
                     raise('not implemented')
 
             # 2. 2턴
