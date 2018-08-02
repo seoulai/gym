@@ -100,7 +100,7 @@ class BossAgent(Agent):
                 cards.remove('s-k')
             else:
                 cards.remove('d-k')
-            needFirstWin = True
+            # TODO needFirstWin = True
             for card in cards:
                 if card in hand_cards:
                     # TODO needFirstWin = False
