@@ -87,8 +87,7 @@ class Board():
     def move(self,
              agent,
              card,
-    ) -> Tuple[Dict, int, bool, Dict
-         ]:
+            ) -> Tuple[Dict, int, bool, Dict]:
 
         obs = None
         reward = 0
