@@ -4,10 +4,11 @@ seoulai.com
 2018
 """
 
+
 class Constants(object):
     """ Constants to share between classes and functions for checkers game.
     """
-    #status
+    # status
     status_bidding = 'bidding'
     status_choose_card = 'choose card'
     status_contract = 'contract'
@@ -15,14 +16,14 @@ class Constants(object):
     status_play = 'play'
     status_done = 'done'
 
-    #playmode
+    # playmode
     playmode_autoplay = 'AUTOPLAY'
     playmode_pause = 'PAUSE'
     playmode_step = 'STEP'
     playmode_round = 'ROUND'
     playmode_game = 'GAME'
 
-    #card
+    # card
     card_mighty = 'mighty'
     card_joker = 'jok'
     suit_spade = 's'
@@ -31,7 +32,7 @@ class Constants(object):
     suit_heart = 'h'
     suit_joker = 'j'
 
-    #param
+    # param
     param_agent = 'agent'
     param_score = 'score'
     param_backcard = 'backcard'
@@ -68,9 +69,3 @@ class Constants(object):
         notice = ''
         gibo = {}
         roundwinner = []
-
-
-
-
-
-
