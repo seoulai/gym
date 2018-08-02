@@ -12,15 +12,14 @@ from typing import Dict
 from seoulai_gym.envs.mighty.base import Constants
 from seoulai_gym.envs.mighty.rules import Rules
 
-
 import random
+
 
 class AlangAgent(Agent):
     def __init__(
         self,
         name: str,
         uid: int,
-        #ptype: int,
     ):
         """Initialize random agent.
 
@@ -28,7 +27,7 @@ class AlangAgent(Agent):
             name: name of agent.
             ptype: type of piece that agent is responsible for.
         """
-        super().__init__(name,uid)
+        super().__init__(name, uid)
 
         self.contract = 0
         self.suit = ''
@@ -36,22 +35,21 @@ class AlangAgent(Agent):
 
         print('Initialize alang agent : %ith player %s ' % (uid, name))
 
-    #공약 설정
+    # 공약 설정
     def makeContract(self,
                      hand_card: List,
-                     ) -> Tuple[int,str,str]: #공약, 기루다, 프렌드
+                     ) -> Tuple[int,str,str]:  # 공약, 기루다, 프렌드
         '''
         contract = random.choice(range(0, 20))
         suit = random.choice(['s', 'd', 'c', 'h'])
         friend = random.choice(['s-1','jok','first_turn'])
         '''
         card_order = ['2', '3', '4', '5', '6', '7', '8', '9', '0', 'j', 'q', 'k', '1']
-        suits = ['s','h','d','c']
+        suits = ['s', 'h', 'd', 'c']
 
-
-        print('\tcard=',end=' ')
+        print('\tcard=', end=' ')
         print(','.join(hand_card))
-        #1 기루다 모양 결정
+        # 1 기루다 모양 결정
         max_power = 0
         for s in suits:
             power = 0
@@ -62,18 +60,18 @@ class AlangAgent(Agent):
             # 1.1 카드 무늬별로 power 계산(1.마이티 존재/기루다 갯수, 2. 센카드 숫자
             max_num = 0
             for card in hand_card:
-                #마이티 존재(100)
+                # 마이티 존재(100)
                 if mighty == card:
                     power += 100
-                #기루다 갯수(100*n)
+                # 기루다 갯수(100*n)
                 if s in card:
                     power += 100
-                    #가장 센카드(2~1)
+                    # 가장 센카드(2~1)
                     cur_num = card_order.index(card[2])
                     if cur_num > max_num:
                         max_num = cur_num
             power += max_num
-            print('\tsuit=%s, power=%i' % (s,power))
+            print('\tsuit=%s, power=%i' % (s, power))
             # 1.2 power 가장 큰 카드로 기루다 모양 결정
             if power > max_power:
                 max_power = power
@@ -81,7 +79,7 @@ class AlangAgent(Agent):
 
         print('\tfinal suit = ' + self.suit)
 
-        #2 기루다 아닌 보스카드 갯수
+        # 2 기루다 아닌 보스카드 갯수
         num_bosscard = 0
         card_order.reverse()
         for s in suits:
@@ -89,9 +87,8 @@ class AlangAgent(Agent):
             if s == self.suit:
                 continue
 
-
-            for i in card_order: #카드ace부터
-                card = '%s-%s' % (s,i)
+            for i in card_order:  # 카드ace부터
+                card = '%s-%s' % (s, i)
                 if card in hand_card:
                     num_bosscard += 1
                 else:
@@ -100,7 +97,7 @@ class AlangAgent(Agent):
             num_bosscard += 1
         print('\tbosscard : ' + str(num_bosscard))
 
-        #3 프렌드 결정(마이티->조커->첫턴)
+        # 3 프렌드 결정(마이티->조커->첫턴)
         mighty = 's-1'
         if self.suit == 's':
             mighty = 'd-1'
@@ -113,13 +110,13 @@ class AlangAgent(Agent):
             self.friend = 'first'
         print('\tfriend : ' + self.friend)
 
-        #4 위닝턴 계산
-        #4.1 위닝턴 = 기루다 갯수 + 기루다 아닌 보스카드 갯수 + 프렌드help(1) + 추가카드(1)
+        # 4 위닝턴 계산
+        # 4.1 위닝턴 = 기루다 갯수 + 기루다 아닌 보스카드 갯수 + 프렌드help(1) + 추가카드(1)
         winning_turn = int(max_power / 100) + num_bosscard + 1 + 1
         print('\twinning_turn : ' + str(winning_turn))
 
-        #5 공약 결정
-        #4.1 contract (win 10-> cont 16, 9->15, 8->14, 7이하->pass
+        # 5 공약 결정
+        # 4.1 contract (win 10-> cont 16, 9->15, 8->14, 7이하->pass
         if winning_turn >= 10:
             self.contract = 16
         elif winning_turn == 9:
@@ -130,8 +127,8 @@ class AlangAgent(Agent):
             self.contract = 0
         print('\tcontract : ' + str(self.contract))
 
-        #공약, 기루다, 프렌드 반환
-        return (self.contract,self.suit,self.friend)
+        # 공약, 기루다, 프렌드 반환
+        return (self.contract, self.suit, self.friend)
 
     def removeCard(self,
                    hand_cards: List,
@@ -145,11 +142,11 @@ class AlangAgent(Agent):
             mighty = 'd-1'
 
         for card in hand_cards:
-            if card == mighty: #마이티
+            if card == mighty:  # 마이티
                 continue
             elif card == 'jok':
                 continue
-            elif card[0] == self.suit: #기루다
+            elif card[0] == self.suit:  # 기루다
                 continue
             elif card[2] == '1':
                 continue
@@ -159,9 +156,8 @@ class AlangAgent(Agent):
         return random.choice(candidate_cards)
 
     def get_low_card(self,
-                     valid_cards:List,
+                     valid_cards: List,
                      ) -> str:
-        ''
         low_card = ''
         # 기루다 다음으로 많은 무늬
         num_suit = {}
@@ -192,9 +188,8 @@ class AlangAgent(Agent):
                     low_num = i
                     low_card = card
 
-        #low_card = '%s-%i' % (max_suit, low_num)
         if len(low_card) == 0:
-            #예외 상황. random 선택
+            # 예외 상황. random 선택
             low_card = random.choice(valid_cards)
         return low_card
 
@@ -204,7 +199,6 @@ class AlangAgent(Agent):
         reward: int,
         done: bool,
     ) -> int:
-    #) -> Tuple[int, int, int, int]:
         """
         Choose a piece and its possible moves randomly.
         Pieces and moves are chosen from all current valid possibilities.
@@ -217,20 +211,15 @@ class AlangAgent(Agent):
         Returns:
             Current and new location of piece.
         """
-        #board_size = len(board)
-        #valid_moves = self.generate_valid_cards(board, self, board_size)
-
-
         board = obs['board']
         game = obs['game']
-
 
         print('[agent-act] %s %dth player (%s)' % (game.status, self._uid, self._name))
         if game.status == Constants.status_bidding:
             hand_cards = board.PLAYER_CARDS[self._uid]
             max_contract = game.contract
 
-            #최고 공약보다 높은 공약 있으면 제시
+            # 최고 공약보다 높은 공약 있으면 제시
             (contract, suit, friend) = self.makeContract(hand_cards)
 
             if contract > 13 and contract > max_contract:
@@ -246,14 +235,12 @@ class AlangAgent(Agent):
         elif game.status == Constants.status_choose_card:
             hand_cards = board.PLAYER_CARDS[self._uid]
 
-
             act = {}
-            #기루다, 마이티, 조커, 보스카드  빼고 랜덤으로 버림
+            # 기루다, 마이티, 조커, 보스카드 빼고 랜덤으로 버림
             act['card'] = self.removeCard(hand_cards)
             print('removeCard')
             print('\thand_cards : ' + ','.join(hand_cards))
             print('\tremove card: ' + act['card'])
-            #act['card'] = random.choice(hand_cards)
             return act
 
         elif game.status == Constants.status_contract:
@@ -281,9 +268,7 @@ class AlangAgent(Agent):
 
         elif game.status == Constants.status_play:
             # 카드 제출
-
-            #hand_cards = board.PLAYER_CARDS[self._uid]
-            valid_cards = Rules.get_valid_cards(self._uid,board,game)
+            valid_cards = Rules.get_valid_cards(self._uid, board, game)
 
             selected_card = random.choice(valid_cards)
 
@@ -320,10 +305,10 @@ class AlangAgent(Agent):
                         else:
                             selected_card = low_card
                     # 1.1.3. 친구가 첫 턴이라면,
-                    else: #첫턴
+                    else:  # 첫턴
                         # 1.1.3.1. 기루다 다음으로 많은 무늬 중 가장 낮은 카드
                         card = low_card
-                else: #노기루다
+                else:  # 노기루다
                     #todo 노기루다 로직
                     raise('not implemented')
 
