@@ -260,7 +260,7 @@ class Graphics(QMainWindow, form_class):
         pos_1_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w
         pos_1_x = pos_1_x - self.card_width + self.card_interval
         pos_2_y = self.header_height + self.frame.height()/2 - self.board_height/2
-        pos_2_y = pos_2_y -self.card_margin_h-self.card_height - self.bonuscard_offset
+        pos_2_y = pos_2_y - self.card_margin_h-self.card_height - self.bonuscard_offset
         pos_3_y = self.header_height + self.frame.height() / 2 - self.board_height/2
         pos_3_y = pos_3_y - self.card_margin_h-self.card_height - self.bonuscard_offset
         rect_bonus = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 + self.card_interval * 5.5,
@@ -310,9 +310,12 @@ class Graphics(QMainWindow, form_class):
 
     def updateHandcard(self, param):
         pos_0_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h
-        pos_1_x = self.frame.width()/2 - self.board_width/2 - self.card_margin_w - self.card_width - self.card_interval*9
-        pos_2_y = self.header_height + self.frame.height()/2 - self.board_height/2 - self.card_margin_h - self.card_height
-        pos_3_y = self.header_height + self.frame.height()/2 - self.board_height/2 - self.card_margin_h - self.card_height
+        pos_1_x = self.frame.width()/2 - self.board_width/2 - self.card_margin_w
+        pos_1_x = pos_1_x - self.card_width - self.card_interval*9
+        pos_2_y = self.header_height + self.frame.height()/2 - self.board_height/2
+        pos_2_y = pos_2_y - self.card_margin_h - self.card_height
+        pos_3_y = self.header_height + self.frame.height()/2 - self.board_height/2
+        pos_3_y = pos_3_y - self.card_margin_h - self.card_height
         rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
                                 pos_0_y,
                                 self.card_width,
@@ -434,9 +437,12 @@ class Graphics(QMainWindow, form_class):
     # Bidding
     def initNoticePlayer(self):
         pos_0_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h
-        pos_1_x = self.frame.width()/2 - self.board_width/2 - self.card_margin_w - self.card_width - self.card_interval*9
-        pos_2_y = self.header_height + self.frame.height()/2 - self.board_height/2 - self.card_margin_h - self.card_height
-        pos_3_y = self.header_height + self.frame.height()/2 - self.board_height/2 - self.card_margin_h - self.card_height
+        pos_1_x = self.frame.width()/2 - self.board_width/2 - self.card_margin_w
+        pos_1_x = pos_1_x - self.card_width - self.card_interval*9
+        pos_2_y = self.header_height + self.frame.height()/2 - self.board_height/2
+        pos_2_y = pos_2_y - self.card_margin_h - self.card_height
+        pos_3_y = self.header_height + self.frame.height()/2 - self.board_height/2
+        pos_3_y = pos_3_y - self.card_margin_h - self.card_height
         rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
                                 pos_0_y,
                                 self.bidding_width,
@@ -650,7 +656,7 @@ class Graphics(QMainWindow, form_class):
         LB_height = 160
         self.LB = QLabel(self)
         pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w
-        pox_x = pos_x - self.card_width - self.card_interval * 9 + 10
+        pos_x = pos_x - self.card_width - self.card_interval * 9 + 10
         pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2
         pos_y = pos_y - self.pointcard_height / 2 - 20 + LT_height + 10
         self.LB.setGeometry(QtCore.QRect(pos_x,
