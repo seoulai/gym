@@ -9,7 +9,7 @@ import re
 import os
 import platform
 from PyQt5 import uic, QtCore, QtGui
-from PyQt5.QtWidgets import QDesktopWidget, QPushButton, QGridLayout
+from PyQt5.QtWidgets import QDesktopWidget, QPushButton, QGridLayout, QBoxLayout
 from PyQt5.QtWidgets import QMainWindow, qApp, QApplication
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout
 from PyQt5.QtGui import QPixmap
@@ -92,7 +92,7 @@ class Graphics(QMainWindow, form_class):
     PLAYMODE = Constants.playmode_pause
 
     AGENTNAME = {0: [], 1: [], 2: [], 3: [], 4: []}
-    NOTICE_PLAYER = {0: [] ,1: [], 2: [], 3: [], 4: []}
+    NOTICE_PLAYER = {0: [], 1: [], 2: [], 3: [], 4: []}
     HANDCARDS = {0: [], 1: [], 2: [], 3: [], 4: []}
     FACECARDS = {0: [], 1: [], 2: [], 3: [], 4: []}
     POINTCARDS = {0: [], 1: [], 2: [], 3: [], 4: []}
@@ -156,13 +156,15 @@ class Graphics(QMainWindow, form_class):
 
         # Credit
         self.creditLabel = QLabel(self)
-        pos_x = self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w + self.card_interval * 10 + self.card_width - self.credit_width
-        pos_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height / 2 - self.credit_height / 2
+        pos_x = self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w
+        pos_x = pos_x + self.card_interval * 10 + self.card_width - self.credit_width
+        pos_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h 
+        pos_y = pos_y - self.card_height / 2 - self.credit_height / 2
         self.creditLabel.setGeometry(QtCore.QRect(
             pos_x,
             pos_y,
             self.credit_width,
-          self.credit_height))
+            self.credit_height))
         creditBoard = CreditBoard(self.creditLabel)
         creditBoard.show()
 
@@ -181,20 +183,24 @@ class Graphics(QMainWindow, form_class):
             loop.exec_()
 
     def initAgentName(self):
+      pos_0_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h
+      pos_1_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9
+      pos_2_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height
+      pos_3_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height
         rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
-                                self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,
+                                pos_0_y,
                                 self.playername_width,
                                 self.playername_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                1: QtCore.QRect(pos_1_x,
                                 self.header_height + self.frame.height() / 2 - self.card_height / 2,
                                 self.playername_width,
                                 self.playername_height),
                 2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                pos_2_y,
                                 self.playername_width,
                                 self.playername_height),
                 3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                pos_3_y,
                                 self.playername_width,
                                 self.playername_height),
                 4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,
@@ -219,37 +225,54 @@ class Graphics(QMainWindow, form_class):
 
     # Handcard
     def initHandcard(self):
-        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,self.card_width,
+        pos_1_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9
+        pos_2_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height
+        pos_3_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height
+        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
+                                self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,
+                                self.card_width,
                                 self.card_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.card_width,
+                1: QtCore.QRect(pos_1_x,
+                                self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.card_width,
                                 self.card_height),
-                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.card_width,
+                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                                pos_2_y,
+                                self.card_width,
                                 self.card_height),
-                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.card_width,
+                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,
+                                pos_3_y,
+                                self.card_width,
                                 self.card_height),
-                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.card_height / 2,
-                                self.card_width,self.card_height)}
+                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,
+                                self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.card_width,
+                                self.card_height)}
 
+        pos_0_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h - self.bonuscard_offset
+        pos_1_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width + self.card_interval
+        pos_2_y = self.header_height+self.frame.height()/2-self.board_height/2-self.card_margin_h-self.card_height - self.bonuscard_offset
+        pos_3_y = self.header_height + self.frame.height() / 2-self.board_height/2-self.card_margin_h-self.card_height - self.bonuscard_offset
         rect_bonus = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 + self.card_interval * 5.5,
-                                      self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h - self.bonuscard_offset,
+                                      pos_0_y,
                                       self.bonuscard_width,
                                       self.bonuscard_height),
-              1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width + self.card_interval,
-                              self.header_height + self.frame.height() / 2 - self.card_height / 2 - self.bonuscard_offset,
-                              self.bonuscard_width,
-                              self.bonuscard_height),
-              2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width + self.card_interval,
-                              self.header_height+self.frame.height()/2-self.board_height/2-self.card_margin_h-self.card_height - self.bonuscard_offset,
-                              self.bonuscard_width,
-                              self.bonuscard_height),
-              3: QtCore.QRect(self.frame.width()/2+self.card_margin_w + self.card_interval*10,
-                              self.header_height+self.frame.height()/2-self.board_height/2-self.card_margin_h-self.card_height - self.bonuscard_offset,
-                              self.bonuscard_width,
-                              self.bonuscard_height),
-              4: QtCore.QRect(self.frame.width()/2+self.board_width/2 + self.card_interval*10 + self.card_margin_w,
-                              self.header_height+self.frame.height()/2-self.card_height/2 - self.bonuscard_offset,
-                              self.bonuscard_width,
-                              self.bonuscard_height)}
+                      1: QtCore.QRect(pos_1_x,
+                                      self.header_height + self.frame.height() / 2 - self.card_height / 2 - self.bonuscard_offset,
+                                      self.bonuscard_width,
+                                      self.bonuscard_height),
+                      2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width + self.card_interval,
+                                      pos_2_y,
+                                      self.bonuscard_width,
+                                      self.bonuscard_height),
+                      3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w + self.card_interval * 10,
+                                      pos_3_y,
+                                      self.bonuscard_width,
+                                      self.bonuscard_height),
+                      4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_interval*10 + self.card_margin_w,
+                                      self.header_height+self.frame.height()/2-self.card_height/2 - self.bonuscard_offset,
+                                      self.bonuscard_width,
+                                      self.bonuscard_height)}
 
         for i in range(0, 5):
             for n in range(0, 13):
@@ -276,20 +299,24 @@ class Graphics(QMainWindow, form_class):
                 self.HANDCARDS[i].append(newcard)
 
     def updateHandcard(self, param):
+        pos_0_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h      
+        pos_1_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9
+        pos_2_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height
+        pos_3_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height
         rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
-                                self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,
+                                pos_0_y,
                                 self.card_width,
                                 self.card_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                1: QtCore.QRect(pos_1_x,
                                 self.header_height + self.frame.height() / 2 - self.card_height / 2,
                                 self.card_width,
                                 self.card_height),
                 2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                pos_2_y,
                                 self.card_width,
                                 self.card_height),
                 3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                pos_3_y,
                                 self.card_width,
                                 self.card_height),
                 4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,
@@ -396,27 +423,31 @@ class Graphics(QMainWindow, form_class):
 
     # Bidding
     def initNoticePlayer(self):
+        pos_0_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h
+        pos_1_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9
+        pos_2_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height
+        pos_3_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height
         rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
-                                self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,
+                                pos_0_y,
                                 self.bidding_width,
                                 self.bidding_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                1: QtCore.QRect(pos_1_x,
                                 self.header_height + self.frame.height() / 2 - self.card_height / 2,
                                 self.bidding_width,
                                 self.bidding_height),
                 2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                pos_2_y,
                                 self.bidding_width,
                                 self.bidding_height),
                 3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                pos_3_y,
                                 self.bidding_width,
                                 self.bidding_height),
                 4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,
                                 self.header_height + self.frame.height() / 2 - self.card_height / 2,
                                 self.bidding_width,
                                 self.bidding_height)}
-        
+
         for i in range(0, 5):
             newcard = QLabel(self.frame)
             newcard.setText('Pass')
@@ -454,8 +485,10 @@ class Graphics(QMainWindow, form_class):
     def initBackcard(self):
         for i in range(0, 3):
             newcard = QLabel(self.frame)
-            newcard.setGeometry(QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.backcard_width * 3 + self.backcard_width / 2 * i,
-                                             self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.backcard_height - 10,
+            pos_x = self.frame.width() / 2 + self.board_width / 2 - self.backcard_width * 3 + self.backcard_width / 2 * i
+            pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.backcard_height - 10
+            newcard.setGeometry(QtCore.QRect(pos_x,
+                                             pos_y,
                                              self.backcard_width,
                                              self.backcard_height))
             newcard.setStyleSheet(self.backcard_style)
@@ -481,8 +514,9 @@ class Graphics(QMainWindow, form_class):
 
     # Facecard
     def initFacecard(self):
+        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2
         rect = {0: QtCore.QRect(self.frame.width() / 2 - self.facecard_width / 2,
-                                self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.facecard_height - 40,
+                                pos_y - self.facecard_height - 40,
                                 self.facecard_width,
                                 self.facecard_height),
                 1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,
@@ -490,11 +524,11 @@ class Graphics(QMainWindow, form_class):
                                 self.facecard_width,
                                 self.facecard_height),
                 2: QtCore.QRect(self.frame.width() / 2 - self.facecard_width - 10,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 + 40,
+                                pos_y + 40,
                                 self.facecard_width,
                                 self.facecard_height),
                 3: QtCore.QRect(self.frame.width() / 2 + 10,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 + 40,
+                                pos_y + 40,
                                 self.facecard_width,
                                 self.facecard_height),
                 4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.facecard_width - 40,
@@ -530,8 +564,10 @@ class Graphics(QMainWindow, form_class):
                 facecard.setVisible(False)  # param[Constants.param_facecard] = {0:'s-1'}
 
     def initPointcard(self):
+        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2
+        
         rect = {0: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,
-                                self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2,
+                                pos_y,
                                 self.pointcard_width,
                                 self.pointcard_height),
                 1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.pointcard_width / 2,
@@ -539,11 +575,11 @@ class Graphics(QMainWindow, form_class):
                                 self.pointcard_width,
                                 self.pointcard_height),
                 2: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.pointcard_height / 2,
+                                pos_y,
                                 self.pointcard_width,
                                 self.pointcard_height),
                 3: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - 120,
-                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.pointcard_height / 2,
+                                pos_y,
                                 self.pointcard_width,
                                 self.pointcard_height),
                 4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.pointcard_width / 2,
@@ -575,7 +611,7 @@ class Graphics(QMainWindow, form_class):
                 if i in param[Constants.param_pointcard]:
                     if n < len(param[Constants.param_pointcard][i]):
                         card = param[Constants.param_pointcard][i][n]
-                        pointcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.pointcard_width, 
+                        pointcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.pointcard_width,
                                                                                 self.pointcard_height,
                                                                                 QtCore.Qt.KeepAspectRatio,
                                                                                 QtCore.Qt.SmoothTransformation))
@@ -589,7 +625,8 @@ class Graphics(QMainWindow, form_class):
         LT_width = 160
         LT_height = 110
         self.LT = QLabel(self)
-        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10
+        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w 
+        pos_x = pos_x - self.card_width - self.card_interval * 9 + 10
         pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20
         self.LT.setGeometry(QtCore.QRect(pos_x,
                                          pos_y,
@@ -602,8 +639,10 @@ class Graphics(QMainWindow, form_class):
         LB_width = 160
         LB_height = 160
         self.LB = QLabel(self)
-        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10
-        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20 + LT_height + 10
+        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w 
+        pox_x = pos_x - self.card_width - self.card_interval * 9 + 10
+        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 
+        pos_y = pos_y - self.pointcard_height / 2 - 20 + LT_height + 10
         self.LB.setGeometry(QtCore.QRect(pos_x,
                                          pos_y,
                                          LB_width,
@@ -615,7 +654,9 @@ class Graphics(QMainWindow, form_class):
         R_width = 230
         R_height = 280
         self.R = QLabel(self)
-        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10 + LT_width + 10
+        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w 
+        pos_x = pos_x - self.card_width - self.card_interval * 9 
+        pos_x = pos_x + 10 + LT_width + 10
         pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20
         self.R.setGeometry(QtCore.QRect(pos_x,
                                         pos_y,
@@ -854,7 +895,6 @@ class ContractBoard(QWidget):
             layout.addWidget(category_label[i], i, 0)
             layout.addWidget(self.value_label[i], i, 1)
 
-
     def updateContract(self, param):
 
         redcard = 'color: rgb(253,112,119)'
@@ -987,8 +1027,6 @@ class GiboBoard(QWidget):
     # 기보 업데이트
     # param[Constants.param_gibo] = {1:['','','','',''],2:[],...}
     # param[Constants.param_roundwinner] = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
-
-
     def updateGibo(self, param):
         redcard = 'color: rgb(253,112,119);'
         blackcard = 'color: rgb(102,102,102);'
@@ -998,7 +1036,7 @@ class GiboBoard(QWidget):
         # Contract가 결정되어야 주공 등의 정보를 참조하여 기보를 업데이트 한다
         if Constants.param_contract in param:
 
-            for c in range(1,6):  # 기보 가로줄 1-5
+            for c in range(1, 6):  # 기보 가로줄 1-5
                 if c-1 == param[Constants.param_contract][0]:
                     self.label[0][c].setStyleSheet('color: rgb(253,112,119); font-weight: bold')
                 else:
