@@ -8,12 +8,11 @@ import sys
 import re
 import os
 import platform
-import random
 from PyQt5 import uic, QtCore, QtGui
-from PyQt5.QtWidgets import *
-from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication
+from PyQt5.QtWidgets import QDesktopWidget, QPushButton, QGridLayout
+from PyQt5.QtWidgets import QMainWindow, qApp, QApplication
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QEventLoop, QTimer
 from seoulai_gym.envs.mighty.base import Constants
@@ -26,21 +25,23 @@ from seoulai_gym.envs.mighty.base import Constants
 LOGO title                                                      credit
                     |---pointcard[2]-- pointcard[3]---|
                     |                                 |
-                    |                                 |                      
+                    |                                 |
   handcard[1]   pointcard[1]       BOARD      pointcard[4]   handcard[4]
-                    |                                 |      
+                    |                                 |
                     |                       backcard  |
                     |---------  pointcard[0] ---------|
 
  ContractBoard |           |     handcard[0]
 ---------------| GiboBoard |                                   MenuBoard
-   ScoreBoard  |           | 
+   ScoreBoard  |           |
 
 --------------------------------------------------------------------------
 '''
 
 ui_path = os.path.dirname(os.path.abspath(__file__))
 form_class = uic.loadUiType(os.path.join(ui_path, "graphics.ui"))[0]
+
+
 class Graphics(QMainWindow, form_class):
 
     # 카드 그림파일 폴더
@@ -79,26 +80,22 @@ class Graphics(QMainWindow, form_class):
     credit_width = 200
     credit_height = 130
 
-    handcard_style =        "background-color: rgb(247,247,247); border: 1px inset black; border-radius: 8px; padding: 3px"
-    notice_white_style =    "background-color: rgb(255,255,255); border: 1px inset black; border-radius: 8px; padding: 3px"
+    handcard_style = "background-color: rgb(247,247,247); border: 1px inset black; border-radius: 8px; padding: 3px"
+    notice_white_style = "background-color: rgb(255,255,255); border: 1px inset black; border-radius: 8px; padding: 3px"
     notice_yellow_style = "background-color: rgb(250,223,50); border: 1px inset black; border-radius: 8px; padding: 3px"
-    bonuscard_style =       "background-color: rgb(247,247,247); border: 1px inset black; border-radius: 4px; padding: 1px"
-    pointcard_style =       "background-color: rgb(247,247,247); border: 1px inset black; border-radius: 3px; padding: 1px"
-    backcard_style =        "background-color: rgb(247,247,247); border: 1px inset gray; border-radius: 3px; padding: 2px"
-    facecard_style =        "background-color: rgb(247,247,247); border: 1px inset black; border-radius: 5px; padding: 3px"
-    # notice_white_style =    "background-color: rgb(255,255,255); border: 1px inset black; border-radius: 8px; padding: 3px"
-    # notice_yellow_style =   "background-color: rgb(250,223,50); border: 1px inset black; border-radius: 8px; padding: 3px"
-    playername_style =      "background-color: rgb(255,255,255);"
-
-
+    bonuscard_style = "background-color: rgb(247,247,247); border: 1px inset black; border-radius: 4px; padding: 1px"
+    pointcard_style = "background-color: rgb(247,247,247); border: 1px inset black; border-radius: 3px; padding: 1px"
+    backcard_style = "background-color: rgb(247,247,247); border: 1px inset gray; border-radius: 3px; padding: 2px"
+    facecard_style = "background-color: rgb(247,247,247); border: 1px inset black; border-radius: 5px; padding: 3px"
+    playername_style = "background-color: rgb(255,255,255);"
 
     PLAYMODE = Constants.playmode_pause
 
     AGENTNAME = {0: [], 1: [], 2: [], 3: [], 4: []}
-    NOTICE_PLAYER = {0:[],1:[],2:[],3:[],4:[]}
-    HANDCARDS = {0:[],1:[],2:[],3:[],4:[]}
-    FACECARDS = {0:[],1:[],2:[],3:[],4:[]}
-    POINTCARDS = {0:[],1:[],2:[],3:[],4:[]}
+    NOTICE_PLAYER = {0: [] ,1: [], 2: [], 3: [], 4: []}
+    HANDCARDS = {0: [], 1: [], 2: [], 3: [], 4: []}
+    FACECARDS = {0: [], 1: [], 2: [], 3: [], 4: []}
+    POINTCARDS = {0: [], 1: [], 2: [], 3: [], 4: []}
     BACKCARDS = []
     NOTICE = []
 
@@ -108,8 +105,6 @@ class Graphics(QMainWindow, form_class):
         self.setupUi(self)
 
         self.PLAYMODE = Constants.playmode_pause
-
-
 
         self.initBoard()
         self.initDashboard()
@@ -123,7 +118,6 @@ class Graphics(QMainWindow, form_class):
         self.initHandcard()
         self.initNoticePlayer()
         self.initNotice()
-
 
     def initBoard(self):
         # 바탕색
@@ -162,40 +156,56 @@ class Graphics(QMainWindow, form_class):
 
         # Credit
         self.creditLabel = QLabel(self)
+        pos_x = self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w + self.card_interval * 10 + self.card_width - self.credit_width
+        pos_y = self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height / 2 - self.credit_height / 2
         self.creditLabel.setGeometry(QtCore.QRect(
-            self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w + self.card_interval * 10 + self.card_width - self.credit_width,
-            self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height / 2 - self.credit_height / 2,
-            self.credit_width, self.credit_height))
+            pos_x,
+            pos_y,
+            self.credit_width,
+          self.credit_height))
         creditBoard = CreditBoard(self.creditLabel)
         creditBoard.show()
 
         # GAMEBOARD
         self.gameboard = QLabel(self.frame)
         self.gameboard.setGeometry(QtCore.QRect(self.frame.width() / 2 - self.board_width / 2,
-                                            self.header_height + self.frame.height() / 2 - self.board_height / 2,
-                                            self.board_width, self.board_height))
+                                                self.header_height + self.frame.height() / 2 - self.board_height / 2,
+                                                self.board_width,
+                                                self.board_height))
         self.gameboard.setStyleSheet('background-color: rgb(83, 160, 100); border-radius: 20px;')
 
     def checkPLAYMODE(self):
-        #if self.btnset.PLAYMODE == Constants.playmode_end:
-
         while self.btnset.PLAYMODE == Constants.playmode_pause:
-            #print('\tmode' + self.btnset.PLAYMODE)
             loop = QEventLoop()
             QTimer.singleShot(10, loop.quit)
             loop.exec_()
 
     def initAgentName(self):
-        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,self.playername_width, self.playername_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.playername_width,self.playername_height),
-                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.playername_width, self.playername_height),
-                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.playername_width, self.playername_height),
-                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.playername_width,self.playername_height)}
-        for i in range(0,5):
+        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
+                                self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,
+                                self.playername_width,
+                                self.playername_height),
+                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                                self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.playername_width,
+                                self.playername_height),
+                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                self.playername_width,
+                                self.playername_height),
+                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                self.playername_width,
+                                self.playername_height),
+                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,
+                                self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.playername_width,
+                                self.playername_height)}
+        for i in range(0, 5):
             newcard = QLabel(self.frame)
             newcard.setGeometry(rect[i])
-            if i==0:
-                newcard.move(newcard.pos() +  QtCore.QPoint(10, self.card_height))
+            if i == 0:
+                newcard.move(newcard.pos() + QtCore.QPoint(10, self.card_height))
             else:
                 newcard.move(newcard.pos() + QtCore.QPoint(10, -30))
             # newcard.move(newcard.pos() + QtCore.QPoint(10, self.card_height))
@@ -209,17 +219,37 @@ class Graphics(QMainWindow, form_class):
 
     # Handcard
     def initHandcard(self):
-        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,self.card_width, self.card_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.card_width,self.card_height),
-                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.card_width, self.card_height),
-                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.card_width, self.card_height),
-                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.card_width,self.card_height)}
+        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,self.card_width,
+                                self.card_height),
+                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.card_width,
+                                self.card_height),
+                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.card_width,
+                                self.card_height),
+                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.card_width,
+                                self.card_height),
+                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.card_width,self.card_height)}
 
-        rect_bonus = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 + self.card_interval * 5.5,self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h - self.bonuscard_offset, self.bonuscard_width, self.bonuscard_height),
-              1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width + self.card_interval, self.header_height + self.frame.height() / 2 - self.card_height / 2 - self.bonuscard_offset, self.bonuscard_width, self.bonuscard_height),
-              2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width + self.card_interval, self.header_height+self.frame.height()/2-self.board_height/2-self.card_margin_h-self.card_height - self.bonuscard_offset, self.bonuscard_width, self.bonuscard_height),
-              3: QtCore.QRect(self.frame.width()/2+self.card_margin_w + self.card_interval*10, self.header_height+self.frame.height()/2-self.board_height/2-self.card_margin_h-self.card_height - self.bonuscard_offset, self.bonuscard_width, self.bonuscard_height),
-              4: QtCore.QRect(self.frame.width()/2+self.board_width/2 + self.card_interval*10 + self.card_margin_w, self.header_height+self.frame.height()/2-self.card_height/2 - self.bonuscard_offset, self.bonuscard_width, self.bonuscard_height)}
+        rect_bonus = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 + self.card_interval * 5.5,
+                                      self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h - self.bonuscard_offset,
+                                      self.bonuscard_width,
+                                      self.bonuscard_height),
+              1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width + self.card_interval,
+                              self.header_height + self.frame.height() / 2 - self.card_height / 2 - self.bonuscard_offset,
+                              self.bonuscard_width,
+                              self.bonuscard_height),
+              2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width + self.card_interval,
+                              self.header_height+self.frame.height()/2-self.board_height/2-self.card_margin_h-self.card_height - self.bonuscard_offset,
+                              self.bonuscard_width,
+                              self.bonuscard_height),
+              3: QtCore.QRect(self.frame.width()/2+self.card_margin_w + self.card_interval*10,
+                              self.header_height+self.frame.height()/2-self.board_height/2-self.card_margin_h-self.card_height - self.bonuscard_offset,
+                              self.bonuscard_width,
+                              self.bonuscard_height),
+              4: QtCore.QRect(self.frame.width()/2+self.board_width/2 + self.card_interval*10 + self.card_margin_w,
+                              self.header_height+self.frame.height()/2-self.card_height/2 - self.bonuscard_offset,
+                              self.bonuscard_width,
+                              self.bonuscard_height)}
 
         for i in range(0, 5):
             for n in range(0, 13):
@@ -228,24 +258,44 @@ class Graphics(QMainWindow, form_class):
                     newcard.setGeometry(rect[i])
                     newcard.move(newcard.pos() + QtCore.QPoint(self.card_interval * n, 0))
                     newcard.setStyleSheet(self.handcard_style)
-                    newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.card_width, self.card_height,QtCore.Qt.KeepAspectRatio,QtCore.Qt.SmoothTransformation))
+                    newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.card_width,
+                                                                           self.card_height,
+                                                                           QtCore.Qt.KeepAspectRatio,
+                                                                           QtCore.Qt.SmoothTransformation))
                     newcard.setVisible(True)
                 else:
                     newcard.setGeometry(rect_bonus[i])
                     newcard.move(newcard.pos() + QtCore.QPoint(self.bonuscard_interval * (n-10), 0))
                     newcard.setStyleSheet(self.bonuscard_style)
-                    newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.bonuscard_width, self.bonuscard_height,QtCore.Qt.KeepAspectRatio,QtCore.Qt.SmoothTransformation))
+                    newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.bonuscard_width,
+                                                                           self.bonuscard_height,
+                                                                           QtCore.Qt.KeepAspectRatio,
+                                                                           QtCore.Qt.SmoothTransformation))
                     newcard.setVisible(False)
 
                 self.HANDCARDS[i].append(newcard)
 
-
     def updateHandcard(self, param):
-        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,self.card_width, self.card_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.card_width, self.card_height),
-                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.card_width, self.card_height),
-                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.card_width, self.card_height),
-                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.card_width,self.card_height)}
+        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
+                                self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,
+                                self.card_width,
+                                self.card_height),
+                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                                self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.card_width,
+                                self.card_height),
+                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                self.card_width,
+                                self.card_height),
+                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                self.card_width,
+                                self.card_height),
+                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,
+                                self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.card_width,
+                                self.card_height)}
         for i in range(0, 5):
             for n in range(0, 13):
                 handcard = self.HANDCARDS[i][n]
@@ -256,12 +306,18 @@ class Graphics(QMainWindow, form_class):
                 if n < len(param[Constants.param_handcard][i]):
                     if i in param[Constants.param_handcard_sel]:
                         if n == param[Constants.param_handcard_sel][i]:
-                            handcard.move(handcard.pos() + QtCore.QPoint(0,-20))
+                            handcard.move(handcard.pos() + QtCore.QPoint(0, -20))
                     card = param[Constants.param_handcard][i][n]
                     if n < 10:
-                        handcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.card_width, self.card_height, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                        handcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.card_width,
+                                                                               self.card_height,
+                                                                               QtCore.Qt.KeepAspectRatio,
+                                                                               QtCore.Qt.SmoothTransformation))
                     else:
-                        handcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.bonuscard_width, self.bonuscard_height, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                        handcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.bonuscard_width,
+                                                                               self.bonuscard_height,
+                                                                               QtCore.Qt.KeepAspectRatio,
+                                                                               QtCore.Qt.SmoothTransformation))
                     handcard.setVisible(True)
                 else:
                     handcard.setVisible(False)
@@ -316,8 +372,9 @@ class Graphics(QMainWindow, form_class):
         else:
             label.setText(str(param[Constants.param_notice]))
         label.setGeometry(QtCore.QRect(self.frame.width() / 2 - maxWidth / 2,
-                                         self.header_height + self.frame.height() / 2 - height / 2,
-                                      maxWidth, height))
+                                       self.header_height + self.frame.height() / 2 - height / 2,
+                                       maxWidth,
+                                       height))
 
         # Notice 스타일
         # param['notice]='내용': yellow,
@@ -332,16 +389,34 @@ class Graphics(QMainWindow, form_class):
         else:
             label.setStyleSheet(self.notice_yellow_style)
 
-        if len(param[Constants.param_notice]) != 0:   label.setVisible(True)
-        else:                           label.setVisible(False)
+        if len(param[Constants.param_notice]) != 0:
+            label.setVisible(True)
+        else:
+            label.setVisible(False)
 
     # Bidding
     def initNoticePlayer(self):
-        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,self.bidding_width, self.bidding_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.bidding_width,self.bidding_height),
-                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.bidding_width, self.bidding_height),
-                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,self.bidding_width, self.bidding_height),
-                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,self.header_height + self.frame.height() / 2 - self.card_height / 2, self.bidding_width,self.bidding_height)}
+        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.card_width / 2 - self.card_interval * 4.5,
+                                self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h,
+                                self.bidding_width,
+                                self.bidding_height),
+                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                                self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.bidding_width,
+                                self.bidding_height),
+                2: QtCore.QRect(self.frame.width() / 2 - self.card_margin_w - self.card_width - self.card_interval * 9,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                self.bidding_width,
+                                self.bidding_height),
+                3: QtCore.QRect(self.frame.width() / 2 + self.card_margin_w,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.card_margin_h - self.card_height,
+                                self.bidding_width,
+                                self.bidding_height),
+                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w,
+                                self.header_height + self.frame.height() / 2 - self.card_height / 2,
+                                self.bidding_width,
+                                self.bidding_height)}
+        
         for i in range(0, 5):
             newcard = QLabel(self.frame)
             newcard.setText('Pass')
@@ -351,7 +426,8 @@ class Graphics(QMainWindow, form_class):
             elif platform.system() == 'Darwin' or 'Linux':
                 newcard.setFont(QtGui.QFont("Tahoma", 18, QtGui.QFont.Bold))
             newcard.setGeometry(rect[i])
-            newcard.move(newcard.pos() + QtCore.QPoint(self.card_interval * 6.5 - self.bidding_width / 2,self.card_height / 2 - self.bidding_height / 2))
+            newcard.move(newcard.pos() + QtCore.QPoint(self.card_interval * 6.5 - self.bidding_width / 2,
+                                                       self.card_height / 2 - self.bidding_height / 2))
             newcard.setVisible(False)
             self.NOTICE_PLAYER[i] = newcard
 
@@ -374,40 +450,66 @@ class Graphics(QMainWindow, form_class):
             else:
                 card.setVisible(False)
 
-
     # Backcard
     def initBackcard(self):
-        for i in range(0,3):
+        for i in range(0, 3):
             newcard = QLabel(self.frame)
-            newcard.setGeometry(QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.backcard_width * 3 + self.backcard_width / 2 * i,self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.backcard_height - 10,self.backcard_width, self.backcard_height))
+            newcard.setGeometry(QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.backcard_width * 3 + self.backcard_width / 2 * i,
+                                             self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.backcard_height - 10,
+                                             self.backcard_width,
+                                             self.backcard_height))
             newcard.setStyleSheet(self.backcard_style)
-            newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.backcard_width, self.backcard_height,QtCore.Qt.KeepAspectRatio,QtCore.Qt.SmoothTransformation))
+            newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.backcard_width,
+                                                                   self.backcard_height,
+                                                                   QtCore.Qt.KeepAspectRatio,
+                                                                   QtCore.Qt.SmoothTransformation))
             newcard.setVisible(True)
             self.BACKCARDS.append(newcard)
 
     def updateBackcard(self, param):
-        for i in range(0,3):
+        for i in range(0, 3):
             backcard = self.BACKCARDS[i]
             if i < len(param[Constants.param_backcard]):
                 card = param[Constants.param_backcard][i]
-                backcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.backcard_width, self.backcard_height,QtCore.Qt.KeepAspectRatio,QtCore.Qt.SmoothTransformation))
+                backcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.backcard_width,
+                                                                       self.backcard_height,
+                                                                       QtCore.Qt.KeepAspectRatio,
+                                                                       QtCore.Qt.SmoothTransformation))
                 backcard.setVisible(True)
             else:
                 backcard.setVisible(False)
 
     # Facecard
     def initFacecard(self):
-        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.facecard_width / 2,self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.facecard_height - 40,self.facecard_width, self.facecard_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,self.header_height + self.frame.height() / 2 - self.facecard_height / 2,self.facecard_width, self.facecard_height),
-                2: QtCore.QRect(self.frame.width() / 2 - self.facecard_width - 10,self.header_height + self.frame.height() / 2 - self.board_height / 2 + 40,self.facecard_width, self.facecard_height),
-                3: QtCore.QRect(self.frame.width() / 2 + 10,self.header_height + self.frame.height() / 2 - self.board_height / 2 + 40,self.facecard_width, self.facecard_height),
-                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.facecard_width - 40,self.header_height + self.frame.height() / 2 - self.facecard_height / 2,self.facecard_width, self.facecard_height)}
+        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.facecard_width / 2,
+                                self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.facecard_height - 40,
+                                self.facecard_width,
+                                self.facecard_height),
+                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,
+                                self.header_height + self.frame.height() / 2 - self.facecard_height / 2,
+                                self.facecard_width,
+                                self.facecard_height),
+                2: QtCore.QRect(self.frame.width() / 2 - self.facecard_width - 10,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 + 40,
+                                self.facecard_width,
+                                self.facecard_height),
+                3: QtCore.QRect(self.frame.width() / 2 + 10,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 + 40,
+                                self.facecard_width,
+                                self.facecard_height),
+                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.facecard_width - 40,
+                                self.header_height + self.frame.height() / 2 - self.facecard_height / 2,
+                                self.facecard_width,
+                                self.facecard_height)}
 
         for i in range(0, 5):
             newcard = QLabel(self.frame)
             newcard.setGeometry(rect[i])
             newcard.setStyleSheet(self.facecard_style)
-            newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.facecard_width, self.facecard_height,QtCore.Qt.KeepAspectRatio,QtCore.Qt.SmoothTransformation))
+            newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.facecard_width,
+                                                                   self.facecard_height,
+                                                                   QtCore.Qt.KeepAspectRatio,
+                                                                   QtCore.Qt.SmoothTransformation))
             newcard.setVisible(False)
             self.FACECARDS[i].append(newcard)
 
@@ -417,23 +519,41 @@ class Graphics(QMainWindow, form_class):
             if i in param[Constants.param_facecard]:
                 if param[Constants.param_facecard][i] != "":
                     card = param[Constants.param_facecard][i]
-                    facecard.setPixmap(QPixmap(self.imgpath + card).scaled(self.facecard_width, self.facecard_height,QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                    facecard.setPixmap(QPixmap(self.imgpath + card).scaled(self.facecard_width,
+                                                                           self.facecard_height,
+                                                                           QtCore.Qt.KeepAspectRatio,
+                                                                           QtCore.Qt.SmoothTransformation))
                     facecard.setVisible(True)
                 else:
-                    facecard.setVisible(False) # param[Constants.param_facecard] = {0:'s-1',1:'',2:'',3:'',4:''}
+                    facecard.setVisible(False)  # param[Constants.param_facecard] = {0:'s-1',1:'',2:'',3:'',4:''}
             else:
-                facecard.setVisible(False) # param[Constants.param_facecard] = {0:'s-1'}
+                facecard.setVisible(False)  # param[Constants.param_facecard] = {0:'s-1'}
 
     def initPointcard(self):
-        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2,self.pointcard_width, self.pointcard_height),
-                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.pointcard_width / 2,self.header_height + self.frame.height() / 2 - self.board_height / 2 + 80,self.pointcard_width, self.pointcard_height),
-                2: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.pointcard_height / 2,self.pointcard_width, self.pointcard_height),
-                3: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - 120,self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.pointcard_height / 2,self.pointcard_width, self.pointcard_height),
-                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.pointcard_width / 2,self.header_height + self.frame.height() / 2 - self.board_height / 2 + 80,self.pointcard_width, self.pointcard_height)}
+        rect = {0: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,
+                                self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2,
+                                self.pointcard_width,
+                                self.pointcard_height),
+                1: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.pointcard_width / 2,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 + 80,
+                                self.pointcard_width,
+                                self.pointcard_height),
+                2: QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 + 40,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.pointcard_height / 2,
+                                self.pointcard_width,
+                                self.pointcard_height),
+                3: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - 120,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 - self.pointcard_height / 2,
+                                self.pointcard_width,
+                                self.pointcard_height),
+                4: QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 - self.pointcard_width / 2,
+                                self.header_height + self.frame.height() / 2 - self.board_height / 2 + 80,
+                                self.pointcard_width,
+                                self.pointcard_height)}
         pointcard_offset = {0: 'x', 1: 'y', 2: 'x', 3: 'x', 4: 'y'}
 
         for i in range(0, 5):
-            for n in range(0,20): #최대 20장 가능
+            for n in range(0, 20):  # 최대 20장 가능
                 newcard = QLabel(self.frame)
                 newcard.setGeometry(rect[i])
                 if pointcard_offset[i] == 'x':
@@ -441,32 +561,40 @@ class Graphics(QMainWindow, form_class):
                 elif pointcard_offset[i] == 'y':
                     newcard.move(newcard.pos() + QtCore.QPoint(0, self.pointcard_interval * n))
                 newcard.setStyleSheet(self.pointcard_style)
-                newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.pointcard_width, self.pointcard_height,QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+                newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.pointcard_width,
+                                                                       self.pointcard_height,
+                                                                       QtCore.Qt.KeepAspectRatio,
+                                                                       QtCore.Qt.SmoothTransformation))
                 newcard.setVisible(False)
                 self.POINTCARDS[i].append(newcard)
 
-    def updatePointcard(self,param):
+    def updatePointcard(self, param):
         for i in range(0, 5):
             for n in range(0, 20):
                 pointcard = self.POINTCARDS[i][n]
                 if i in param[Constants.param_pointcard]:
                     if n < len(param[Constants.param_pointcard][i]):
                         card = param[Constants.param_pointcard][i][n]
-                        pointcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.pointcard_width, self.pointcard_height,QtCore.Qt.KeepAspectRatio,QtCore.Qt.SmoothTransformation))
+                        pointcard.setPixmap(QPixmap(self.imgpath + card).scaled(self.pointcard_width, 
+                                                                                self.pointcard_height,
+                                                                                QtCore.Qt.KeepAspectRatio,
+                                                                                QtCore.Qt.SmoothTransformation))
                         pointcard.setVisible(True)
                     else:
                         pointcard.setVisible(False)
                 else:
                     pointcard.setVisible(False)
 
-
-
     def initDashboard(self):
-
         LT_width = 160
         LT_height = 110
         self.LT = QLabel(self)
-        self.LT.setGeometry(QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10,self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20,LT_width,LT_height))
+        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10
+        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20
+        self.LT.setGeometry(QtCore.QRect(pos_x,
+                                         pos_y,
+                                         LT_width,
+                                         LT_height))
         self.LT.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
         self.contractBoard = ContractBoard(self.LT)
         self.contractBoard.show()
@@ -474,7 +602,12 @@ class Graphics(QMainWindow, form_class):
         LB_width = 160
         LB_height = 160
         self.LB = QLabel(self)
-        self.LB.setGeometry(QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10,self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20 + LT_height + 10,LB_width,LB_height))
+        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10
+        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20 + LT_height + 10
+        self.LB.setGeometry(QtCore.QRect(pos_x,
+                                         pos_y,
+                                         LB_width,
+                                         LB_height))
         self.LB.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
         self.scoreBoard = ScoreBoard(self.LB)
         self.scoreBoard.show()
@@ -482,7 +615,12 @@ class Graphics(QMainWindow, form_class):
         R_width = 230
         R_height = 280
         self.R = QLabel(self)
-        self.R.setGeometry(QtCore.QRect(self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10 + LT_width + 10,self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20,R_width,R_height))
+        pos_x = self.frame.width() / 2 - self.board_width / 2 - self.card_margin_w - self.card_width - self.card_interval * 9 + 10 + LT_width + 10
+        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2 - 20
+        self.R.setGeometry(QtCore.QRect(pos_x,
+                                        pos_y,
+                                        R_width,
+                                        R_height))
         self.R.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
         self.giboBoard = GiboBoard(self.R)
         self.giboBoard.show()
@@ -490,7 +628,12 @@ class Graphics(QMainWindow, form_class):
         B_width = 330
         B_height = 70
         self.B = QLabel(self)
-        self.B.setGeometry(QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w + 45,self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h, B_width, B_height))
+        pos_x = self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w + 45
+        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h
+        self.B.setGeometry(QtCore.QRect(pos_x,
+                                        pos_y,
+                                        B_width,
+                                        B_height))
         self.B.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
         self.btnset = ButtonSet(self.B)
         self.btnset.show()
@@ -516,14 +659,16 @@ class Graphics(QMainWindow, form_class):
         B_width = 330
         B_height = 70
         self.M = QLabel(self)
-        self.M.setGeometry(QtCore.QRect(self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w + 45 + 190,
-                                        self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h + 80,
+        pos_x = self.frame.width() / 2 + self.board_width / 2 + self.card_margin_w + 45 + 190
+        pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 + self.card_margin_h + 80
+        self.M.setGeometry(QtCore.QRect(pos_x,
+                                        pos_y,
                                         B_width-190, B_height))
         self.M.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
         self.menubtnset = MenuButtonSet(self.M)
         self.menubtnset.show()
 
-   # UPDATE
+    # UPDATE
     def update(self, param):
         self.refresh()
         if 'agent' in param:
@@ -549,9 +694,6 @@ class Graphics(QMainWindow, form_class):
 
 
 # End of Graphics class
-
-
-
 class CreditBoard(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -569,12 +711,11 @@ class CreditBoard(QWidget):
             fontsizeContent = 13
             fontsizeBottom = 12
 
-
         center_gap = 7
         T_width = 200
         T_height = 30
         T = QLabel(self)
-        T.setGeometry(0,0,T_width,T_height)
+        T.setGeometry(0, 0, T_width, T_height)
         T.setStyleSheet('background-color: rgb(235,235,235); border: solid 1px black; border-radius: 5px;')
 
         T.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
@@ -582,11 +723,10 @@ class CreditBoard(QWidget):
         T.setText(txtT)
         T.setFont(QtGui.QFont("맑은 고딕", fontsizeTitle))
 
-
         BL_width = 115
         BL_height = 65
         BL = QLabel(self)
-        BL.setGeometry(0,T_height,BL_width-center_gap,BL_height)
+        BL.setGeometry(0, T_height, BL_width-center_gap, BL_height)
         BL.setStyleSheet('padding-top:3px')
         BL.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         txtBL = '기획/연구/개발<br>디자인/연구/개발<br>마이티 연구'
@@ -596,7 +736,7 @@ class CreditBoard(QWidget):
         BR_width = 85
         BR_height = 65
         BR = QLabel(self)
-        BR.setGeometry(BL_width,T_height,BR_width,BR_height)
+        BR.setGeometry(BL_width, T_height, BR_width, BR_height)
         BR.setStyleSheet('padding-top:3px')
         BR.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         txtBR = '김승현<br>이정원<br>마이티연구회'
@@ -606,7 +746,7 @@ class CreditBoard(QWidget):
         B_width = 200
         B_height = 40
         B = QLabel(self)
-        B.setGeometry(0,T_height+BL_height,B_width,B_height)
+        B.setGeometry(0, T_height+BL_height, B_width, B_height)
         B.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
         txtB = 'Since 2018.7.29.<br>kimseunghyun@gmail.com'
         B.setText(txtB)
@@ -629,30 +769,34 @@ class ButtonSet(QWidget):
             btn[i].setStyleSheet('background-color: rgb(255,255,255); border-radius: 5px;')
             layout.addWidget(btn[i])
 
-
         btn[0].clicked.connect(self.btn0_clicked)
         btn[1].clicked.connect(self.btn1_clicked)
         btn[2].clicked.connect(self.btn2_clicked)
         btn[3].clicked.connect(self.btn3_clicked)
         btn[4].clicked.connect(self.btn4_clicked)
 
-        self.PLAYMODE = Constants.playmode_pause #여기에 있어야 함;;
+        self.PLAYMODE = Constants.playmode_pause
 
     def btn0_clicked(self):
         self.PLAYMODE = Constants.playmode_autoplay
         print(self.PLAYMODE)
+
     def btn1_clicked(self):
         self.PLAYMODE = Constants.playmode_pause
         print(self.PLAYMODE)
+
     def btn2_clicked(self):
         self.PLAYMODE = Constants.playmode_step
         print(self.PLAYMODE)
+
     def btn3_clicked(self):
         self.PLAYMODE = Constants.playmode_round
         print(self.PLAYMODE)
+
     def btn4_clicked(self):
         self.PLAYMODE = Constants.playmode_game
         print(self.PLAYMODE)
+
 
 class MenuButtonSet(QWidget):
     def __init__(self, parent=None):
@@ -670,16 +814,15 @@ class MenuButtonSet(QWidget):
             btn[i].setStyleSheet('background-color: rgb(255,255,255); border-radius: 5px;')
             layout.addWidget(btn[i])
 
-
         btn[0].clicked.connect(self.menubtn0_clicked)
 
-
-        self.PLAYMODE = Constants.playmode_pause #여기에 있어야 함;;
+        self.PLAYMODE = Constants.playmode_pause
 
     def menubtn0_clicked(self):
         print('clicked pb_1')
         qApp.quit()
         sys.exit(0)
+
 
 class ContractBoard(QWidget):
     def __init__(self, parent=None):
@@ -691,8 +834,8 @@ class ContractBoard(QWidget):
         elif platform.system() == 'Darwin' or 'Linux':
             height = 16
 
-        category = ['President','Giruda','Contract','Friend']
-        value = ['','','','']
+        category = ['President', 'Giruda', 'Contract', 'Friend']
+        value = ['', '', '', '']
         category_label = []
         self.value_label = []
         layout = QGridLayout(self)
@@ -708,10 +851,8 @@ class ContractBoard(QWidget):
             self.value_label[i].setFixedHeight(height)
             self.value_label[i].setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
 
-
             layout.addWidget(category_label[i], i, 0)
             layout.addWidget(self.value_label[i], i, 1)
-
 
 
     def updateContract(self, param):
@@ -723,7 +864,6 @@ class ContractBoard(QWidget):
             fontsize = 'font-size: 20px;'
         elif platform.system() == 'Darwin' or 'Linux':
             fontsize = 'font-size: 18px;'
-
 
         # 주공 president
         presidentUID = param[Constants.param_contract][0]
@@ -753,6 +893,7 @@ class ContractBoard(QWidget):
             self.value_label[i].setText(".")
             self.value_label[i].setStyleSheet('color: black')
 
+
 class ScoreBoard(QWidget):
 
     def __init__(self, parent=None):
@@ -776,7 +917,7 @@ class ScoreBoard(QWidget):
         self.playername_label = []
         self.playerscore_label = []
 
-        for i in range(0,5):
+        for i in range(0, 5):
             name = ''
             self.playername_label.append(QLabel(name))
             self.playername_label[i].setFixedWidth(width)
@@ -792,7 +933,7 @@ class ScoreBoard(QWidget):
         layout = QGridLayout(self)
         layout.addWidget(playerTitle, 0, 0)
         layout.addWidget(scoreTitle, 0, 1)
-        for i in range(0,5):
+        for i in range(0, 5):
             layout.addWidget(self.playername_label[i], i+1, 0)
             layout.addWidget(self.playerscore_label[i], i+1, 1)
         self.setLayout(layout)
@@ -808,6 +949,7 @@ class ScoreBoard(QWidget):
             #     player_name = player_name[5:]
             self.playername_label[i].setText(player_name)
 
+
 class GiboBoard(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -819,13 +961,12 @@ class GiboBoard(QWidget):
             height = 16
 
         # title
-        label = []
         width = 28
 
         self.label = [[QLabel('')] * 6 for i in range(11)]
         layout = QGridLayout(self)
-        for r in range(0,11):
-            for c in range(0,6):
+        for r in range(0, 11):
+            for c in range(0, 6):
                 str = ''
                 if r == 0 and c == 0:
                     str = 'Rec.'
@@ -848,10 +989,7 @@ class GiboBoard(QWidget):
     # param[Constants.param_roundwinner] = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
 
 
-
-
     def updateGibo(self, param):
-
         redcard = 'color: rgb(253,112,119);'
         blackcard = 'color: rgb(102,102,102);'
         roundwinner = 'background-color: rgb(253,235,119); font-weight: bold;'
@@ -866,16 +1004,15 @@ class GiboBoard(QWidget):
                 else:
                     self.label[0][c].setStyleSheet('color: black')
 
-            for r in range(1,11): # 기보 세로줄 1-10
+            for r in range(1, 11):  # 기보 세로줄 1-10
                 if r in param[Constants.param_gibo]:
-                    for c in range(1,6): # 기보 가로줄 1-5
+                    for c in range(1, 6):  # 기보 가로줄 1-5
 
                         cardstr = str(param[Constants.param_gibo][r][c-1])
                         cardsymbol = suitSymbol(cardstr[0:2]) + cardRank(cardstr[1:3])
                         self.label[r][c].setText(cardsymbol)
 
                         style = ''
-
 
                         # 빨간색 카드이면,
                         if cardstr[0] == 'd' or cardstr[0] == 'h':
@@ -887,7 +1024,6 @@ class GiboBoard(QWidget):
                         # RoundWinner이면, 하이라이트
                         if c-1 == param[Constants.param_roundwinner][r-1]:
                             style += roundwinner
-
 
                         # StarPlayer
                         # 1 라운드에서는 주공이 startplayer
@@ -952,11 +1088,13 @@ def countHangul(text):
     pyVer3 = sys.version_info >= (3, 0)
     if pyVer3:  # for Ver 3 or later
         encText = text
+    '''
     else:  # for Ver 2.x
         if type(text) is not unicode:
             encText = text.decode('utf-8')
         else:
             encText = text
+    '''
     hanCount = 0
     for i in range(len(encText)):
         hanCount += len(re.findall(u'[\u3130-\u318F\uAC00-\uD7A3]+', encText[i]))
