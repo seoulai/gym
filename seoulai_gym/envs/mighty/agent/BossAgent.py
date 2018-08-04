@@ -3,13 +3,12 @@ Seung-Hyun Kim, kimseunghyun@gmail.com
 seoulai.com
 2018
 """
-from seoulai_gym.envs.mighty.agents import Agent
+import random
 from typing import Dict
 
+from seoulai_gym.envs.mighty.agents import Agent
 from seoulai_gym.envs.mighty.base import Constants
 from seoulai_gym.envs.mighty.rules import Rules
-
-import random
 
 
 class BossAgent(Agent):
@@ -18,11 +17,11 @@ class BossAgent(Agent):
         name: str,
         uid: int,
     ):
-        """Initialize random agent.
+        """Initialize Boss agent.
 
         Args:
-            name: name of agent.
-            ptype: type of piece that agent is responsible for.
+            name: (str) name of agent
+            uid: (int)
         """
         super().__init__(name, uid)
 
@@ -34,7 +33,6 @@ class BossAgent(Agent):
         reward: int,
         done: bool,
     ) -> int:
-
         board = obs["board"]
         game = obs["game"]
 
@@ -165,4 +163,4 @@ class BossAgent(Agent):
             return act
 
         else:
-            raise ("not implemented status " + game.status)
+            raise NotImplementedError(game.status)

@@ -3,21 +3,20 @@ Seung-Hyun Kim, kimseunghyun@gmail.com
 seoulai.com
 2018
 """
-
+from copy import deepcopy
 from typing import Dict
 from typing import List
 
 from seoulai_gym.envs.mighty.base import Constants
 from seoulai_gym.envs.mighty.board import Board
-from copy import deepcopy
 
 
 class Rules(object):
     @staticmethod
     def get_valid_cards(
-            uid: int,
-            board: Board,
-            game: Constants.GAME,
+        uid: int,
+        board: Board,
+        game: Constants.GAME,
     ) -> List[str]:
         hand_cards = deepcopy(board.PLAYER_CARDS[uid])
         valid_cards = deepcopy(board.PLAYER_CARDS[uid])
@@ -60,8 +59,8 @@ class Rules(object):
 
     @staticmethod
     def is_valid_card(
-            board_list: Dict,
-            card: str,
+        board_list: Dict,
+        card: str,
     ) -> bool:
         ret = False
         if card in Rules.get_valid_cards(board_list):
@@ -160,7 +159,7 @@ class Rules(object):
     @staticmethod
     # 점수카드 갯수 계산
     def get_point(
-            face_cards: Dict,
+        face_cards: Dict,
     ) -> int:
         # TODO get_point
         point_cards = ['s-1', 's-k', 's-q', 's-j', 's-0',

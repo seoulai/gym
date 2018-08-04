@@ -3,22 +3,18 @@ Seung-Hyun Kim, kimseunghyun@gmail.com
 seoulai.com
 2018
 """
+from random import shuffle
 from typing import Tuple
 from typing import Dict
 
-from random import shuffle
 from seoulai_gym.envs.mighty.base import Constants
 
 
-class Board():
+class Board(object):
     def __init__(
         self,
-
     ):
         """Board constructor.
-
-        Args:
-            size: Board size.
         """
         self.PLAYER_CARDS = {}
         self.init()
@@ -27,11 +23,6 @@ class Board():
     def init(
         self,
     ) -> None:
-        """Initialize board and setup pieces on board.
-
-        Note: Dark pieces should be ALWAYS on the top of the board.
-        """
-
         # 전체카드 섞기
         self.ALL_CARDS = ["s-1", "s-k", "s-q", "s-j", "s-0", "s-9",
                           "s-8", "s-7", "s-6", "s-5", "s-4", "s-3", "s-2"]
@@ -84,11 +75,11 @@ class Board():
             tmp2_handcard.append(card[0])
         return tmp2_handcard
 
-    def move(self,
-             agent,
-             card,
-             ) -> Tuple[Dict, int, bool, Dict]:
-
+    def move(
+        self,
+        agent,
+        card,
+    ) -> Tuple[Dict, int, bool, Dict]:
         obs = None
         reward = 0
         done = False

@@ -3,13 +3,12 @@ Seung-Hyun Kim, kimseunghyun@gmail.com
 seoulai.com
 2018
 """
-from seoulai_gym.envs.mighty.agents import Agent
+import random
 from typing import Dict
 
+from seoulai_gym.envs.mighty.agents import Agent
 from seoulai_gym.envs.mighty.base import Constants
 from seoulai_gym.envs.mighty.rules import Rules
-
-import random
 
 
 class RandomAgent(Agent):
@@ -21,8 +20,8 @@ class RandomAgent(Agent):
         """Initialize random agent.
 
         Args:
-            name: name of agent.
-            ptype: type of piece that agent is responsible for.
+            name: (str) name of agent
+            uid: (int)
         """
         super().__init__(name, uid)
 
@@ -33,18 +32,17 @@ class RandomAgent(Agent):
         obs: Dict,
         reward: int,
         done: bool,
-    ) -> int:
+    ) -> Dict:
         """
-        Choose a piece and its possible moves randomly.
-        Pieces and moves are chosen from all current valid possibilities.
+        Act randomly.
 
         Args:
-            board: information about positions of pieces.
-            reward: reward for perfomed step.
-            done: information about end of game.
+            obs: (Dict) information about the current game status
+            reward: (int) reward for perfomed step
+            done: (float) information about end of game
 
-        Returns:
-            Current and new location of piece.
+        Return:
+            act: (Dict)
         """
         board = obs["board"]
         game = obs["game"]
@@ -109,4 +107,4 @@ class RandomAgent(Agent):
             return act
 
         else:
-            raise ("not implemented status " + game.status)
+            raise NotImplementedError(game.status)

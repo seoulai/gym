@@ -6,7 +6,8 @@ seoulai.com
 
 
 class Constants(object):
-    """ Constants to share between classes and functions for checkers game.
+    """Constants to share between classes and functions for
+    checkers game.
     """
     # status
     status_bidding = "bidding"

@@ -8,13 +8,25 @@ import sys
 import re
 import os
 import platform
-from PyQt5 import uic, QtCore, QtGui
-from PyQt5.QtWidgets import QDesktopWidget, QPushButton, QGridLayout, QBoxLayout
-from PyQt5.QtWidgets import QMainWindow, qApp, QApplication
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout
+
+from PyQt5 import uic
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QDesktopWidget
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QBoxLayout
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import qApp
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QEventLoop, QTimer
+from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QEventLoop
+
 from seoulai_gym.envs.mighty.base import Constants
 
 
@@ -43,7 +55,6 @@ form_class = uic.loadUiType(os.path.join(ui_path, "graphics.ui"))[0]
 
 
 class Graphics(QMainWindow, form_class):
-
     # 카드 그림파일 폴더
     imgpath = ""
     if platform.system() == "Windows":
@@ -100,8 +111,7 @@ class Graphics(QMainWindow, form_class):
     NOTICE = []
 
     def __init__(self):
-
-        super(Graphics, self).__init__()
+        super().__init__()
         self.setupUi(self)
 
         self.PLAYMODE = Constants.playmode_pause
@@ -725,7 +735,6 @@ class Graphics(QMainWindow, form_class):
         self.menubtnset = MenuButtonSet(self.M)
         self.menubtnset.show()
 
-    # UPDATE
     def update(self, param):
         self.refresh()
         if "agent" in param:
@@ -912,7 +921,6 @@ class ContractBoard(QWidget):
             layout.addWidget(self.value_label[i], i, 1)
 
     def updateContract(self, param):
-
         redcard = "color: rgb(253,112,119)"
         blackcard = "color: rgb(102,102,102)"
         fontsize = "font-size: 18px;"
@@ -951,7 +959,6 @@ class ContractBoard(QWidget):
 
 
 class ScoreBoard(QWidget):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         width = 60

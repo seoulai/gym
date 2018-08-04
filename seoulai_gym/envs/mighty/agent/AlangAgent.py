@@ -3,16 +3,14 @@ Seung-Hyun Kim, kimseunghyun@gmail.com
 seoulai.com
 2018
 """
-
-from seoulai_gym.envs.mighty.agents import Agent
+import random
+from typing import Dict
 from typing import List
 from typing import Tuple
-from typing import Dict
 
+from seoulai_gym.envs.mighty.agents import Agent
 from seoulai_gym.envs.mighty.base import Constants
 from seoulai_gym.envs.mighty.rules import Rules
-
-import random
 
 
 class AlangAgent(Agent):
@@ -21,11 +19,11 @@ class AlangAgent(Agent):
         name: str,
         uid: int,
     ):
-        """Initialize random agent.
+        """Initialize Alang agent.
 
         Args:
-            name: name of agent.
-            ptype: type of piece that agent is responsible for.
+            name: (str) name of agent
+            uid: (int)
         """
         super().__init__(name, uid)
 
@@ -36,9 +34,10 @@ class AlangAgent(Agent):
         print("Initialize alang agent : %ith player %s " % (uid, name))
 
     # 공약 설정
-    def makeContract(self,
-                     hand_card: List,
-                     ) -> Tuple[int, str, str]:  # 공약, 기루다, 프렌드
+    def makeContract(
+        self,
+        hand_card: List,
+    ) -> Tuple[int, str, str]:  # 공약, 기루다, 프렌드
         """
         contract = random.choice(range(0, 20))
         suit = random.choice(["s", "d", "c", "h"])
@@ -130,10 +129,10 @@ class AlangAgent(Agent):
         # 공약, 기루다, 프렌드 반환
         return (self.contract, self.suit, self.friend)
 
-    def removeCard(self,
-                   hand_cards: List,
-                   ) -> str:
-
+    def removeCard(
+        self,
+        hand_cards: List,
+    ) -> str:
         # 기루다, 마이티, 조커, 보스카드  빼고 랜덤으로 버림
         candidate_cards = []
 
@@ -155,9 +154,10 @@ class AlangAgent(Agent):
 
         return random.choice(candidate_cards)
 
-    def get_low_card(self,
-                     valid_cards: List,
-                     ) -> str:
+    def get_low_card(
+        self,
+        valid_cards: List,
+    ) -> str:
         low_card = ""
         # 기루다 다음으로 많은 무늬
         num_suit = {}
@@ -200,16 +200,13 @@ class AlangAgent(Agent):
         done: bool,
     ) -> int:
         """
-        Choose a piece and its possible moves randomly.
-        Pieces and moves are chosen from all current valid possibilities.
-
         Args:
-            board: information about positions of pieces.
-            reward: reward for perfomed step.
-            done: information about end of game.
+            obs: (Dict) information about the current game status
+            reward: (int) reward for perfomed step
+            done: (float) information about end of game
 
-        Returns:
-            Current and new location of piece.
+        Return:
+            act: (Dict)
         """
         board = obs["board"]
         game = obs["game"]

@@ -9,17 +9,18 @@ https://ko.wikipedia.org/wiki/%EB%A7%88%EC%9D%B4%ED%8B%B0_(%EC%B9%B4%EB%93%9C_%E
 """
 import copy
 import random
+import sys
 from typing import Dict
 from typing import Tuple
+
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QEventLoop, QTimer
 
 from seoulai_gym.envs.mighty.base import Constants
 from seoulai_gym.envs.mighty.rules import Rules
 from seoulai_gym.envs.mighty.board import Board
 from seoulai_gym.envs.mighty.graphics import Graphics
 
-import sys
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QEventLoop, QTimer
 
 RENDER_TIME = 10  # 화면 출력 후 대기 시간
 FRIEND_REVEAL_TIME = 1000  # 프렌드 드러난 뒤 대기 시간
@@ -38,15 +39,8 @@ class Mighty(Constants, Rules):
         Args:
             state: Optional, path to saved game state. TODO
 
-        Returns:
+        Return:
             None
-        """
-        """
-        self.possible_moves = None
-        self.piece_location = None
-
-        self.board = Board()
-        self.graphics = Graphics()
         """
         self.app = QApplication(sys.argv)
 
@@ -64,12 +58,9 @@ class Mighty(Constants, Rules):
 
         Args:
             agent: Agent making a move.
-            from_row: Row of board of original piece location.
-            from_col: Col of board of original piece location.
-            to_row: Row of board of desired piece location.
-            to_col: Col of board of desired piece location.
+            act:
 
-        Returns:
+        Return:
             obs: Information about positions of pieces.
             rew: Reward for perfomed step.
             done: Information about end of game.
@@ -499,10 +490,6 @@ class Mighty(Constants, Rules):
         Returns:
             obs: Information about positions of pieces.
         """
-        """
-        self.board = Board()
-        obs = self.board.board_list
-        """
         players = copy.deepcopy(self.GAME.players)
         self.board = Board()
         self.GAME = Constants.GAME()
@@ -660,12 +647,7 @@ class Mighty(Constants, Rules):
     def close(
         self,
     ) -> None:
-        """
-        pygame.display.quit()
-        pygame.quit()
-        # pygame has to be again initialized, otherwise window does not close
-        pygame.init()
-        """
+        pass
 
     def getObs(self):
         obs = {}
