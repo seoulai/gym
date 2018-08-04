@@ -49,7 +49,6 @@ def main():
                 break
             obs = env.reset()
 
-    input("end play")
     env.close()
 
 
