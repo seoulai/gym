@@ -25,12 +25,12 @@ def main():
     obs['game'].players = [players[0]._name, players[1]._name, players[2]._name, players[3]._name, players[4]._name]
     turn = 0
 
-    reward = 0
+    rew = 0
     done = False
 
     num_of_game = 10  # 구동할 게임 수
     while True:
-        act = players[turn].act(obs, reward, done)
+        act = players[turn].act(obs, rew, done)
         print('\t %s' % (act), end=':')
         print(obs['board'].PLAYER_CARDS[turn])
         obs, rew, done, info = env.step(players[turn], act)
