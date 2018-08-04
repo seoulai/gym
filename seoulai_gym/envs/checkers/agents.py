@@ -9,19 +9,19 @@ from abc import abstractmethod
 from typing import List
 from typing import Tuple
 
+from seoulai_gym.envs.base_agent import BaseAgent
 from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.rules import Rules
 
-
-class Agent(ABC, Constants, Rules):
+class Agent(BaseAgent, Constants, Rules):
     @abstractmethod
     def __init__(
         self,
         name: str,
         ptype: int,
     ):
+        super().__init__(name)
         self._ptype = ptype
-        self._name = name
 
     @abstractmethod
     def act(
@@ -49,9 +49,6 @@ class Agent(ABC, Constants, Rules):
             return f"DARK {_name}"
         elif self.ptype == self.LIGHT:
             return f"LIGHT {_name}"
-
-    def __str__(self):
-        return self._name
 
 
 class RandomAgent(Agent):
