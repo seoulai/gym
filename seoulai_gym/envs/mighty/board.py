@@ -33,14 +33,14 @@ class Board():
         """
 
         # 전체카드 섞기
-        self.ALL_CARDS = ['s-1', 's-k', 's-q', 's-j', 's-0', 's-9',
-                          's-8', 's-7', 's-6', 's-5', 's-4', 's-3', 's-2']
-        self.ALL_CARDS.extend(['d-1', 'd-k', 'd-q', 'd-j', 'd-0', 'd-9',
-                               'd-8', 'd-7', 'd-6', 'd-5', 'd-4', 'd-3', 'd-2'])
-        self.ALL_CARDS.extend(['c-1', 'c-k', 'c-q', 'c-j', 'c-0', 'c-9',
-                               'c-8', 'c-7', 'c-6', 'c-5', 'c-4', 'c-3', 'c-2'])
-        self.ALL_CARDS.extend(['h-1', 'h-k', 'h-q', 'h-j', 'h-0', 'h-9', 'h-8',
-                               'h-7', 'h-6', 'h-5', 'h-4', 'h-3', 'h-2', 'jok'])
+        self.ALL_CARDS = ["s-1", "s-k", "s-q", "s-j", "s-0", "s-9",
+                          "s-8", "s-7", "s-6", "s-5", "s-4", "s-3", "s-2"]
+        self.ALL_CARDS.extend(["d-1", "d-k", "d-q", "d-j", "d-0", "d-9",
+                               "d-8", "d-7", "d-6", "d-5", "d-4", "d-3", "d-2"])
+        self.ALL_CARDS.extend(["c-1", "c-k", "c-q", "c-j", "c-0", "c-9",
+                               "c-8", "c-7", "c-6", "c-5", "c-4", "c-3", "c-2"])
+        self.ALL_CARDS.extend(["h-1", "h-k", "h-q", "h-j", "h-0", "h-9", "h-8",
+                               "h-7", "h-6", "h-5", "h-4", "h-3", "h-2", "jok"])
 
         shuffle(self.ALL_CARDS)
 
@@ -71,7 +71,7 @@ class Board():
                       Constants.suit_clover,
                       Constants.suit_heart,
                       Constants.suit_joker]
-        power_num = ['2', '3', '4', '5', '6', '7', '8', '9', '0', 'j', 'q', 'k', '1']
+        power_num = ["2", "3", "4", "5", "6", "7", "8", "9", "0", "j", "q", "k", "1"]
 
         for card in handcard:
             tmp_power = power_suit.index(card[0])*100

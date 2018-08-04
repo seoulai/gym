@@ -26,7 +26,7 @@ class BossAgent(Agent):
         """
         super().__init__(name, uid)
 
-        print('Initialize boss agent : %ith player %s ' % (uid, name))
+        print("Initialize boss agent : %ith player %s " % (uid, name))
 
     def act(
         self,
@@ -35,31 +35,31 @@ class BossAgent(Agent):
         done: bool,
     ) -> int:
 
-        board = obs['board']
-        game = obs['game']
+        board = obs["board"]
+        game = obs["game"]
 
-        print('[agent-act] %s %dth player (%s)' % (game.status, self._uid, self._name))
+        print("[agent-act] %s %dth player (%s)" % (game.status, self._uid, self._name))
         if game.status == Constants.status_vote:
             hand_cards = board.PLAYER_CARDS[self._uid]
             max_contract = game.contract
 
             quality = [0, 10, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 4, 6]
             quantity = [0, 0, 9, 13, 14, 16, 18, 20, 20, 20, 20]
-            myQualtity = {'s': 0, 'd': 0, 'c': 0, 'h': 0}  # 무늬별 퀄리티
-            myQuantity = {'s': 0, 'd': 0, 'c': 0, 'h': 0}  # 무늬별 갯수
+            myQualtity = {"s": 0, "d": 0, "c": 0, "h": 0}  # 무늬별 퀄리티
+            myQuantity = {"s": 0, "d": 0, "c": 0, "h": 0}  # 무늬별 갯수
 
             for card in hand_cards:
                 suit = card[0]
                 num = card[2]
-                if num == 'j':
+                if num == "j":
                     num = 11
-                elif num == 'q':
+                elif num == "q":
                     num = 12
-                elif num == 'k':
+                elif num == "k":
                     num = 13
 
                 # jok
-                if card == 'jok':
+                if card == "jok":
                     for i in range(0, 4):
                         myQuantity[i] = myQuantity[i] + 6
                         myQuantity[i] = myQuantity[i] + 1
@@ -72,7 +72,7 @@ class BossAgent(Agent):
                     myQualtity[s] = 20
 
             # 가장 높은 score를 가지는 suit 선택
-            max_suit = 'c'
+            max_suit = "c"
             max_score = -1
             for s in myQualtity.keys():
                 scoreQuality = myQualtity[s]
@@ -86,20 +86,20 @@ class BossAgent(Agent):
                     max_suit = s
 
             # 마이티 있으면 +2
-            mighty = 's-1'
-            if max_suit == 's':
-                mighty = 'd-1'
+            mighty = "s-1"
+            if max_suit == "s":
+                mighty = "d-1"
             if mighty in hand_cards:
                 max_score += 2
 
             # 초구 없으면 -1 or -2
-            cards = ['s-1', 'd-1', 'h-1', 'c-1', 'd-k', 's-k']
-            cards.remove(max_suit+'-1')  # 기루다-1
+            cards = ["s-1", "d-1", "h-1", "c-1", "d-k", "s-k"]
+            cards.remove(max_suit+"-1")  # 기루다-1
             cards.remove(mighty)
-            if max_suit == 's':
-                cards.remove('s-k')
+            if max_suit == "s":
+                cards.remove("s-k")
             else:
-                cards.remove('d-k')
+                cards.remove("d-k")
             # TODO needFirstWin = True
             for card in cards:
                 if card in hand_cards:
@@ -115,18 +115,18 @@ class BossAgent(Agent):
                     max_score -= 2
 
                 act = {}
-                act['contract'] = max_score
-                act['suit'] = max_suit
-                print('\t%d %s' % (max_score, max_suit))
+                act["contract"] = max_score
+                act["suit"] = max_suit
+                print("\t%d %s" % (max_score, max_suit))
                 return act
             else:
-                print('\tNone')
+                print("\tNone")
                 return None
 
         elif game.status == Constants.status_choose_card:
             hand_cards = board.PLAYER_CARDS[self._uid]
             act = {}
-            act['card'] = random.choice(hand_cards)
+            act["card"] = random.choice(hand_cards)
             return act
 
         elif game.status == Constants.status_contract:
@@ -135,22 +135,22 @@ class BossAgent(Agent):
 
             # 최고 공약보다 높은 공약 있으면 제시
             contract = random.choice(range(0, 20))
-            suit = random.choice(['s', 'd', 'c', 'h'])
+            suit = random.choice(["s", "d", "c", "h"])
 
             if contract > max_contract:
                 act = {}
-                act['contract'] = contract
-                act['suit'] = suit
-                print('\t%d %s' % (contract, suit))
+                act["contract"] = contract
+                act["suit"] = suit
+                print("\t%d %s" % (contract, suit))
                 return act
             else:
-                print('\tNone')
+                print("\tNone")
                 return None
         elif game.status == Constants.status_friend:
-            friend = random.choice(['s-1', 'd-1', 'c-1', 'h-1'])
-            print('\t%s' % friend)
+            friend = random.choice(["s-1", "d-1", "c-1", "h-1"])
+            print("\t%s" % friend)
             act = {}
-            act['friend'] = friend
+            act["friend"] = friend
             return act
 
         elif game.status == Constants.status_play:
@@ -158,7 +158,7 @@ class BossAgent(Agent):
             valid_cards = Rules.get_valid_cards(self._uid, board, game)
 
             act = {}
-            act['card'] = random.choice(valid_cards)
+            act["card"] = random.choice(valid_cards)
 
             # TODO validate card
 

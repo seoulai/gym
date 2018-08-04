@@ -18,7 +18,7 @@ from PyQt5.QtCore import QEventLoop, QTimer
 from seoulai_gym.envs.mighty.base import Constants
 
 
-'''
+"""
 --------------------------------------------------------------------------
 
                  handcard[2]                  handcard[3]
@@ -36,7 +36,7 @@ LOGO title                                                      credit
    ScoreBoard  |           |
 
 --------------------------------------------------------------------------
-'''
+"""
 
 ui_path = os.path.dirname(os.path.abspath(__file__))
 form_class = uic.loadUiType(os.path.join(ui_path, "graphics.ui"))[0]
@@ -45,10 +45,10 @@ form_class = uic.loadUiType(os.path.join(ui_path, "graphics.ui"))[0]
 class Graphics(QMainWindow, form_class):
 
     # 카드 그림파일 폴더
-    imgpath = ''
-    if platform.system() == 'Windows':
+    imgpath = ""
+    if platform.system() == "Windows":
         imgpath = os.path.join(ui_path, "resource\\")
-    elif platform.system() == 'Darwin' or 'Linux':
+    elif platform.system() == "Darwin" or "Linux":
         imgpath = os.path.join(ui_path, "resource/")
 
     # PRESET
@@ -129,29 +129,29 @@ class Graphics(QMainWindow, form_class):
         # Logo
         labelLogo = QLabel(self)
         labelLogo.setGeometry(QtCore.QRect(20, 50, 90, 90))
-        pixmap = QPixmap(self.imgpath + 'logo.png')
+        pixmap = QPixmap(self.imgpath + "logo.png")
         pixmap_resize = pixmap.scaled(labelLogo.width(), labelLogo.height(), QtCore.Qt.KeepAspectRatio,
                                       QtCore.Qt.SmoothTransformation)
         labelLogo.setPixmap(pixmap_resize)
 
         # Title
         labelTitle = QLabel(self)
-        labelTitle.setText('Sonte Carlo')
+        labelTitle.setText("Sonte Carlo")
         labelTitle.setGeometry(QtCore.QRect(110, 100, 165, 45))
         labelTitle.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             labelTitle.setFont(QtGui.QFont("Tahoma", 24))
-        elif platform.system() == 'Darwin' or 'Linux':
+        elif platform.system() == "Darwin" or "Linux":
             labelTitle.setFont(QtGui.QFont("Tahoma", 28))
 
         # Subtitle
         labelSubTitle = QLabel(self)
-        labelSubTitle.setText('마이티의 정석')
+        labelSubTitle.setText("마이티의 정석")
         labelSubTitle.setGeometry(QtCore.QRect(110, 80, 165, 25))
         labelSubTitle.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             labelSubTitle.setFont(QtGui.QFont("맑은 고딕", 12))
-        elif platform.system() == 'Darwin' or 'Linux':
+        elif platform.system() == "Darwin" or "Linux":
             labelSubTitle.setFont(QtGui.QFont("맑은 고딕", 16))
 
         # Credit
@@ -174,7 +174,7 @@ class Graphics(QMainWindow, form_class):
                                                 self.header_height + self.frame.height() / 2 - self.board_height / 2,
                                                 self.board_width,
                                                 self.board_height))
-        self.gameboard.setStyleSheet('background-color: rgb(83, 160, 100); border-radius: 20px;')
+        self.gameboard.setStyleSheet("background-color: rgb(83, 160, 100); border-radius: 20px;")
 
     def checkPLAYMODE(self):
         while self.btnset.PLAYMODE == Constants.playmode_pause:
@@ -291,7 +291,7 @@ class Graphics(QMainWindow, form_class):
                     newcard.setGeometry(rect[i])
                     newcard.move(newcard.pos() + QtCore.QPoint(self.card_interval * n, 0))
                     newcard.setStyleSheet(self.handcard_style)
-                    newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.card_width,
+                    newcard.setPixmap(QPixmap(self.imgpath + "bck").scaled(self.card_width,
                                                                            self.card_height,
                                                                            QtCore.Qt.KeepAspectRatio,
                                                                            QtCore.Qt.SmoothTransformation))
@@ -300,7 +300,7 @@ class Graphics(QMainWindow, form_class):
                     newcard.setGeometry(rect_bonus[i])
                     newcard.move(newcard.pos() + QtCore.QPoint(self.bonuscard_interval * (n-10), 0))
                     newcard.setStyleSheet(self.bonuscard_style)
-                    newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.bonuscard_width,
+                    newcard.setPixmap(QPixmap(self.imgpath + "bck").scaled(self.bonuscard_width,
                                                                            self.bonuscard_height,
                                                                            QtCore.Qt.KeepAspectRatio,
                                                                            QtCore.Qt.SmoothTransformation))
@@ -365,12 +365,12 @@ class Graphics(QMainWindow, form_class):
     # Notice 텍스트박스 배치
     def initNotice(self):
         label = QLabel(self.frame)
-        label.setText('')
+        label.setText("")
         label.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
         label.setStyleSheet(self.notice_yellow_style)
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             label.setFont(QtGui.QFont("Tahoma", 14, QtGui.QFont.Bold))
-        elif platform.system() == 'Darwin' or 'Linux':
+        elif platform.system() == "Darwin" or "Linux":
             label.setFont(QtGui.QFont("Tahoma", 18, QtGui.QFont.Bold))
         label.setVisible(False)
         self.NOTICE = label
@@ -379,12 +379,12 @@ class Graphics(QMainWindow, form_class):
 
         # 텍스트 라인이 여러 줄일 경우 한 줄씩 가로폭 검사하기 위해
         # white 옵션이 있으면,
-        strline = ''
+        strline = ""
         if isinstance(param[Constants.param_notice], list):
-            strline = str(param[Constants.param_notice][0]).split('\n')
+            strline = str(param[Constants.param_notice][0]).split("\n")
         # yellow 디폴트 옵션이면,
         else:
-            strline = str(param[Constants.param_notice]).split('\n')
+            strline = str(param[Constants.param_notice]).split("\n")
 
         # notice 텍스트박스의 가로 길이를 글자수에 따라 설정
         minWidth = 120
@@ -417,14 +417,14 @@ class Graphics(QMainWindow, form_class):
                                        height))
 
         # Notice 스타일
-        # param['notice]='내용': yellow,
-        # param['notice']=['내용','white']: white
+        # param["notice]="내용": yellow,
+        # param["notice"]=["내용","white"]: white
 
-        # param['notice]가 리스트 형태로 들어오면
+        # param["notice]가 리스트 형태로 들어오면
         if isinstance(param[Constants.param_notice], list):
-            if param['notice'][1] == 'yellow':
+            if param["notice"][1] == "yellow":
                 label.setStyleSheet(self.notice_yellow_style)
-            elif param[Constants.param_notice][1] == 'white':
+            elif param[Constants.param_notice][1] == "white":
                 label.setStyleSheet(self.notice_white_style)
         else:
             label.setStyleSheet(self.notice_yellow_style)
@@ -466,11 +466,11 @@ class Graphics(QMainWindow, form_class):
 
         for i in range(0, 5):
             newcard = QLabel(self.frame)
-            newcard.setText('Pass')
+            newcard.setText("Pass")
             newcard.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
-            if platform.system() == 'Windows':
+            if platform.system() == "Windows":
                 newcard.setFont(QtGui.QFont("Tahoma", 14, QtGui.QFont.Bold))
-            elif platform.system() == 'Darwin' or 'Linux':
+            elif platform.system() == "Darwin" or "Linux":
                 newcard.setFont(QtGui.QFont("Tahoma", 18, QtGui.QFont.Bold))
             newcard.setGeometry(rect[i])
             newcard.move(newcard.pos() + QtCore.QPoint(self.card_interval * 6.5 - self.bidding_width / 2,
@@ -487,9 +487,9 @@ class Graphics(QMainWindow, form_class):
             card = self.NOTICE_PLAYER[i]
             if i in param[Constants.param_notice_player]:
                 card.setText(str(param[Constants.param_notice_player][i]))
-                if param[Constants.param_notice_player][i] == 'pass':
+                if param[Constants.param_notice_player][i] == "pass":
                     card.setStyleSheet(self.notice_white_style)
-                elif param[Constants.param_notice_player][i][0] == '-':
+                elif param[Constants.param_notice_player][i][0] == "-":
                     card.setStyleSheet(self.notice_white_style)
                 else:
                     card.setStyleSheet(self.notice_yellow_style)
@@ -508,7 +508,7 @@ class Graphics(QMainWindow, form_class):
                                              self.backcard_width,
                                              self.backcard_height))
             newcard.setStyleSheet(self.backcard_style)
-            newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.backcard_width,
+            newcard.setPixmap(QPixmap(self.imgpath + "bck").scaled(self.backcard_width,
                                                                    self.backcard_height,
                                                                    QtCore.Qt.KeepAspectRatio,
                                                                    QtCore.Qt.SmoothTransformation))
@@ -556,7 +556,7 @@ class Graphics(QMainWindow, form_class):
             newcard = QLabel(self.frame)
             newcard.setGeometry(rect[i])
             newcard.setStyleSheet(self.facecard_style)
-            newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.facecard_width,
+            newcard.setPixmap(QPixmap(self.imgpath + "bck").scaled(self.facecard_width,
                                                                    self.facecard_height,
                                                                    QtCore.Qt.KeepAspectRatio,
                                                                    QtCore.Qt.SmoothTransformation))
@@ -575,9 +575,9 @@ class Graphics(QMainWindow, form_class):
                                                                            QtCore.Qt.SmoothTransformation))
                     facecard.setVisible(True)
                 else:
-                    facecard.setVisible(False)  # param[Constants.param_facecard] = {0:'s-1',1:'',2:'',3:'',4:''}
+                    facecard.setVisible(False)  # param[Constants.param_facecard] = {0:"s-1",1:"",2:"",3:"",4:""}
             else:
-                facecard.setVisible(False)  # param[Constants.param_facecard] = {0:'s-1'}
+                facecard.setVisible(False)  # param[Constants.param_facecard] = {0:"s-1"}
 
     def initPointcard(self):
         pos_y = self.header_height + self.frame.height() / 2 + self.board_height / 2 - self.pointcard_height / 2
@@ -602,18 +602,18 @@ class Graphics(QMainWindow, form_class):
                                 self.header_height + self.frame.height() / 2 - self.board_height / 2 + 80,
                                 self.pointcard_width,
                                 self.pointcard_height)}
-        pointcard_offset = {0: 'x', 1: 'y', 2: 'x', 3: 'x', 4: 'y'}
+        pointcard_offset = {0: "x", 1: "y", 2: "x", 3: "x", 4: "y"}
 
         for i in range(0, 5):
             for n in range(0, 20):  # 최대 20장 가능
                 newcard = QLabel(self.frame)
                 newcard.setGeometry(rect[i])
-                if pointcard_offset[i] == 'x':
+                if pointcard_offset[i] == "x":
                     newcard.move(newcard.pos() + QtCore.QPoint(self.pointcard_interval * n, 0))
-                elif pointcard_offset[i] == 'y':
+                elif pointcard_offset[i] == "y":
                     newcard.move(newcard.pos() + QtCore.QPoint(0, self.pointcard_interval * n))
                 newcard.setStyleSheet(self.pointcard_style)
-                newcard.setPixmap(QPixmap(self.imgpath + 'bck').scaled(self.pointcard_width,
+                newcard.setPixmap(QPixmap(self.imgpath + "bck").scaled(self.pointcard_width,
                                                                        self.pointcard_height,
                                                                        QtCore.Qt.KeepAspectRatio,
                                                                        QtCore.Qt.SmoothTransformation))
@@ -648,7 +648,7 @@ class Graphics(QMainWindow, form_class):
                                          pos_y,
                                          LT_width,
                                          LT_height))
-        self.LT.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
+        self.LT.setStyleSheet("background-color: rgb(235,235,235); border-radius: 5px;")
         self.contractBoard = ContractBoard(self.LT)
         self.contractBoard.show()
 
@@ -663,7 +663,7 @@ class Graphics(QMainWindow, form_class):
                                          pos_y,
                                          LB_width,
                                          LB_height))
-        self.LB.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
+        self.LB.setStyleSheet("background-color: rgb(235,235,235); border-radius: 5px;")
         self.scoreBoard = ScoreBoard(self.LB)
         self.scoreBoard.show()
 
@@ -678,7 +678,7 @@ class Graphics(QMainWindow, form_class):
                                         pos_y,
                                         R_width,
                                         R_height))
-        self.R.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
+        self.R.setStyleSheet("background-color: rgb(235,235,235); border-radius: 5px;")
         self.giboBoard = GiboBoard(self.R)
         self.giboBoard.show()
 
@@ -691,7 +691,7 @@ class Graphics(QMainWindow, form_class):
                                         pos_y,
                                         B_width,
                                         B_height))
-        self.B.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
+        self.B.setStyleSheet("background-color: rgb(235,235,235); border-radius: 5px;")
         self.btnset = ButtonSet(self.B)
         self.btnset.show()
 
@@ -721,16 +721,16 @@ class Graphics(QMainWindow, form_class):
         self.M.setGeometry(QtCore.QRect(pos_x,
                                         pos_y,
                                         B_width-190, B_height))
-        self.M.setStyleSheet('background-color: rgb(235,235,235); border-radius: 5px;')
+        self.M.setStyleSheet("background-color: rgb(235,235,235); border-radius: 5px;")
         self.menubtnset = MenuButtonSet(self.M)
         self.menubtnset.show()
 
     # UPDATE
     def update(self, param):
         self.refresh()
-        if 'agent' in param:
+        if "agent" in param:
             self.updateAgent(param)
-        if 'score' in param:
+        if "score" in param:
             self.updateScore(param)
         if Constants.param_backcard in param:
             self.updateBackcard(param)
@@ -742,9 +742,9 @@ class Graphics(QMainWindow, form_class):
             self.updateHandcard(param)
         if Constants.param_notice_player in param:
             self.updateNoticePlayer(param)
-        if 'notice' in param:
+        if "notice" in param:
             self.updateNotice(param)
-        if 'contract' in param:
+        if "contract" in param:
             self.updateContract(param)
         if Constants.param_gibo in param:
             self.updateGibo(param)
@@ -759,11 +759,11 @@ class CreditBoard(QWidget):
 
         fontsizeTitle = 0
         fontsizeContent = 0
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             fontsizeTitle = 12
             fontsizeContent = 9
             fontsizeBottom = 8
-        elif platform.system() == 'Darwin' or 'Linux':
+        elif platform.system() == "Darwin" or "Linux":
             fontsizeTitle = 16
             fontsizeContent = 13
             fontsizeBottom = 12
@@ -773,10 +773,10 @@ class CreditBoard(QWidget):
         T_height = 30
         T = QLabel(self)
         T.setGeometry(0, 0, T_width, T_height)
-        T.setStyleSheet('background-color: rgb(235,235,235); border: solid 1px black; border-radius: 5px;')
+        T.setStyleSheet("background-color: rgb(235,235,235); border: solid 1px black; border-radius: 5px;")
 
         T.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
-        txtT = '만든 사람들'
+        txtT = "만든 사람들"
         T.setText(txtT)
         T.setFont(QtGui.QFont("맑은 고딕", fontsizeTitle))
 
@@ -784,9 +784,9 @@ class CreditBoard(QWidget):
         BL_height = 65
         BL = QLabel(self)
         BL.setGeometry(0, T_height, BL_width-center_gap, BL_height)
-        BL.setStyleSheet('padding-top:3px')
+        BL.setStyleSheet("padding-top:3px")
         BL.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        txtBL = '기획/연구/개발<br>디자인/연구/개발<br>마이티 연구'
+        txtBL = "기획/연구/개발<br>디자인/연구/개발<br>마이티 연구"
         BL.setText(txtBL)
         BL.setFont(QtGui.QFont("맑은 고딕", fontsizeContent))
 
@@ -794,9 +794,9 @@ class CreditBoard(QWidget):
         BR_height = 65
         BR = QLabel(self)
         BR.setGeometry(BL_width, T_height, BR_width, BR_height)
-        BR.setStyleSheet('padding-top:3px')
+        BR.setStyleSheet("padding-top:3px")
         BR.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
-        txtBR = '김승현<br>이정원<br>마이티연구회'
+        txtBR = "김승현<br>이정원<br>마이티연구회"
         BR.setText(txtBR)
         BR.setFont(QtGui.QFont("맑은 고딕", fontsizeContent))
 
@@ -805,7 +805,7 @@ class CreditBoard(QWidget):
         B = QLabel(self)
         B.setGeometry(0, T_height+BL_height, B_width, B_height)
         B.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
-        txtB = 'Since 2018.7.29.<br>kimseunghyun@gmail.com'
+        txtB = "Since 2018.7.29.<br>kimseunghyun@gmail.com"
         B.setText(txtB)
         B.setFont(QtGui.QFont("맑은 고딕", fontsizeBottom))
 
@@ -816,14 +816,14 @@ class ButtonSet(QWidget):
         layout = QHBoxLayout(self)
         self.setLayout(layout)
         btn = []
-        # name = ['Auto\nPlay', 'Pause', '|<', '<5','<', '>', '5>', '>|']
-        name = ['Auto\nPlay', 'Pause', '>', '5 >', '>|']
+        # name = ["Auto\nPlay", "Pause", "|<", "<5","<", ">", "5>", ">|"]
+        name = ["Auto\nPlay", "Pause", ">", "5 >", ">|"]
         for i in range(0, 5):
             btn.append(QPushButton(name[i]))
             btn[i].setFixedWidth(50)
             btn[i].setFixedHeight(50)
             btn[i].setFlat(True)
-            btn[i].setStyleSheet('background-color: rgb(255,255,255); border-radius: 5px;')
+            btn[i].setStyleSheet("background-color: rgb(255,255,255); border-radius: 5px;")
             layout.addWidget(btn[i])
 
         btn[0].clicked.connect(self.btn0_clicked)
@@ -862,13 +862,13 @@ class MenuButtonSet(QWidget):
         self.setLayout(layout)
         btn = []
 
-        name = ['Quit (Ctrl+Q)']
+        name = ["Quit (Ctrl+Q)"]
         for i in range(0, 1):
             btn.append(QPushButton(name[i]))
             btn[i].setFixedWidth(115)
             btn[i].setFixedHeight(50)
             btn[i].setFlat(False)
-            btn[i].setStyleSheet('background-color: rgb(255,255,255); border-radius: 5px;')
+            btn[i].setStyleSheet("background-color: rgb(255,255,255); border-radius: 5px;")
             layout.addWidget(btn[i])
 
         btn[0].clicked.connect(self.menubtn0_clicked)
@@ -876,7 +876,7 @@ class MenuButtonSet(QWidget):
         self.PLAYMODE = Constants.playmode_pause
 
     def menubtn0_clicked(self):
-        print('clicked pb_1')
+        print("clicked pb_1")
         qApp.quit()
         sys.exit(0)
 
@@ -886,13 +886,13 @@ class ContractBoard(QWidget):
         QWidget.__init__(self, parent)
         width = 60
         height = 0
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             height = 19
-        elif platform.system() == 'Darwin' or 'Linux':
+        elif platform.system() == "Darwin" or "Linux":
             height = 16
 
-        category = ['President', 'Giruda', 'Contract', 'Friend']
-        value = ['', '', '', '']
+        category = ["President", "Giruda", "Contract", "Friend"]
+        value = ["", "", "", ""]
         category_label = []
         self.value_label = []
         layout = QGridLayout(self)
@@ -913,24 +913,24 @@ class ContractBoard(QWidget):
 
     def updateContract(self, param):
 
-        redcard = 'color: rgb(253,112,119)'
-        blackcard = 'color: rgb(102,102,102)'
-        fontsize = 'font-size: 18px;'
-        if platform.system() == 'Windows':
-            fontsize = 'font-size: 20px;'
-        elif platform.system() == 'Darwin' or 'Linux':
-            fontsize = 'font-size: 18px;'
+        redcard = "color: rgb(253,112,119)"
+        blackcard = "color: rgb(102,102,102)"
+        fontsize = "font-size: 18px;"
+        if platform.system() == "Windows":
+            fontsize = "font-size: 20px;"
+        elif platform.system() == "Darwin" or "Linux":
+            fontsize = "font-size: 18px;"
 
         # 주공 president
         presidentUID = param[Constants.param_contract][0]
         self.value_label[0].setText(str(param[Constants.param_agent][presidentUID]))
 
         # 기루다 giruda
-        giruda = param[Constants.param_contract][1]+'-'
+        giruda = param[Constants.param_contract][1]+"-"
         print(giruda)
         self.value_label[1].setText(str(suitSymbol(giruda)))
         # 빨간색 카드이면,
-        if giruda[0] == 'd' or giruda[0] == 'h':
+        if giruda[0] == "d" or giruda[0] == "h":
             self.value_label[1].setStyleSheet(fontsize + redcard)
         # 검은색 카드이면
         else:
@@ -947,7 +947,7 @@ class ContractBoard(QWidget):
     def refreshContract(self):
         for i in range(0, 4):
             self.value_label[i].setText(".")
-            self.value_label[i].setStyleSheet('color: black')
+            self.value_label[i].setStyleSheet("color: black")
 
 
 class ScoreBoard(QWidget):
@@ -956,13 +956,13 @@ class ScoreBoard(QWidget):
         QWidget.__init__(self, parent)
         width = 60
         height = 0
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             height = 19
-        elif platform.system() == 'Darwin' or 'Linux':
+        elif platform.system() == "Darwin" or "Linux":
             height = 16
 
-        playerTitle = QLabel('Player')
-        scoreTitle = QLabel('Score')
+        playerTitle = QLabel("Player")
+        scoreTitle = QLabel("Score")
         playerTitle.setFixedWidth(width)
         playerTitle.setFixedHeight(height)
         scoreTitle.setFixedWidth(width)
@@ -974,7 +974,7 @@ class ScoreBoard(QWidget):
         self.playerscore_label = []
 
         for i in range(0, 5):
-            name = ''
+            name = ""
             self.playername_label.append(QLabel(name))
             self.playername_label[i].setFixedWidth(width)
             self.playername_label[i].setFixedHeight(height)
@@ -1001,7 +1001,7 @@ class ScoreBoard(QWidget):
     def updateAgentName(self, param):
         for i in range(0, 5):
             player_name = str(param[Constants.param_agent][i])
-            # if player_name.find('[주공]') == 0 or player_name.find('[친구]') == 0:
+            # if player_name.find("[주공]") == 0 or player_name.find("[친구]") == 0:
             #     player_name = player_name[5:]
             self.playername_label[i].setText(player_name)
 
@@ -1011,25 +1011,25 @@ class GiboBoard(QWidget):
         QWidget.__init__(self, parent)
 
         height = 0
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             height = 19
-        elif platform.system() == 'Darwin' or 'Linux':
+        elif platform.system() == "Darwin" or "Linux":
             height = 16
 
         # title
         width = 28
 
-        self.label = [[QLabel('')] * 6 for i in range(11)]
+        self.label = [[QLabel("")] * 6 for i in range(11)]
         layout = QGridLayout(self)
         for r in range(0, 11):
             for c in range(0, 6):
-                str = ''
+                str = ""
                 if r == 0 and c == 0:
-                    str = 'Rec.'
+                    str = "Rec."
                 elif r == 0:
-                    str = 'P%i' % (c)
+                    str = "P%i" % (c)
                 elif c == 0:
-                    str = 'R%i' % (r)
+                    str = "R%i" % (r)
 
                 self.label[r][c] = QLabel(str)
                 self.label[r][c].setFixedWidth(width)
@@ -1041,22 +1041,22 @@ class GiboBoard(QWidget):
         self.setLayout(layout)
 
     # 기보 업데이트
-    # param[Constants.param_gibo] = {1:['','','','',''],2:[],...}
+    # param[Constants.param_gibo] = {1:["","","","",""],2:[],...}
     # param[Constants.param_roundwinner] = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
     def updateGibo(self, param):
-        redcard = 'color: rgb(253,112,119);'
-        blackcard = 'color: rgb(102,102,102);'
-        roundwinner = 'background-color: rgb(253,235,119); font-weight: bold;'
-        startplayer = 'border-left: 1px solid #bbb; border-radius: 3px;'
+        redcard = "color: rgb(253,112,119);"
+        blackcard = "color: rgb(102,102,102);"
+        roundwinner = "background-color: rgb(253,235,119); font-weight: bold;"
+        startplayer = "border-left: 1px solid #bbb; border-radius: 3px;"
 
         # Contract가 결정되어야 주공 등의 정보를 참조하여 기보를 업데이트 한다
         if Constants.param_contract in param:
 
             for c in range(1, 6):  # 기보 가로줄 1-5
                 if c-1 == param[Constants.param_contract][0]:
-                    self.label[0][c].setStyleSheet('color: rgb(253,112,119); font-weight: bold')
+                    self.label[0][c].setStyleSheet("color: rgb(253,112,119); font-weight: bold")
                 else:
-                    self.label[0][c].setStyleSheet('color: black')
+                    self.label[0][c].setStyleSheet("color: black")
 
             for r in range(1, 11):  # 기보 세로줄 1-10
                 if r in param[Constants.param_gibo]:
@@ -1066,10 +1066,10 @@ class GiboBoard(QWidget):
                         cardsymbol = suitSymbol(cardstr[0:2]) + cardRank(cardstr[1:3])
                         self.label[r][c].setText(cardsymbol)
 
-                        style = ''
+                        style = ""
 
                         # 빨간색 카드이면,
-                        if cardstr[0] == 'd' or cardstr[0] == 'h':
+                        if cardstr[0] == "d" or cardstr[0] == "h":
                             style += redcard
                         # 검은색 카드이면
                         else:
@@ -1093,11 +1093,11 @@ class GiboBoard(QWidget):
 
     def refreshGibo(self):
         for c in range(1, 6):  # 기보 가로줄 1-5
-            self.label[0][c].setStyleSheet('color: black')
+            self.label[0][c].setStyleSheet("color: black")
         for r in range(1, 11):  # 기보 세로줄 1-10
             for c in range(1, 6):  # 기보 가로줄 1-5
                 self.label[r][c].setText(".")
-                self.label[r][c].setStyleSheet('color: black')
+                self.label[r][c].setStyleSheet("color: black")
 
 
 class MenuBoard(QWidget):
@@ -1123,12 +1123,12 @@ class MenuBoard(QWidget):
 
     # 종료 버튼 누르면, 종료
     def pb_1_clicked(self):
-        print('clicked pb_1')
+        print("clicked pb_1")
         qApp.quit()
         sys.exit(0)
 
 
-def show(param, msg='done', time=300):
+def show(param, msg="done", time=300):
     loop = QEventLoop()
     QTimer.singleShot(time, loop.quit)
     loop.exec_()
@@ -1142,53 +1142,53 @@ def countHangul(text):
     pyVer3 = sys.version_info >= (3, 0)
     if pyVer3:  # for Ver 3 or later
         encText = text
-    '''
+    """
     else:  # for Ver 2.x
         if type(text) is not unicode:
-            encText = text.decode('utf-8')
+            encText = text.decode("utf-8")
         else:
             encText = text
-    '''
+    """
     hanCount = 0
     for i in range(len(encText)):
-        hanCount += len(re.findall(u'[\u3130-\u318F\uAC00-\uD7A3]+', encText[i]))
+        hanCount += len(re.findall(u"[\u3130-\u318F\uAC00-\uD7A3]+", encText[i]))
     return hanCount
 
 
 def suitSymbol(x):
     return {
-        's-': '♠',
-        'd-': '♦',
-        'h-': '♥',
-        'c-': '♣',
-        'jo': '☆'
-    }.get(x, '')
+        "s-": "♠",
+        "d-": "♦",
+        "h-": "♥",
+        "c-": "♣",
+        "jo": "☆"
+    }.get(x, "")
 
 
 def cardRank(x):
     return {
-        '-1': 'A',
-        '-2': '2',
-        '-3': '3',
-        '-4': '4',
-        '-5': '5',
-        '-6': '6',
-        '-7': '7',
-        '-8': '8',
-        '-9': '9',
-        '-0': 'T',
-        '-j': 'J',
-        '-q': 'Q',
-        '-k': 'K',
-        'os': '♠',
-        'od': '♦',
-        'oh': '♥',
-        'oc': '♣'
-    }.get(x, '')
+        "-1": "A",
+        "-2": "2",
+        "-3": "3",
+        "-4": "4",
+        "-5": "5",
+        "-6": "6",
+        "-7": "7",
+        "-8": "8",
+        "-9": "9",
+        "-0": "T",
+        "-j": "J",
+        "-q": "Q",
+        "-k": "K",
+        "os": "♠",
+        "od": "♦",
+        "oh": "♥",
+        "oc": "♣"
+    }.get(x, "")
 
 
 def test():
-    print('Sonte Carlo')
+    print("Sonte Carlo")
 
 
 if __name__ == "__main__":

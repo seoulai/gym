@@ -30,32 +30,32 @@ class AlangAgent(Agent):
         super().__init__(name, uid)
 
         self.contract = 0
-        self.suit = ''
-        self.friend = ''
+        self.suit = ""
+        self.friend = ""
 
-        print('Initialize alang agent : %ith player %s ' % (uid, name))
+        print("Initialize alang agent : %ith player %s " % (uid, name))
 
     # 공약 설정
     def makeContract(self,
                      hand_card: List,
                      ) -> Tuple[int, str, str]:  # 공약, 기루다, 프렌드
-        '''
+        """
         contract = random.choice(range(0, 20))
-        suit = random.choice(['s', 'd', 'c', 'h'])
-        friend = random.choice(['s-1','jok','first_turn'])
-        '''
-        card_order = ['2', '3', '4', '5', '6', '7', '8', '9', '0', 'j', 'q', 'k', '1']
-        suits = ['s', 'h', 'd', 'c']
+        suit = random.choice(["s", "d", "c", "h"])
+        friend = random.choice(["s-1","jok","first_turn"])
+        """
+        card_order = ["2", "3", "4", "5", "6", "7", "8", "9", "0", "j", "q", "k", "1"]
+        suits = ["s", "h", "d", "c"]
 
-        print('\tcard=', end=' ')
-        print(','.join(hand_card))
+        print("\tcard=", end=" ")
+        print(",".join(hand_card))
         # 1 기루다 모양 결정
         max_power = 0
         for s in suits:
             power = 0
-            mighty = 's-1'
-            if s == 's':
-                mighty = 'd-1'
+            mighty = "s-1"
+            if s == "s":
+                mighty = "d-1"
 
             # 1.1 카드 무늬별로 power 계산(1.마이티 존재/기루다 갯수, 2. 센카드 숫자
             max_num = 0
@@ -71,13 +71,13 @@ class AlangAgent(Agent):
                     if cur_num > max_num:
                         max_num = cur_num
             power += max_num
-            print('\tsuit=%s, power=%i' % (s, power))
+            print("\tsuit=%s, power=%i" % (s, power))
             # 1.2 power 가장 큰 카드로 기루다 모양 결정
             if power > max_power:
                 max_power = power
                 self.suit = s
 
-        print('\tfinal suit = ' + self.suit)
+        print("\tfinal suit = " + self.suit)
 
         # 2 기루다 아닌 보스카드 갯수
         num_bosscard = 0
@@ -88,32 +88,32 @@ class AlangAgent(Agent):
                 continue
 
             for i in card_order:  # 카드ace부터
-                card = '%s-%s' % (s, i)
+                card = "%s-%s" % (s, i)
                 if card in hand_card:
                     num_bosscard += 1
                 else:
                     break
-        if 'jok' in hand_card:
+        if "jok" in hand_card:
             num_bosscard += 1
-        print('\tbosscard : ' + str(num_bosscard))
+        print("\tbosscard : " + str(num_bosscard))
 
         # 3 프렌드 결정(마이티->조커->첫턴)
-        mighty = 's-1'
-        if self.suit == 's':
-            mighty = 'd-1'
+        mighty = "s-1"
+        if self.suit == "s":
+            mighty = "d-1"
 
         if mighty not in hand_card:
-            self.friend = 'mighty'
-        elif 'jok' not in hand_card:
-            self.friend = 'jok'
+            self.friend = "mighty"
+        elif "jok" not in hand_card:
+            self.friend = "jok"
         else:
-            self.friend = 'first'
-        print('\tfriend : ' + self.friend)
+            self.friend = "first"
+        print("\tfriend : " + self.friend)
 
         # 4 위닝턴 계산
         # 4.1 위닝턴 = 기루다 갯수 + 기루다 아닌 보스카드 갯수 + 프렌드help(1) + 추가카드(1)
         winning_turn = int(max_power / 100) + num_bosscard + 1 + 1
-        print('\twinning_turn : ' + str(winning_turn))
+        print("\twinning_turn : " + str(winning_turn))
 
         # 5 공약 결정
         # 4.1 contract (win 10-> cont 16, 9->15, 8->14, 7이하->pass
@@ -125,7 +125,7 @@ class AlangAgent(Agent):
             self.contract = 14
         else:
             self.contract = 0
-        print('\tcontract : ' + str(self.contract))
+        print("\tcontract : " + str(self.contract))
 
         # 공약, 기루다, 프렌드 반환
         return (self.contract, self.suit, self.friend)
@@ -137,18 +137,18 @@ class AlangAgent(Agent):
         # 기루다, 마이티, 조커, 보스카드  빼고 랜덤으로 버림
         candidate_cards = []
 
-        mighty = 's-1'
-        if self.suit == 's':
-            mighty = 'd-1'
+        mighty = "s-1"
+        if self.suit == "s":
+            mighty = "d-1"
 
         for card in hand_cards:
             if card == mighty:  # 마이티
                 continue
-            elif card == 'jok':
+            elif card == "jok":
                 continue
             elif card[0] == self.suit:  # 기루다
                 continue
-            elif card[2] == '1':
+            elif card[2] == "1":
                 continue
             else:
                 candidate_cards.append(card)
@@ -158,7 +158,7 @@ class AlangAgent(Agent):
     def get_low_card(self,
                      valid_cards: List,
                      ) -> str:
-        low_card = ''
+        low_card = ""
         # 기루다 다음으로 많은 무늬
         num_suit = {}
         for card in valid_cards:
@@ -171,14 +171,14 @@ class AlangAgent(Agent):
             num_suit[s] = n + 1
 
         max_num = 0
-        max_suit = ''
+        max_suit = ""
         for s in num_suit:
             if num_suit[s] > max_num:
                 max_num = num_suit[s]
                 max_suit = s
 
         # 가장 낮은 카드
-        card_order = ['2', '3', '4', '5', '6', '7', '8', '9', '0', 'j', 'q', 'k', '1']
+        card_order = ["2", "3", "4", "5", "6", "7", "8", "9", "0", "j", "q", "k", "1"]
         low_num = 13
 
         for card in valid_cards:
@@ -211,10 +211,10 @@ class AlangAgent(Agent):
         Returns:
             Current and new location of piece.
         """
-        board = obs['board']
-        game = obs['game']
+        board = obs["board"]
+        game = obs["game"]
 
-        print('[agent-act] %s %dth player (%s)' % (game.status, self._uid, self._name))
+        print("[agent-act] %s %dth player (%s)" % (game.status, self._uid, self._name))
         if game.status == Constants.status_bidding:
             hand_cards = board.PLAYER_CARDS[self._uid]
             max_contract = game.contract
@@ -224,12 +224,12 @@ class AlangAgent(Agent):
 
             if contract > 13 and contract > max_contract:
                 act = {}
-                act['contract'] = contract
-                act['suit'] = suit
-                print('\t%d %s' % (contract, suit))
+                act["contract"] = contract
+                act["suit"] = suit
+                print("\t%d %s" % (contract, suit))
                 return act
             else:
-                print('\tNone')
+                print("\tNone")
                 return None
 
         elif game.status == Constants.status_choose_card:
@@ -237,10 +237,10 @@ class AlangAgent(Agent):
 
             act = {}
             # 기루다, 마이티, 조커, 보스카드 빼고 랜덤으로 버림
-            act['card'] = self.removeCard(hand_cards)
-            print('removeCard')
-            print('\thand_cards : ' + ','.join(hand_cards))
-            print('\tremove card: ' + act['card'])
+            act["card"] = self.removeCard(hand_cards)
+            print("removeCard")
+            print("\thand_cards : " + ",".join(hand_cards))
+            print("\tremove card: " + act["card"])
             return act
 
         elif game.status == Constants.status_contract:
@@ -252,18 +252,18 @@ class AlangAgent(Agent):
 
             if contract > 13 and contract > max_contract:
                 act = {}
-                act['contract'] = contract
-                act['suit'] = suit
-                print('\tcontract : %d %s' % (contract, suit))
+                act["contract"] = contract
+                act["suit"] = suit
+                print("\tcontract : %d %s" % (contract, suit))
                 return act
             else:
-                print('\tcontract : None')
+                print("\tcontract : None")
                 return None
 
         elif game.status == Constants.status_friend:
-            print('\tfriend : %s' % self.friend)
+            print("\tfriend : %s" % self.friend)
             act = {}
-            act['friend'] = self.friend
+            act["friend"] = self.friend
             return act
 
         elif game.status == Constants.status_play:
@@ -277,7 +277,7 @@ class AlangAgent(Agent):
             for card in valid_cards:
                 if card[0] == self.suit:
                     continue
-                elif card[2] == '1':
+                elif card[2] == "1":
                     boss_card.append(card)
 
             # 기루다 다음으로 많은 무늬 중 가장 낮은 카드
@@ -287,9 +287,9 @@ class AlangAgent(Agent):
             if game.round == 1:
 
                 # 1.1. ‘노 기루다’가 아니면,
-                if self.suit != 'n':
+                if self.suit != "n":
                     # 1.1.1. 친구가 마이티
-                    if self.friend == 'mighty':
+                    if self.friend == "mighty":
                         # 1.1.1.1. 첫 턴 보스카드가 있으면, 보스카드
                         if len(boss_card) != 0:
                             selected_card = random.choice(boss_card)
@@ -297,7 +297,7 @@ class AlangAgent(Agent):
                         else:
                             selected_card = low_card
                     # 1.1.2. 친구가 조카이면,
-                    elif self.friend == 'jok':
+                    elif self.friend == "jok":
                         # 1.1.2.1. 보스카드 있으면 보스카드
                         if len(boss_card) != 0:
                             selected_card = random.choice(boss_card)
@@ -310,14 +310,14 @@ class AlangAgent(Agent):
                         card = low_card
                 else:  # 노기루다
                     # todo 노기루다 로직
-                    raise('not implemented')
+                    raise("not implemented")
 
             # 2. 2턴
             elif game.round == 2:
                 # 2.1. 1턴을 주공이 먹었다면, (=첫턴 친구는 아닌 경우)
                 if game.start_player == self._uid and self._uid == game.president_player._uid:
                     # 2.1.1. 기루다 보스카드가 있다면, 보스카드
-                    card = '%s-1' % (self.suit)
+                    card = "%s-1" % (self.suit)
                     if card in valid_cards:
                         selected_card = card
                     # 2.1.2. 기루다 보스카드가 없다면,
@@ -348,7 +348,7 @@ class AlangAgent(Agent):
             # TODO validate card
 
             act = {}
-            act['card'] = selected_card
+            act["card"] = selected_card
             return act
 
         else:
