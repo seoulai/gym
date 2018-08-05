@@ -4,7 +4,6 @@ seoulai.com
 2018
 """
 import random
-from abc import ABC
 from abc import abstractmethod
 from typing import List
 from typing import Tuple
@@ -12,6 +11,7 @@ from typing import Tuple
 from seoulai_gym.envs.base_agent import BaseAgent
 from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.rules import Rules
+
 
 class Agent(BaseAgent, Constants, Rules):
     @abstractmethod

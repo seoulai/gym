@@ -3,7 +3,6 @@ Seung-Hyun Kim, kimseunghyun@gmail.com
 seoulai.com
 2018
 """
-from abc import ABC
 from abc import abstractmethod
 
 from seoulai_gym.envs.base_agent import BaseAgent
