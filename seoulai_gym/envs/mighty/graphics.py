@@ -1,5 +1,5 @@
 """
-Jeongwon Lee, maddlymissyou@gmail.com
+Jeongwon Lee, madlymissyou@gmail.com
 seoulai.com
 2018
 """
