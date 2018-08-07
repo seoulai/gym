@@ -110,7 +110,7 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
 * Mighty
   * https://github.com/seoulai/gym/blob/master/examples/mighty_example.py
 
-    [![Watch the video](https://i.ytimg.com/vi/84cx0OJKINM/hqdefault.jpg)](https://youtu.be/84cx0OJKINM)
+    [![Watch the video](http://img.youtube.com/vi/M3GCt8evGkQ/0.jpg)](https://youtu.be/M3GCt8evGkQ?t=0s) 
 
 ## Testing
 All test are written using [pytest](http://doc.pytest.org/).
