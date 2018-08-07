@@ -73,32 +73,32 @@ pip3 install -e .
 Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wiki/Draughts) and [Mighty](https://en.wikipedia.org/wiki/Mighty_(card_game)) are provided.
 
 * Checkers
-```python
-import seoulai_gym as gym
-env = gym.make("Checkers")
-env.reset()
-env.render()
-```
+  ```python
+  import seoulai_gym as gym
+  env = gym.make("Checkers")
+  env.reset()
+  env.render()
+  ```
 
 * Mighty
-```python
-import seoulai_gym as gym
-from seoulai_gym.envs.mighty.agent.RandomAgent import RandomAgent
+  ```python
+  import seoulai_gym as gym
+  from seoulai_gym.envs.mighty.agent.RandomAgent import RandomAgent
 
-env = gym.make("Mighty")
-players = [RandomAgent("Agent 1", 0),
-            RandomAgent("Agent 2", 1),
-            RandomAgent("Agent 3", 2),
-            RandomAgent("Agent 4", 3),
-            RandomAgent("Agent 5", 4)]
-obs = env.reset()
-obs["game"].players = [players[0]._name, 
-                       players[1]._name, 
-                       players[2]._name, 
-                       players[3]._name, 
-                       players[4]._name]
-env.render()
-```
+  env = gym.make("Mighty")
+  players = [RandomAgent("Agent 1", 0),
+              RandomAgent("Agent 2", 1),
+              RandomAgent("Agent 3", 2),
+              RandomAgent("Agent 4", 3),
+              RandomAgent("Agent 5", 4)]
+  obs = env.reset()
+  obs["game"].players = [players[0]._name, 
+                         players[1]._name, 
+                         players[2]._name, 
+                         players[3]._name, 
+                         players[4]._name]
+  env.render()
+  ```
 
 ## Examples
 
