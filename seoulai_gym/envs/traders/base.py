@@ -6,11 +6,11 @@ seoulai.com
 
 
 class Constants(object):
-    """ Constants to share between classes and functions for checkers game.
-    """
-    BUY = 0
-    SELL = 1
-    
+  """ Constants to share between classes and functions for checkers game.
+  """
+  BUY = 0
+  SELL = 1
+  HOLD = 2
 
 
 # class Piece(object):
