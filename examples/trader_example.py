@@ -9,21 +9,32 @@ from seoulai_gym.envs.traders.agents import RandomAgentBuffett
 
 
 def main():
-  env = gym.make("Market")
-  balance = 10000000
-  a1 = RandomAgentBuffett("Buffett", balance)
+  # initial state
+  init_cash = 100000000
+  fee_rt = 0.05/100
+  state = [init_cash, fee_rt]
 
-  obs = env.reset()
+  # make Market Enviroment
+  env = gym.make("Market", state)
+
+  a1 = RandomAgentBuffett("Buffett")
   current_agent = a1
+  
+  obs = env.reset(state)
+  #print("reset obs")
+  #print(obs)
 
   rew = 0  # reward
   done = False
 
+  #trading_episodes = 10
+  #for trading_episode in range(0, trading_episodes):
+    #print("trading_episode : %d"%trading_episode)
   while True:
-    decision, price, volumn = current_agent.act(obs, rew, done)
+    decision, trad_price, trad_qty = current_agent.act(obs, rew, done)
     try:
       obs, rew, done, info = env.step(
-          current_agent, decision, price, volumn)
+          current_agent, decision, trad_price, trad_qty)
     except ValueError:
       # print(f"Invalid action by {current_agent} agent.")
       break
@@ -32,9 +43,11 @@ def main():
     # env.render()
 
     if done:
-      print("done. Agent balance: ", current_agent._wallet)
-
-      obs = env.reset()
+      wallet = env.cash+env.asset_val
+      diff = wallet-init_cash
+      print("done. Agent wallet: %f, Agent return : %f, Agent wallet ratio : %f "%(wallet, diff, (diff/init_cash)*100))
+      obs = env.reset(state)
+      break
 
   env.close()
 
