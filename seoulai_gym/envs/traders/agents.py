@@ -18,11 +18,9 @@ class Agent(ABC, Constants):
   @abstractmethod
   def __init__(
       self,
-      name: str,
-      wallet: float
+      name: str
   ):
     self._name = name
-    self._wallet = wallet
 
   @abstractmethod
   def act(
@@ -44,9 +42,7 @@ class Agent(ABC, Constants):
 class RandomAgent(Agent):
   def __init__(
       self,
-      name: str,
-      wallet: float
-      # ptype: int,
+      name: str
   ):
     """Initialize random agent.
 
@@ -54,14 +50,17 @@ class RandomAgent(Agent):
         name: name of agent.
         ptype: type of piece that agent is responsible for.
     """
-    super().__init__(name, wallet)  # , ptype)
+    super().__init__(name)
 
   def act(
       self,
-      current_price: float,  # 현재 주가
+      obs, # 주가, 수수료율, 현금, 자산가치
+      #prices: List,  # 현재 주가
       reward: int,
       done: bool,
-  ) -> Tuple[int, int, int, int]:
+  ) -> Tuple[int, int, int]:
+    #print("agent obs")
+    #print(obs)
     """
     총 자산 = 현금 잔고 + 주식 가격 * 주식 수량
     수수료율 = 0.05%
@@ -77,7 +76,7 @@ class RandomAgent(Agent):
     보유 결정 = 주식 보유 & ((N일 평균 주가 - N일 주가의 표준편차) < 현재 주가 < (N일 평균 주가 - N일 주가의 표준편차))
 
     Args:
-        current_price: current price of stock.
+        prices: price data set of stock.
         reward: reward for perfomed step.
         done: information about end of game.
 
@@ -86,24 +85,42 @@ class RandomAgent(Agent):
     """
 
     decision = random.choice(list(['buy', 'sell', 'hold']))
-    stock_price, stock_vol = random.choice([(current_price, 1)])
-    # TODO: wallet에 반영
-    return decision, stock_price, stock_vol
+    #print(decision)
+    #obs = [self.price.price_list[:10], self.cash, self.asset_val, self.balance_qty, self.fee_rt]
+    price_list = obs[0]
+    cash = obs[1]
+    asset_val = obs[2]
+    balance_qty = obs[3]
+    fee_rt = obs[4]
+
+    trad_price = price_list[-1]    # select current price
+    trad_qty = 0
+    max_qty = 0
+
+    if decision == 'buy':
+      fee = trad_price*fee_rt
+      max_qty = int(cash/(trad_price+fee))
+    elif decision == 'sell':
+      max_qty = balance_qty
+    
+    #print(max_qty)
+    if max_qty > 0 :    # 최대가능수량이 0보다 클 경우 range에서 random하게 선택
+      trad_qty = random.choice(range(0, max_qty))
+    
+    return decision, trad_price, trad_qty
 
 
 class RandomAgentBuffett(RandomAgent):
   def __init__(
       self,
-      name: str,
-      wallet: float
+      name: str
   ):
-    super().__init__(name, wallet)  # , Constants().LIGHT)
+    super().__init__(name)
 
 
 class RandomAgentSon(RandomAgent):
   def __init__(
       self,
-      name: str,
-      wallet: float
+      name: str
   ):
-    super().__init__(name, wallet)  # , Constants().DARK)
+    super().__init__(name)
