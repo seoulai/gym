@@ -117,8 +117,14 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
   import seoulai_gym as gym
   from seoulai_gym.envs.traders.agents import RandomAgentBuffett
 
+  # initial state
+  init_cash = 100000000
+  fee_rt = 0.05/100
+  state = [init_cash, fee_rt]
+  
+  # make enviroment
   env = gym.make("Market")
-  a1 = RandomAgentBuffett("Buffett", balance)
+  a1 = RandomAgentBuffett("Buffett")
   obs = env.reset()
 
   # TBD
