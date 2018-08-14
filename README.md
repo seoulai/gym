@@ -123,7 +123,7 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
   state = [init_cash, fee_rt]
   
   # make enviroment
-  env = gym.make("Market")
+  env = gym.make("Market", state)
   a1 = RandomAgentBuffett("Buffett")
   obs = env.reset()
 
