@@ -26,9 +26,9 @@ class Price(Constants):
         size: Price length.
     """
     self.stock_total_volume = 2000
-    self.price_list_size = price_list_size
-    self.tick = tick
-    self.init_cash = init_cash
+    self.price_list_size = price_list_size  # TODO: data generator
+    #self.tick = tick
+    #self.init_cash = init_cash
 
     self.init()
 
@@ -42,7 +42,7 @@ class Price(Constants):
     """
     self.price_list = np.random.rand(self.price_list_size)*100
     # self.volume_list = np.random.rand(self.total)*100
-
+  """
   def conclude(
       self,
       decision,
@@ -81,12 +81,10 @@ class Price(Constants):
     rew = cur_pflo_value-priv_pflo_value    # 포트폴리오 가치 변화량
 
     # checking valid order
-    """
     if decision == 'buy' and (self.stock_total_volume - stock_volume) > 0:
       self.stock_total_volume = self.stock_total_volume - stock_volume
     elif decision == 'sell':
       self.stock_total_volume = self.stock_total_volume + stock_volume
-    """
 
     # end of trading game?
     if self.stock_total_volume == 0:
@@ -106,5 +104,5 @@ class Price(Constants):
     obs = [self.price_list[:self.tick], cash, asset_val, balance_qty, fee_rt]
 
     return obs, rew, done, info
-
+  """
 

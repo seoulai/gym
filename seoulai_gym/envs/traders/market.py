@@ -49,14 +49,14 @@ class Market():
     self.price = Price(state[0])    # TODO: data generator
     self.cash = state[0]    # TODO: dictionary or dataframe
     self.fee_rt = state[1]
-    self.balance_qty = 0
+    self.asset_qty = 0
     self.asset_val = 0
     self.tick = 0
     self.max_tick_size = 1000
     self.init_cash = self.cash
 
-    obs = [self.price.price_list[:1], self.cash, self.asset_val, self.balance_qty, self.fee_rt]
-    # TODO : obs = price + cash + asset_val, balance_qty
+    obs = [self.price.price_list[:1], self.cash, self.asset_val, self.asset_qty, self.fee_rt]
+    # TODO : obs = price + cash + asset_val, asset_qty
     return obs # reset prices data set
 
   def step(
@@ -100,29 +100,33 @@ class Market():
 
       info = {}
 
-      # Agent가 원하는대로 체결이 됐다고 가정.
-      ccld_price = trad_price
-      ccld_qty = trad_qty
+      # It is assumed that order is concluded as agent action.
+      # in real world, it can't be possible.
+      # TODO : develop backtesting logic like real world. ex. slippage
+      ccld_price = trad_price    # concluded price. (체결가격)
+      ccld_qty = trad_qty   # concluded quantity. (체결수량)
 
-      trading_amt = ccld_price*ccld_qty    # 거래금액
-      fee = trading_amt*self.fee_rt
+      trading_amt = ccld_price*ccld_qty    # total amount of moved money. (거래금액)
+      fee = trading_amt*self.fee_rt    # fee(commission, 수수료)
 
-      priv_pflo_value = self.cash+self.asset_val
+      priv_pflo_value = self.cash+self.asset_val    # previus potfolio value(previous cash+asset_value), 이전 포트폴리오 가치(이전 현금 + 이전 자산 가치)
+
 
       if decision == 'buy':
-        self.cash = self.cash-trading_amt-fee
-        self.balance_qty = self.balance_qty + ccld_qty
+        self.cash = self.cash-trading_amt-fee   # after buying, cash will decrease. (매수 후, 현금은 줄어든다.)
+        self.asset_qty = self.asset_qty + ccld_qty    # quantity of asset will increase. (매수 후, 자산 수량은 늘어난다.)
       elif decision == 'sell':
-        self.cash = self.cash+(trading_amt-fee)    # 매도 시 수수료만큼 떼고 입금
-        self.balance_qty = self.balance_qty - ccld_qty
+        self.cash = self.cash+(trading_amt-fee)    # after selling, cash will increase. (매도 후, 현금은 증가한다.)
+        self.asset_qty = self.asset_qty - ccld_qty    # quantity of asset will decrease. (매도 후, 자산 수량은 줄어든다.)
 
-      cur_price = self.price.price_list[self.tick]
-      self.asset_val = self.balance_qty*cur_price
-      cur_pflo_value = self.cash+self.asset_val
+      cur_price = self.price.price_list[self.tick]    # current price (현재가)
+      self.asset_val = self.asset_qty*cur_price    # current asset value is asset_qty x current price (현재 자산 가치 = 자산 수량 x 현재가)
+      cur_pflo_value = self.cash+self.asset_val    # current potfolio value(current cash+asset_value) 현재 포트폴리오 가치(현재 현금, 현재 자산 가치)
 
-      rew = cur_pflo_value-priv_pflo_value    # 포트폴리오 가치 변화량
+      rew = cur_pflo_value-priv_pflo_value    # money that you earn or lose in 1 tick. (1 tick 동안의 decision으로 변화한 포트폴리오 가치를 reward로 잡음)
 
       # checking valid order
+      # self.stock_total_volume will be discussed.
       """
       if decision == 'buy' and (self.stock_total_volume - stock_volume) > 0:
         self.stock_total_volume = self.stock_total_volume - stock_volume
@@ -130,7 +134,6 @@ class Market():
         self.stock_total_volume = self.stock_total_volume + stock_volume
       """
 
-      # end of trading game?
       """
       if self.stock_total_volume == 0:
         done = True
@@ -140,14 +143,17 @@ class Market():
 
       # next tick
       self.tick = self.tick + 1
+
+      # end of trading game?
       if self.tick >= self.max_tick_size:
         done = True
 
-      # -20% 미만으로 하락시 game over
+      # if you lose 20% of your money,  game over
       if ((cur_pflo_value/self.init_cash)-1)*100 < -20.0:
         done = True
 
-      obs = [self.price.price_list[:self.tick], self.cash, self.asset_val, self.balance_qty, self.fee_rt]
+      # observation = [[history of prices], cash, asset value, quantity of asset, fee_ratio]
+      obs = [self.price.price_list[:self.tick], self.cash, self.asset_val, self.asset_qty, self.fee_rt]
 
       return obs, rew, done, info
 
