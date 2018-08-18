@@ -1,5 +1,5 @@
 """
-Martin Kersner, m.kersner@gmail.com
+Cinyoung Hur, cinyoung.hur@gmail.com
 seoulai.com
 2018
 """
