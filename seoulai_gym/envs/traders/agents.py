@@ -4,6 +4,7 @@ James Park, laplacian.k@gmail.com
 seoulai.com
 2018
 """
+import numpy as np
 import random
 from abc import ABC
 from abc import abstractmethod
@@ -54,13 +55,13 @@ class RandomAgent(Agent):
 
   def act(
       self,
-      obs, # 주가, 수수료율, 현금, 자산가치
-      #prices: List,  # 현재 주가
+      obs,  # 주가, 수수료율, 현금, 자산가치
+      # prices: List,  # 현재 주가
       reward: int,
       done: bool,
   ) -> Tuple[int, int, int]:
     #print("agent obs")
-    #print(obs)
+    # print(obs)
     """
     총 자산 = 현금 잔고 + 주식 가격 * 주식 수량
     수수료율 = 0.05%
@@ -85,7 +86,7 @@ class RandomAgent(Agent):
     """
 
     decision = random.choice(list(['buy', 'sell', 'hold']))
-    #print(decision)
+    # print(decision)
     #obs = [self.price.price_list[:10], self.cash, self.asset_val, self.balance_qty, self.fee_rt]
     price_list = obs[0]
     cash = obs[1]
@@ -98,15 +99,15 @@ class RandomAgent(Agent):
     max_qty = 0
 
     if decision == 'buy':
-      fee = trad_price*fee_rt
-      max_qty = int(cash/(trad_price+fee))
+      fee = trad_price*fee_rt  # 수수료 계산
+      # 최대 매수 가능 수량 = 보유 현금 / (주식 매수 금액 + 수수료)
+      max_qty = cash/(trad_price+fee)
     elif decision == 'sell':
       max_qty = balance_qty
-    
-    #print(max_qty)
-    if max_qty > 0 :    # 최대가능수량이 0보다 클 경우 range에서 random하게 선택
-      trad_qty = random.choice(range(0, max_qty))
-    
+
+    if max_qty > 0:    # 최대가능수량이 0보다 클 경우 range에서 random하게 선택
+      trad_qty = np.random.random_sample() * max_qty
+
     return decision, trad_price, trad_qty
 
 
