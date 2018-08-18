@@ -8,9 +8,9 @@ from typing import Tuple
 from typing import Dict
 from typing import List
 import numpy as np
+import pandas as pd
 from seoulai_gym.envs.traders.base import Constants
-# from seoulai_gym.envs.checkers.base import DarkPiece
-# from seoulai_gym.envs.checkers.rules import Rules
+import os
 
 
 class Price(Constants):
@@ -26,7 +26,7 @@ class Price(Constants):
         size: Price length.
     """
     self.stock_total_volume = 2000
-    self.price_list_size = price_list_size  # TODO: data generator
+    # self.price_list_size = price_list_size  # TODO: data generator
     #self.tick = tick
     #self.init_cash = init_cash
 
@@ -40,7 +40,14 @@ class Price(Constants):
 
     Note: Dark pieces should be ALWAYS on the top of the board.
     """
-    self.price_list = np.random.rand(self.price_list_size)*100
+    # self.price_list = np.random.rand(self.price_list_size)*100
+    price_file = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), 'bitcoin_price.csv'))
+    df = pd.read_csv(price_file)
+    df['Date'] = pd.to_datetime(df.Date)
+    df.sort_values('Date', ascending=True, inplace=True)
+    self.price_list = df.Close.tolist()
+    self.price_list_size = df.shape[0]
     # self.volume_list = np.random.rand(self.total)*100
   """
   def conclude(
@@ -105,4 +112,3 @@ class Price(Constants):
 
     return obs, rew, done, info
   """
-
