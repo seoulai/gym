@@ -11,8 +11,8 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
-# import pygame
-# from pygame.locals import QUIT
+import pygame
+from pygame.locals import QUIT
 
 from seoulai_gym.envs.traders.base import Constants
 from seoulai_gym.envs.traders.price import Price
@@ -185,28 +185,30 @@ class Market():
 
   def render(
       self,
+      wallet,
+      decision
   ) -> None:
     """Display current state of board.
 
     Returns:
         None
     """
-    """
+    
     self.graphics.update(
-         self.price.price_list,
-         self.piece_location,
-         self.possible_moves,
+         self.price.price_list[:self.tick],
+         wallet,
+         decision,
      )
 
     for event in pygame.event.get():
       if event.type == QUIT:
         pygame.quit()
-    """
+    
   def close(
       self,
   ) -> None:
-    pass
-    # pygame.display.quit()
-    # pygame.quit()
-    # # pygame has to be again initialized, otherwise window does not close
-    # pygame.init()
+    
+    pygame.display.quit()
+    pygame.quit()
+    # pygame has to be again initialized, otherwise window does not close
+    pygame.init()
