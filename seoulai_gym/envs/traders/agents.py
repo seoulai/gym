@@ -8,7 +8,6 @@ import numpy as np
 import random
 from abc import ABC
 from abc import abstractmethod
-from typing import List
 from typing import Tuple
 
 from seoulai_gym.envs.traders.base import Constants
@@ -42,9 +41,9 @@ class Agent(ABC, Constants):
 
 class RandomAgent(Agent):
     def __init__(
-        self,
-        name: str
-    ):
+            self,
+            name: str,
+            init_cash: float):
         """Initialize random agent.
 
         Args:
@@ -52,6 +51,10 @@ class RandomAgent(Agent):
             ptype: type of piece that agent is responsible for.
         """
         super().__init__(name)
+        self.init_cash = init_cash
+        self.cash = init_cash
+        self.asset_qty = 0.0
+        self.asset_val = 0.0
 
     def act(
         self,
@@ -85,12 +88,12 @@ class RandomAgent(Agent):
         # TODO : RL Algo
         decision = random.choice(list(['buy', 'sell', 'hold']))
 
-        #obs = [self.price.price_list[:10], self.cash, self.asset_val, self.balance_qty, self.fee_rt]
+        # obs = [self.price.price_list[:10], self.cash, self.asset_val, self.balance_qty, self.fee_rt]
         price_list = obs[0]
         fee_rt = obs[1]
 
-        #asset_val = obs[2]
-        #balance_qty = obs[3]
+        # asset_val = obs[2]
+        # balance_qty = obs[3]
 
         trad_price = price_list[-1]    # select current price
         trad_qty = 0
@@ -116,13 +119,9 @@ class RandomAgentBuffett(RandomAgent):
     def __init__(
         self,
         name: str,
-        init_cash,
+        init_cash: float,
     ):
-        super().__init__(name)
-        self.init_cash = init_cash
-        self.cash = init_cash
-        self.asset_qty = 0.0
-        self.asset_val = 0.0
+        super().__init__(name, init_cash)
 
 
 class RandomAgentSon(RandomAgent):

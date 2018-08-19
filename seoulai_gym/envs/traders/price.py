@@ -4,10 +4,6 @@ James Park, laplacian.k@gmail.com
 seoulai.com
 2018
 """
-from typing import Tuple
-from typing import Dict
-from typing import List
-import numpy as np
 import pandas as pd
 from seoulai_gym.envs.traders.base import Constants
 import os

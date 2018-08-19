@@ -14,7 +14,7 @@ from typing import Tuple
 import pygame
 from pygame.locals import QUIT
 
-from seoulai_gym.envs.traders.base import Constants
+# from seoulai_gym.envs.traders.base import Constants
 from seoulai_gym.envs.traders.price import Price
 from seoulai_gym.envs.traders.graphics import Graphics
 # from seoulai_gym.envs.traders.rules import Rules
