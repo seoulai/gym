@@ -20,7 +20,8 @@ setup(name="seoulai-gym",
           "pytest>=3.6.0",
           "flake8>=3.5.0",
           "PyQt5>5",
-          "pandas>=0.23.4"
+          "pandas>=0.23.4",
+          "matplotlib>=2.2.3"
       ],
       tests_require=["pytest"],
       include_package_data=True,
