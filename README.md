@@ -98,7 +98,7 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
                          players[3]._name, 
                          players[4]._name]
   env.render()
-  ```
+
 * Market
 
   ```python
