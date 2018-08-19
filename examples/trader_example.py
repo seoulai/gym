@@ -49,7 +49,7 @@ def main():
       # print(f"Invalid action by {current_agent} agent.")
       break
 
-    env.render()
+    env.render(current_agent.cash+current_agent.asset_val, decision)
     
     if done:
       wallet = current_agent.cash+current_agent.asset_val
