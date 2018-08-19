@@ -55,8 +55,7 @@ class RandomAgent(Agent):
 
   def act(
       self,
-      obs,  # 주가, 수수료율, 현금, 자산가치
-      # prices: List,  # 현재 주가
+      obs,  # price history
       reward: int,
       done: bool,
   ) -> Tuple[int, int, int]:
@@ -85,28 +84,33 @@ class RandomAgent(Agent):
         Current and new location of piece.
     """
 
+    # TODO : RL Algo
     decision = random.choice(list(['buy', 'sell', 'hold']))
-    # print(decision)
+
     #obs = [self.price.price_list[:10], self.cash, self.asset_val, self.balance_qty, self.fee_rt]
     price_list = obs[0]
-    cash = obs[1]
-    asset_val = obs[2]
-    balance_qty = obs[3]
-    fee_rt = obs[4]
+    fee_rt = obs[1]
+
+    #asset_val = obs[2]
+    #balance_qty = obs[3]
+    
 
     trad_price = price_list[-1]    # select current price
     trad_qty = 0
     max_qty = 0
 
+    # validation
     if decision == 'buy':
       fee = trad_price*fee_rt  # 수수료 계산
       # 최대 매수 가능 수량 = 보유 현금 / (주식 매수 금액 + 수수료)
-      max_qty = cash/(trad_price+fee)
+      max_qty = self.cash/(trad_price+fee)
     elif decision == 'sell':
-      max_qty = balance_qty
+      max_qty = self.asset_qty
 
-    if max_qty > 0:    # 최대가능수량이 0보다 클 경우 range에서 random하게 선택
+    if max_qty > 0:    # 매수, 매도 최대가능수량이 0보다 클 경우만 random하게 선택
       trad_qty = np.random.random_sample() * max_qty
+    else:
+      decision = 'hold'
 
     return decision, trad_price, trad_qty
 
@@ -114,10 +118,14 @@ class RandomAgent(Agent):
 class RandomAgentBuffett(RandomAgent):
   def __init__(
       self,
-      name: str
+      name: str,
+      init_cash,
   ):
     super().__init__(name)
-
+    self.init_cash = init_cash
+    self.cash = init_cash
+    self.asset_qty = 0.0
+    self.asset_val = 0.0
 
 class RandomAgentSon(RandomAgent):
   def __init__(

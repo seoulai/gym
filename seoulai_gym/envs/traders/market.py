@@ -16,14 +16,14 @@ from typing import Tuple
 
 from seoulai_gym.envs.traders.base import Constants
 from seoulai_gym.envs.traders.price import Price
-# from seoulai_gym.envs.traders.graphics import Graphics
+from seoulai_gym.envs.traders.graphics import Graphics
 # from seoulai_gym.envs.traders.rules import Rules
 
 
 class Market():
   def __init__(
       self,
-      state,
+      state: str=None,
   ) -> None:
     """Initialize market and its visualization.
     Args:
@@ -32,32 +32,48 @@ class Market():
     Returns:
         None
     """
-    self.reset(state)
+    self.init()
 
     # graphics is for visualization
-    # self.graphics = Graphics()
+    self.graphics = Graphics()
 
-  def reset(
+  def init(
       self,
-      state
-  ) -> List:
-    """Reset all variables and initialize new game.
-
-    Returns:
-        obs: Information about positions of pieces.
-    """
-    self.price = Price(state[0])    # TODO: data generator
-    self.cash = state[0]    # TODO: dictionary or dataframe
-    self.fee_rt = state[1]
-    self.asset_qty = 0
-    self.asset_val = 0
+  ) :
+    self.price = Price()    # TODO: data generator
     self.tick = 0
     self.max_tick_size = 1000
-    self.init_cash = self.cash
 
-    obs = [self.price.price_list[:1], self.cash, self.asset_val, self.asset_qty, self.fee_rt]
-    # TODO : obs = price + cash + asset_val, asset_qty
-    return obs # reset prices data set
+  def select(
+      self,
+      exchang_name) :
+
+    # TODO : add some exchanges. ex. bithumb, bittrex, coinone, binance...
+    # TODO : fixed parameters(fee ratio...) can't be edited.
+    if exchang_name == "upbit":
+      self.fee_rt = 0.05/100
+    else:
+      self.fee_rt = 0.10/100
+
+  def reset(
+      self
+  ) -> List:
+    """Reset all variables and initialize new game.
+    Returns:
+        obs: Information about trading parameters.
+    """
+
+    self.init()
+    #self.price = Price()    # TODO: data generator
+    #self.asset_qty = 0
+    #self.asset_val = 0
+    #self.tick = 0
+    #self.max_tick_size = 1000
+    #self.init_cash = self.cash
+
+    obs = [self.price.price_list[:1], self.fee_rt]
+
+    return obs
 
   def step(
       self,
@@ -86,10 +102,11 @@ class Market():
     #     self.price.board_list, from_row, from_col)
 
     obs, rew, done, info = self.conclude(
-        decision, trad_price, trad_qty)
+        agent, decision, trad_price, trad_qty)
     return copy.deepcopy(obs), rew, done, info
   def conclude(
         self,
+        agent,
         decision,
         trad_price,
         trad_qty
@@ -103,25 +120,25 @@ class Market():
       # It is assumed that order is concluded as agent action.
       # in real world, it can't be possible.
       # TODO : develop backtesting logic like real world. ex. slippage
+      # TODO : add tax ratio and calculate tax
       ccld_price = trad_price    # concluded price. (체결가격)
       ccld_qty = trad_qty   # concluded quantity. (체결수량)
 
       trading_amt = ccld_price*ccld_qty    # total amount of moved money. (거래금액)
       fee = trading_amt*self.fee_rt    # fee(commission, 수수료)
 
-      priv_pflo_value = self.cash+self.asset_val    # previus potfolio value(previous cash+asset_value), 이전 포트폴리오 가치(이전 현금 + 이전 자산 가치)
-
+      priv_pflo_value = agent.cash+agent.asset_val    # previus potfolio value(previous cash+asset_value), 이전 포트폴리오 가치(이전 현금 + 이전 자산 가치)
 
       if decision == 'buy':
-        self.cash = self.cash-trading_amt-fee   # after buying, cash will decrease. (매수 후, 현금은 줄어든다.)
-        self.asset_qty = self.asset_qty + ccld_qty    # quantity of asset will increase. (매수 후, 자산 수량은 늘어난다.)
+        agent.cash = agent.cash-trading_amt-fee   # after buying, cash will decrease. (매수 후, 현금은 줄어든다.)
+        agent.asset_qty = agent.asset_qty + ccld_qty    # quantity of asset will increase. (매수 후, 자산 수량은 늘어난다.)
       elif decision == 'sell':
-        self.cash = self.cash+(trading_amt-fee)    # after selling, cash will increase. (매도 후, 현금은 증가한다.)
-        self.asset_qty = self.asset_qty - ccld_qty    # quantity of asset will decrease. (매도 후, 자산 수량은 줄어든다.)
+        agent.cash = agent.cash+(trading_amt-fee)    # after selling, cash will increase. (매도 후, 현금은 증가한다.)
+        agent.asset_qty = agent.asset_qty - ccld_qty    # quantity of asset will decrease. (매도 후, 자산 수량은 줄어든다.)
 
       cur_price = self.price.price_list[self.tick]    # current price (현재가)
-      self.asset_val = self.asset_qty*cur_price    # current asset value is asset_qty x current price (현재 자산 가치 = 자산 수량 x 현재가)
-      cur_pflo_value = self.cash+self.asset_val    # current potfolio value(current cash+asset_value) 현재 포트폴리오 가치(현재 현금, 현재 자산 가치)
+      agent.asset_val = agent.asset_qty*cur_price    # current asset value is asset_qty x current price (현재 자산 가치 = 자산 수량 x 현재가)
+      cur_pflo_value = agent.cash+agent.asset_val    # current potfolio value(current cash+asset_value) 현재 포트폴리오 가치(현재 현금, 현재 자산 가치)
 
       rew = cur_pflo_value-priv_pflo_value    # money that you earn or lose in 1 tick. (1 tick 동안의 decision으로 변화한 포트폴리오 가치를 reward로 잡음)
 
@@ -145,15 +162,24 @@ class Market():
       self.tick = self.tick + 1
 
       # end of trading game?
+      msg = ""
       if self.tick >= self.max_tick_size:
         done = True
+        msg = "tick overflow!! max_tick_size : %d, current_tick : %d "%(self.max_tick_size, self.tick)
 
       # if you lose 20% of your money,  game over
-      if ((cur_pflo_value/self.init_cash)-1)*100 < -20.0:
+      if ((cur_pflo_value/agent.init_cash)-1)*100 < -20.0:
         done = True
+        msg = "you lose 20percent of your money!!!"
 
       # observation = [[history of prices], cash, asset value, quantity of asset, fee_ratio]
-      obs = [self.price.price_list[:self.tick], self.cash, self.asset_val, self.asset_qty, self.fee_rt]
+      obs = [self.price.price_list[:self.tick], self.fee_rt]
+      
+      info['priv_pflo_value'] = priv_pflo_value
+      info['cur_pflo_value'] = cur_pflo_value
+      info['1tick_return'] = cur_pflo_value-priv_pflo_value
+      info['1tick_ret_ratio'] = ((cur_pflo_value/priv_pflo_value)-1)*100
+      info['msg'] = msg
 
       return obs, rew, done, info
 
@@ -165,16 +191,17 @@ class Market():
     Returns:
         None
     """
-    # self.graphics.update(
-    #     self.price.price_list,
-    #     self.piece_location,
-    #     self.possible_moves,
-    # )
+    """
+    self.graphics.update(
+         self.price.price_list,
+         self.piece_location,
+         self.possible_moves,
+     )
 
-    # for event in pygame.event.get():
-    #   if event.type == QUIT:
-    #     pygame.quit()
-
+    for event in pygame.event.get():
+      if event.type == QUIT:
+        pygame.quit()
+    """
   def close(
       self,
   ) -> None:

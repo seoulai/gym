@@ -6,21 +6,24 @@ seoulai.com
 """
 import seoulai_gym as gym
 from seoulai_gym.envs.traders.agents import RandomAgentBuffett
+import pandas as pd
 
 
 def main():
-  # initial state
-  init_cash = 100000000
-  fee_rt = 0.05/100
-  state = [init_cash, fee_rt]
 
-  # make Market Enviroment
-  env = gym.make("Market", state)
+  # make Market enviroment
+  # TODO: add trading condition of real exchanges. then users will be able to choose exchange.
+  # gym.make("Market", exchange_name)
+  env = gym.make("Market")
 
-  a1 = RandomAgentBuffett("Buffett")
+  # select exchange
+  env.select("upbit")
+
+  init_cash = 100000000    # KRW
+  a1 = RandomAgentBuffett("Buffett", init_cash)
   current_agent = a1
   
-  obs = env.reset(state)
+  obs = env.reset()
   #print("reset obs")
   #print(obs)
 
@@ -30,24 +33,33 @@ def main():
   #trading_episodes = 10
   #for trading_episode in range(0, trading_episodes):
     #print("trading_episode : %d"%trading_episode)
+
+  print("tick\t\t decision\t\t trad_price(ccld_price)\t\t trad_qty(ccld_qty)\t\t cash\t\t asset_qty\t\t asset_val\t\t 1tick_return\t\t 1tick_ret_ratio\t\t ")
+  i = 0
   while True:
     decision, trad_price, trad_qty = current_agent.act(obs, rew, done)
     try:
       obs, rew, done, info = env.step(
           current_agent, decision, trad_price, trad_qty)
+      # data sheet
+      print("%d\t\t %s\t\t %lf\t\t %lf\t\t %lf\t\t %lf\t\t %lf\t\t %lf\t\t %lf\t\t "%(i, decision, trad_price, trad_qty, \
+            current_agent.cash, current_agent.asset_qty, current_agent.asset_val, info['1tick_return'], info['1tick_ret_ratio'] ))
+      
     except ValueError:
       # print(f"Invalid action by {current_agent} agent.")
       break
 
-    # render later
-    # env.render()
-
+    env.render()
+    
     if done:
-      wallet = env.cash+env.asset_val
+      wallet = current_agent.cash+current_agent.asset_val
       diff = wallet-init_cash
-      print("done. Agent wallet: %f, Agent return : %f, Agent wallet ratio : %f "%(wallet, diff, (diff/init_cash)*100))
-      obs = env.reset(state)
+      print("game over!!! " + info['msg'])
+      print("total result. Agent wallet: %f, Agent total_return : %f, Agent total_ret_ratio : %f"%(wallet, diff, ((wallet/init_cash)-1)*100))
+      obs = env.reset()
       break
+
+    i = i+1
 
   env.close()
 
