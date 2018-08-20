@@ -1,4 +1,3 @@
-
 """
 Stock Market
 Cinyoung Hur, cinyoung.hur@gmail.com
@@ -173,18 +172,12 @@ class Market():
             done = True
             msg = "you lose 20percent of your money!!!"
 
-        # if you earned 20% of your money,  game over
-        if ((cur_pflo_value/agent.init_cash)-1)*100 > 20.0:
-            done = True
-            msg = "you earned 20percent of your money!!!"
-
         obs = [self.price.price_list[:self.tick], self.fee_rt]
 
         info['priv_pflo_value'] = priv_pflo_value
         info['cur_pflo_value'] = cur_pflo_value
         info['1tick_return'] = cur_pflo_value-priv_pflo_value
         info['1tick_ret_ratio'] = ((cur_pflo_value/priv_pflo_value)-1)*100
-        info['fee'] = fee
         info['msg'] = msg
 
         return obs, rew, done, info
