@@ -54,7 +54,7 @@ class Graphics(Constants):
         self,
         prices: List,
         wallet: int=10000,
-        decision: str="buy"
+        decision: str=Constants.BUY
     ) -> None:
         """Update visualization of prices and profits with respect to the current state.
         Agent"s decisions at certain timestamp are displayed.
