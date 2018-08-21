@@ -3,3 +3,4 @@ Pillow
 pygame
 numpy
 flake8
+pandas

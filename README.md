@@ -70,7 +70,7 @@ pip3 install -e .
 `seoulai-gym` requires to have at least Python 3.6 and was tested on Arch Linux, macOS High Sierra and Windows 10.
 
 ## Environments
-Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wiki/Draughts) and [Mighty](https://en.wikipedia.org/wiki/Mighty_(card_game)) are provided.
+Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wiki/Draughts), [Mighty] (https://en.wikipedia.org/wiki/Mighty_(card_game)), and Trader are provided.
 
 * Checkers
   ```python
@@ -98,6 +98,25 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
                          players[3]._name, 
                          players[4]._name]
   env.render()
+
+* Market
+
+  ```python
+  import seoulai_gym as gym
+  from seoulai_gym.envs.traders.agents import RandomAgentBuffett
+  
+  # make enviroment
+  env = gym.make("Market")
+
+  # select exchange
+  env.select("upbit")
+
+  init_cash = 100000000    # KRW
+  a1 = RandomAgentBuffett("Buffett", init_cash)
+  current_agent = a1
+  
+  env.reset()
+  env.render()
   ```
 
 ## Examples
@@ -111,6 +130,10 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
   * https://github.com/seoulai/gym/blob/master/examples/mighty_example.py
 
     [![Watch the video](http://img.youtube.com/vi/M3GCt8evGkQ/0.jpg)](https://youtu.be/M3GCt8evGkQ?t=0s) 
+
+* Market
+  * https://github.com/seoulai/gym/blob/master/examples/trader_example.py
+
 
 ## Testing
 All test are written using [pytest](http://doc.pytest.org/).
