@@ -6,6 +6,7 @@ seoulai.com
 from typing import List
 
 import matplotlib.backends.backend_agg as agg
+import matplotlib.pyplot as plt
 import pylab
 import pygame
 
@@ -75,7 +76,7 @@ class Graphics(Constants):
         canvas = agg.FigureCanvasAgg(self.fig)
         canvas.draw()
         renderer = canvas.get_renderer()
-        self.fig.clf()
+        plt.cla()
 
         raw_data = renderer.tostring_rgb()
         size = canvas.get_width_height()
