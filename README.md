@@ -70,7 +70,7 @@ pip3 install -e .
 `seoulai-gym` requires to have at least Python 3.6 and was tested on Arch Linux, macOS High Sierra and Windows 10.
 
 ## Environments
-Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wiki/Draughts), [Mighty] (https://en.wikipedia.org/wiki/Mighty_(card_game)), and Trader are provided.
+Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wiki/Draughts), [Mighty] (https://en.wikipedia.org/wiki/Mighty_(card_game)), and Market are provided.
 
 * Checkers
   ```python
