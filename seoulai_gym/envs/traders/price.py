@@ -12,8 +12,8 @@ import os
 class Price(Constants):
     def __init__(
         self,
-        price_list_size: int=1000,    # trading game size
-        tick: int=0
+        price_list_size: int=1000,  # trading game size
+        tick: int=0,
     ):
         """Price constructor.
 
@@ -32,9 +32,9 @@ class Price(Constants):
 
         """
         price_file = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), 'bitcoin_price.csv'))
+            os.path.dirname(__file__), "bitcoin_price.csv"))
         df = pd.read_csv(price_file)
-        df['Date'] = pd.to_datetime(df.Date)
-        df.sort_values('Date', ascending=True, inplace=True)
+        df["Date"] = pd.to_datetime(df.Date)
+        df.sort_values("Date", ascending=True, inplace=True)
         self.price_list = df.Close.tolist()
         self.price_list_size = df.shape[0]

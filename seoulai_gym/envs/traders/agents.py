@@ -11,14 +11,13 @@ from abc import abstractmethod
 from typing import Tuple
 
 from seoulai_gym.envs.traders.base import Constants
-# from seoulai_gym.envs.traders.rules import Rules
 
 
 class Agent(ABC, Constants):
     @abstractmethod
     def __init__(
         self,
-        name: str
+        name: str,
     ):
         self._name = name
 
@@ -43,7 +42,8 @@ class RandomAgent(Agent):
     def __init__(
             self,
             name: str,
-            init_cash: float):
+            init_cash: float,
+    ):
         """Initialize random agent.
 
         Args:
@@ -113,6 +113,6 @@ class RandomAgentBuffett(RandomAgent):
 class RandomAgentSon(RandomAgent):
     def __init__(
         self,
-        name: str
+        name: str,
     ):
         super().__init__(name)

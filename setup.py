@@ -19,7 +19,7 @@ setup(name="seoulai-gym",
           "numpy>=1.14.2",
           "pytest>=3.6.0",
           "flake8>=3.5.0",
-          "PyQt5>5",
+          "PyQt5>=5",
           "pandas>=0.23.4",
           "matplotlib>=2.2.3"
       ],
