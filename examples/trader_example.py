@@ -19,7 +19,7 @@ def main():
     # select exchange
     env.select("upbit")
 
-    init_cash = 100000000    # KRW
+    init_cash = 100000000  # KRW
     a1 = RandomAgentBuffett("Buffett", init_cash)
     current_agent = a1
 
@@ -41,8 +41,8 @@ def main():
             print("%5d %4s %10lf %10lf %10lf %10lf %10lf %10lf %10lf"
                   % (i, decision, trad_price, trad_qty,
                      current_agent.cash, current_agent.asset_qty,
-                     current_agent.asset_val, info['1tick_return'],
-                     info['1tick_ret_ratio']))
+                     current_agent.asset_val, info["1tick_return"],
+                     info["1tick_ret_ratio"]))
 
         except ValueError:
             break
@@ -52,7 +52,7 @@ def main():
         if done:
             wallet = current_agent.cash+current_agent.asset_val
             diff = wallet-init_cash
-            print("game over!!! " + info['msg'])
+            print("game over!!! " + info["msg"])
             print("total result. Agent wallet: % f, Agent total_return: % f, Agent total_ret_ratio : %f" %
                   (wallet, diff, ((wallet/init_cash)-1)*100))
             obs = env.reset()

@@ -11,14 +11,13 @@ from abc import abstractmethod
 from typing import Tuple
 
 from seoulai_gym.envs.traders.base import Constants
-# from seoulai_gym.envs.traders.rules import Rules
 
 
 class Agent(ABC, Constants):
     @abstractmethod
     def __init__(
         self,
-        name: str
+        name: str,
     ):
         self._name = name
 
@@ -43,7 +42,8 @@ class RandomAgent(Agent):
     def __init__(
             self,
             name: str,
-            init_cash: float):
+            init_cash: float,
+    ):
         """Initialize random agent.
 
         Args:
@@ -86,7 +86,7 @@ class RandomAgent(Agent):
         """
 
         # TODO : RL Algo
-        decision = random.choice(list(['buy', 'sell', 'hold']))
+        decision = random.choice(list(["buy", "sell", "hold"]))
 
         # obs = [self.price.price_list[:10], self.cash, self.asset_val, self.balance_qty, self.fee_rt]
         price_list = obs[0]
@@ -100,17 +100,17 @@ class RandomAgent(Agent):
         max_qty = 0
 
         # validation
-        if decision == 'buy':
+        if decision == "buy":
             fee = trad_price*fee_rt  # 수수료 계산
             # 최대 매수 가능 수량 = 보유 현금 / (주식 매수 금액 + 수수료)
             max_qty = self.cash/(trad_price+fee)
-        elif decision == 'sell':
+        elif decision == "sell":
             max_qty = self.asset_qty
 
         if max_qty > 0:    # 매수, 매도 최대가능수량이 0보다 클 경우만 random하게 선택
             trad_qty = np.random.random_sample() * max_qty
         else:
-            decision = 'hold'
+            decision = "hold"
 
         return decision, trad_price, trad_qty
 
@@ -127,6 +127,6 @@ class RandomAgentBuffett(RandomAgent):
 class RandomAgentSon(RandomAgent):
     def __init__(
         self,
-        name: str
+        name: str,
     ):
         super().__init__(name)

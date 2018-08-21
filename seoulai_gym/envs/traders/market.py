@@ -43,8 +43,9 @@ class Market():
         self.max_tick_size = 1000
 
     def select(
-            self,
-            exchang_name):
+        self,
+        exchang_name: str,
+    ):
 
         # TODO : add some exchanges. ex. bithumb, bittrex, coinone, binance...
         # TODO : fixed parameters(fee ratio...) can't be edited.
@@ -71,7 +72,7 @@ class Market():
         agent,
         decision,
         trad_price: float,
-        trad_qty: int
+        trad_qty: int,
     ):
         """Make a step (= move) within market.
         Args:
@@ -98,8 +99,8 @@ class Market():
         self,
         agent,
         decision,
-        trad_price,
-        trad_qty
+        trad_price: float,
+        trad_qty: int,
     )-> Tuple[float, int, bool, Dict]:
         rew = 0  # TODO compute reward
         done = False
@@ -121,12 +122,12 @@ class Market():
         # previus potfolio value(previous cash+asset_value), 이전 포트폴리오 가치(이전 현금 + 이전 자산 가치)
         priv_pflo_value = agent.cash+agent.asset_val
 
-        if decision == 'buy':
+        if decision == "buy":
             # after buying, cash will decrease. (매수 후, 현금은 줄어든다.)
             agent.cash = agent.cash-trading_amt-fee
             # quantity of asset will increase. (매수 후, 자산 수량은 늘어난다.)
             agent.asset_qty = agent.asset_qty + ccld_qty
-        elif decision == 'sell':
+        elif decision == "sell":
             # after selling, cash will increase. (매도 후, 현금은 증가한다.)
             agent.cash = agent.cash+(trading_amt-fee)
             # quantity of asset will decrease. (매도 후, 자산 수량은 줄어든다.)
@@ -144,9 +145,9 @@ class Market():
         # checking valid order
         # self.stock_total_volume will be discussed.
         """
-      if decision == 'buy' and (self.stock_total_volume - stock_volume) > 0:
+      if decision == "buy" and (self.stock_total_volume - stock_volume) > 0:
         self.stock_total_volume = self.stock_total_volume - stock_volume
-      elif decision == 'sell':
+      elif decision == "sell":
         self.stock_total_volume = self.stock_total_volume + stock_volume
       """
 
@@ -174,18 +175,18 @@ class Market():
 
         obs = [self.price.price_list[:self.tick], self.fee_rt]
 
-        info['priv_pflo_value'] = priv_pflo_value
-        info['cur_pflo_value'] = cur_pflo_value
-        info['1tick_return'] = cur_pflo_value-priv_pflo_value
-        info['1tick_ret_ratio'] = ((cur_pflo_value/priv_pflo_value)-1)*100
-        info['msg'] = msg
+        info["priv_pflo_value"] = priv_pflo_value
+        info["cur_pflo_value"] = cur_pflo_value
+        info["1tick_return"] = cur_pflo_value-priv_pflo_value
+        info["1tick_ret_ratio"] = ((cur_pflo_value/priv_pflo_value)-1)*100
+        info["msg"] = msg
 
         return obs, rew, done, info
 
     def render(
         self,
         wallet,
-        decision
+        decision,
     ) -> None:
         """Display current state of board.
         Returns:
