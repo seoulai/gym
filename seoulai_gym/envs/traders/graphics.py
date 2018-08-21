@@ -4,13 +4,12 @@ seoulai.com
 2018
 """
 from typing import List
+
 import matplotlib.backends.backend_agg as agg
 import pylab
 import pygame
-from seoulai_gym.envs.traders.base import Constants
-import matplotlib
-matplotlib.use("Agg")
 
+from seoulai_gym.envs.traders.base import Constants
 
 class Graphics(Constants):
     def __init__(
