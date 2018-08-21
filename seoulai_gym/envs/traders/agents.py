@@ -73,7 +73,8 @@ class RandomAgent(Agent):
         """
 
         # TODO : RL Algo
-        decision = random.choice(list(['buy', 'sell', 'hold']))
+        decision = random.choice(
+            list([Constants.BUY, Constants.SELL, Constants.HOLD]))
 
         price_list = obs[0]
         fee_rt = obs[1]
@@ -83,16 +84,19 @@ class RandomAgent(Agent):
         max_qty = 0
 
         # validation
-        if decision == 'buy':
+        if decision == Constants.BUY:
             fee = trad_price*fee_rt    # calculate fee(commission)
-            max_qty = self.cash/(trad_price+fee)    # max buy quantity = cash / (trading price + fee)
-        elif decision == 'sell':
+            # max buy quantity = cash / (trading price + fee)
+            max_qty = self.cash/(trad_price+fee)
+        elif decision == Constants.SELL:
             max_qty = self.asset_qty
 
-        if max_qty > 0:    # if max_qty >0 (you can trade), choose trading_qty randomly (0.0~max_qty)
+        # if max_qty >0 (you can trade), choose trading_qty randomly (0.0~max_qty)
+        if max_qty > 0:
             trad_qty = np.random.random_sample() * max_qty
         else:
-            decision = 'hold'    # if max_qty = 0(you can't trade), you can't buy or sell.
+            # if max_qty = 0(you can't trade), you can't buy or sell.
+            decision = Constants.HOLD
 
         return decision, trad_price, trad_qty
 

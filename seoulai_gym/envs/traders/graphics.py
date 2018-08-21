@@ -11,6 +11,7 @@ import pygame
 
 from seoulai_gym.envs.traders.base import Constants
 
+
 class Graphics(Constants):
     def __init__(
         self,
