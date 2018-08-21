@@ -92,11 +92,13 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
               RandomAgent("Agent 4", 3),
               RandomAgent("Agent 5", 4)]
   obs = env.reset()
-  obs["game"].players = [players[0]._name, 
-                         players[1]._name, 
-                         players[2]._name, 
-                         players[3]._name, 
-                         players[4]._name]
+  obs["game"].players = [
+    players[0]._name,
+    players[1]._name,
+    players[2]._name,
+    players[3]._name,
+    players[4]._name,
+    ]
   env.render()
 
 * Market
@@ -104,17 +106,17 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
   ```python
   import seoulai_gym as gym
   from seoulai_gym.envs.traders.agents import RandomAgentBuffett
-  
+
   # make enviroment
   env = gym.make("Market")
 
   # select exchange
   env.select("upbit")
 
-  init_cash = 100000000    # KRW
+  init_cash = 100000000  # KRW
   a1 = RandomAgentBuffett("Buffett", init_cash)
   current_agent = a1
-  
+
   env.reset()
   env.render()
   ```

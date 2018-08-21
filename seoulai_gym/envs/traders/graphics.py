@@ -20,9 +20,10 @@ class Graphics(Constants):
     ):
         self.window_size = window_size
         self.initialized_window = False
-        self.fig = pylab.figure(figsize=[4, 4],  # Inches
-                                dpi=100,        # 100 dots per inch, so the resulting buffer is 400x400 pixels
-                                )
+        self.fig = pylab.figure(
+            figsize=[4, 4],  # Inches
+            dpi=100,  # 100 dots per inch, so the resulting buffer is 400x400 pixels
+        )
 
     def _init_window(
         self,
@@ -52,16 +53,16 @@ class Graphics(Constants):
     def update(
         self,
         prices: List,
-        wallet=10000,
-        decision='buy'
+        wallet: int=10000,
+        decision: str="buy"
     ) -> None:
         """Update visualization of prices and profits with respect to the current state.
-        Agent's decisions at certain timestamp are displayed.
+        Agent"s decisions at certain timestamp are displayed.
 
         Args:
             prices: Information about prices.
-            wallet: Information about agent's wallet.
-            decision: Agent's decisions at certain timestamp.
+            wallet: Information about agent"s wallet.
+            decision: Agent"s decisions at certain timestamp.
 
         Returns:
             None
@@ -84,7 +85,7 @@ class Graphics(Constants):
         self.screen.blit(surf, (0, 0))
 
         # render wallet
-        wallet_str = 'Wallet {wallet}'.format(wallet=round(wallet, 2))
+        wallet_str = "Wallet {wallet}".format(wallet=round(wallet, 2))
         label = self.font.render(wallet_str, 1, (255, 255, 0))
         self.screen.blit(label, (410, 50))
 

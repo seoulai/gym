@@ -43,8 +43,9 @@ class Market():
         self.max_tick_size = 1000
 
     def select(
-            self,
-            exchang_name):
+        self,
+        exchang_name: str,
+    ):
 
         # TODO : add some exchanges. ex. bithumb, bittrex, coinone, binance...
         # TODO : fixed parameters(fee ratio...) can't be edited.
@@ -71,7 +72,7 @@ class Market():
         agent,
         decision,
         trad_price: float,
-        trad_qty: int
+        trad_qty: int,
     ):
         """Make a step (= move) within market.
         Args:
@@ -98,8 +99,8 @@ class Market():
         self,
         agent,
         decision,
-        trad_price,
-        trad_qty
+        trad_price: float,
+        trad_qty: int,
     )-> Tuple[float, int, bool, Dict]:
         rew = 0  # TODO compute reward
         done = False
@@ -192,7 +193,7 @@ class Market():
     def render(
         self,
         wallet,
-        decision
+        decision,
     ) -> None:
         """Display current state of board.
         Returns:
