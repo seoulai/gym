@@ -20,6 +20,7 @@ setup(name="seoulai-gym",
           "pytest>=3.6.0",
           "flake8>=3.5.0",
           "PyQt5>5",
+          "flake8-quotes>=1.0.0"
       ],
       tests_require=["pytest"],
       include_package_data=True,
