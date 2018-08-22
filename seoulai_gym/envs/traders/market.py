@@ -13,7 +13,7 @@ from typing import Tuple
 import pygame
 from pygame.locals import QUIT
 
-# from seoulai_gym.envs.traders.base import Constants
+from seoulai_gym.envs.traders.base import Constants
 from seoulai_gym.envs.traders.price import Price
 from seoulai_gym.envs.traders.graphics import Graphics
 # from seoulai_gym.envs.traders.rules import Rules
@@ -122,12 +122,12 @@ class Market():
         # previus potfolio value(previous cash+asset_value), 이전 포트폴리오 가치(이전 현금 + 이전 자산 가치)
         priv_pflo_value = agent.cash+agent.asset_val
 
-        if decision == "buy":
+        if decision == Constants.BUY:
             # after buying, cash will decrease. (매수 후, 현금은 줄어든다.)
             agent.cash = agent.cash-trading_amt-fee
             # quantity of asset will increase. (매수 후, 자산 수량은 늘어난다.)
             agent.asset_qty = agent.asset_qty + ccld_qty
-        elif decision == "sell":
+        elif decision == Constants.SELL:
             # after selling, cash will increase. (매도 후, 현금은 증가한다.)
             agent.cash = agent.cash+(trading_amt-fee)
             # quantity of asset will decrease. (매도 후, 자산 수량은 줄어든다.)
@@ -145,9 +145,9 @@ class Market():
         # checking valid order
         # self.stock_total_volume will be discussed.
         """
-      if decision == "buy" and (self.stock_total_volume - stock_volume) > 0:
+      if decision == Constants.BUY and (self.stock_total_volume - stock_volume) > 0:
         self.stock_total_volume = self.stock_total_volume - stock_volume
-      elif decision == "sell":
+      elif decision == Constants.SELL:
         self.stock_total_volume = self.stock_total_volume + stock_volume
       """
 
@@ -173,13 +173,20 @@ class Market():
             done = True
             msg = "you lose 20percent of your money!!!"
 
+        # if you earned 20% of your money,  game over
+        if ((cur_pflo_value/agent.init_cash)-1)*100 > 20.0:
+            done = True
+            msg = "you earned 20percent of your money!!!"
+
         obs = [self.price.price_list[:self.tick], self.fee_rt]
 
-        info["priv_pflo_value"] = priv_pflo_value
-        info["cur_pflo_value"] = cur_pflo_value
-        info["1tick_return"] = cur_pflo_value-priv_pflo_value
-        info["1tick_ret_ratio"] = ((cur_pflo_value/priv_pflo_value)-1)*100
-        info["msg"] = msg
+        info['priv_pflo_value'] = priv_pflo_value
+        info['cur_pflo_value'] = cur_pflo_value
+        info['1tick_return'] = cur_pflo_value-priv_pflo_value
+        info['1tick_ret_ratio'] = ((cur_pflo_value/priv_pflo_value)-1)*100
+        info['fee'] = fee
+        info['portfolio_value'] = cur_pflo_value
+        info['msg'] = msg
 
         return obs, rew, done, info
 
@@ -201,12 +208,13 @@ class Market():
 
         for event in pygame.event.get():
             if event.type == QUIT:
+                # self.graphics.quit()
                 pygame.quit()
 
     def close(
         self,
     ) -> None:
-
+        # self.graphics.quit()
         pygame.display.quit()
         pygame.quit()
         # pygame has to be again initialized, otherwise window does not close

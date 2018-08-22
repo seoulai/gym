@@ -29,8 +29,8 @@ def main():
     done = False
 
     print("tick\t\t decision\t\t trad_price(ccld_price)\t\t"
-          + "trad_qty(ccld_qty)\t\t cash\t\t asset_qty\t\t"
-          + "asset_val\t\t 1tick_return\t\t 1tick_ret_ratio\t\t ")
+          + "trad_qty(ccld_qty)\t\t fee\t\t cash\t\t asset_qty\t\t"
+          + "asset_val\t\t portfolio_val\t\t 1tick_return\t\t 1tick_ret_ratio\t\t ")
     i = 0
     while True:
         decision, trad_price, trad_qty = current_agent.act(obs, rew, done)
@@ -38,8 +38,8 @@ def main():
             obs, rew, done, info = env.step(
                 current_agent, decision, trad_price, trad_qty)
             # data sheet
-            print("%5d %4s %10lf %10lf %10lf %10lf %10lf %10lf %10lf"
-                  % (i, decision, trad_price, trad_qty,
+            print("%5d %4s %10lf %10lf %10lf %10lf %10lf %10lf %10lf %10lf"
+                  % (i, decision, trad_price, trad_qty, info['fee'],
                      current_agent.cash, current_agent.asset_qty,
                      current_agent.asset_val, info["1tick_return"],
                      info["1tick_ret_ratio"]))

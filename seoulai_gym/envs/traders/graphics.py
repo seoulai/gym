@@ -4,12 +4,13 @@ seoulai.com
 2018
 """
 from typing import List
+
 import matplotlib.backends.backend_agg as agg
+import matplotlib.pyplot as plt
 import pylab
 import pygame
+
 from seoulai_gym.envs.traders.base import Constants
-import matplotlib
-matplotlib.use("Agg")
 
 
 class Graphics(Constants):
@@ -53,7 +54,7 @@ class Graphics(Constants):
         self,
         prices: List,
         wallet: int=10000,
-        decision: str="buy"
+        decision: str=Constants.BUY
     ) -> None:
         """Update visualization of prices and profits with respect to the current state.
         Agent"s decisions at certain timestamp are displayed.
@@ -76,7 +77,7 @@ class Graphics(Constants):
         canvas = agg.FigureCanvasAgg(self.fig)
         canvas.draw()
         renderer = canvas.get_renderer()
-        self.fig.clf()
+        plt.cla()
 
         raw_data = renderer.tostring_rgb()
         size = canvas.get_width_height()
