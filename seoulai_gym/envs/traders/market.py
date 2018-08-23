@@ -16,7 +16,6 @@ from pygame.locals import QUIT
 from seoulai_gym.envs.traders.base import Constants
 from seoulai_gym.envs.traders.price import Price
 from seoulai_gym.envs.traders.graphics import Graphics
-# from seoulai_gym.envs.traders.rules import Rules
 
 
 class Market():
@@ -76,20 +75,16 @@ class Market():
     ):
         """Make a step (= move) within market.
         Args:
-            agent: Agent making a move.
-            from_row: Row of board of original piece location.
-            from_col: Col of board of original piece location.
-            to_row: Row of board of desired piece location.
-            to_col: Col of board of desired piece location.
+            agent: Agent making a decision(buy, sell and hold).
+            decision : buy, sell or hold. Agent position.
+            trad_price: Price that Agent want to trade.
+            trad_qty: Quantity that Agent want to trade.
         Returns:
-            obs: Information price history.
+            obs: Information of price history and fee ratio.
             rew: Reward for perfomed step.
             done: Information about end of game.
             info: Additional information about current step.
         """
-        # TODO: 나중에 rule에 추가
-        # self.possible_moves = self.get_valid_moves(
-        #     self.price.board_list, from_row, from_col)
 
         obs, rew, done, info = self.conclude(
             agent, decision, trad_price, trad_qty)
@@ -102,16 +97,18 @@ class Market():
         trad_price: float,
         trad_qty: int,
     )-> Tuple[float, int, bool, Dict]:
-        rew = 0  # TODO compute reward
+        
+        # TODO : reward can be changed. ex. daily return, duration of winning.
+        rew = 0
         done = False
-        # daily_return? duration?
+        
 
         info = {}
 
         # It is assumed that order is concluded as agent action.
         # in real world, it can't be possible.
         # TODO : develop backtesting logic like real world. ex. slippage
-        # TODO : add tax ratio and calculate tax
+        # TODO : add tax ratio and calculate tax. but crypto currency tax don't exist for now.
         ccld_price = trad_price    # concluded price. (체결가격)
         ccld_qty = trad_qty   # concluded quantity. (체결수량)
 
@@ -145,18 +142,18 @@ class Market():
         # checking valid order
         # self.stock_total_volume will be discussed.
         """
-      if decision == Constants.BUY and (self.stock_total_volume - stock_volume) > 0:
-        self.stock_total_volume = self.stock_total_volume - stock_volume
-      elif decision == Constants.SELL:
-        self.stock_total_volume = self.stock_total_volume + stock_volume
-      """
+        if decision == Constants.BUY and (self.stock_total_volume - stock_volume) > 0:
+            self.stock_total_volume = self.stock_total_volume - stock_volume
+        elif decision == Constants.SELL:
+            self.stock_total_volume = self.stock_total_volume + stock_volume
+        """
 
         """
-      if self.stock_total_volume == 0:
-        done = True
-      else:
-        done = False
-      """
+        if self.stock_total_volume == 0:
+            done = True
+        else:
+            done = False
+        """
 
         # next tick
         self.tick = self.tick + 1
