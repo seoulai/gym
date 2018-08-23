@@ -137,8 +137,8 @@ class Market():
         # money that you earn or lose in 1 tick. (1 tick 동안의 decision으로 변화한 포트폴리오 가치를 reward로 잡음)
         rew = cur_pflo_value-priv_pflo_value
 
-        # checking valid order
-        # self.stock_total_volume will be discussed.
+        # vaildation
+        # TODO: self.stock_total_volume will be discussed.
         """
         if decision == Constants.BUY and (self.stock_total_volume - stock_volume) > 0:
             self.stock_total_volume = self.stock_total_volume - stock_volume
