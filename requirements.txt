@@ -3,4 +3,5 @@ Pillow
 pygame
 numpy
 flake8
+pandas
 flake8-quotes
