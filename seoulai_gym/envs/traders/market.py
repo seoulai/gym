@@ -43,12 +43,12 @@ class Market():
 
     def select(
         self,
-        exchang_name: str,
+        exchange_name: str,
     ):
 
         # TODO : add some exchanges. ex. bithumb, bittrex, coinone, binance...
         # TODO : fixed parameters(fee ratio...) can't be edited.
-        if exchang_name == "upbit":
+        if exchange_name == "upbit":
             self.fee_rt = 0.05/100
         else:
             self.fee_rt = 0.10/100
@@ -106,7 +106,7 @@ class Market():
         # It is assumed that order is concluded as agent action.
         # in real world, it can't be possible.
         # TODO : develop backtesting logic like real world. ex. slippage
-        # TODO : add tax ratio and calculate tax. but crypto currency tax don't exist for now.
+        # TODO : crypto currency tax doesn't exist now.
         ccld_price = trad_price    # concluded price. (체결가격)
         ccld_qty = trad_qty   # concluded quantity. (체결수량)
 
