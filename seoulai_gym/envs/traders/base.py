@@ -9,6 +9,6 @@ class Constants(object):
     """ Constants to share between classes and functions for traders game.
         Actually It is not used now.
     """
-    BUY = 'buy'
-    SELL = 'sell'
-    HOLD = 'hold'
+    BUY = "buy"
+    SELL = "sell"
+    HOLD = "hold"

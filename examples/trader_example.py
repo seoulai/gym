@@ -39,7 +39,7 @@ def main():
                 current_agent, decision, trad_price, trad_qty)
             # data sheet
             print("%5d %4s %10lf %10lf %10lf %10lf %10lf %10lf %10lf %10lf"
-                  % (i, decision, trad_price, trad_qty, info['fee'],
+                  % (i, decision, trad_price, trad_qty, info["fee"],
                      current_agent.cash, current_agent.asset_qty,
                      current_agent.asset_val, info["1tick_return"],
                      info["1tick_ret_ratio"]))

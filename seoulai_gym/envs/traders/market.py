@@ -97,11 +97,9 @@ class Market():
         trad_price: float,
         trad_qty: int,
     )-> Tuple[float, int, bool, Dict]:
-        
         # TODO : reward can be changed. ex. daily return, duration of winning.
         rew = 0
         done = False
-        
 
         info = {}
 
@@ -177,13 +175,13 @@ class Market():
 
         obs = [self.price.price_list[:self.tick], self.fee_rt]
 
-        info['priv_pflo_value'] = priv_pflo_value
-        info['cur_pflo_value'] = cur_pflo_value
-        info['1tick_return'] = cur_pflo_value-priv_pflo_value
-        info['1tick_ret_ratio'] = ((cur_pflo_value/priv_pflo_value)-1)*100
-        info['fee'] = fee
-        info['portfolio_value'] = cur_pflo_value
-        info['msg'] = msg
+        info["priv_pflo_value"] = priv_pflo_value
+        info["cur_pflo_value"] = cur_pflo_value
+        info["1tick_return"] = cur_pflo_value-priv_pflo_value
+        info["1tick_ret_ratio"] = ((cur_pflo_value/priv_pflo_value)-1)*100
+        info["fee"] = fee
+        info["portfolio_value"] = cur_pflo_value
+        info["msg"] = msg
 
         return obs, rew, done, info
 
