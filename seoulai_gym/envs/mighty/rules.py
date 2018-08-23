@@ -97,60 +97,60 @@ class Rules(object):
                 power = 999
         elif card[0] == game.giruda:  # game suit
             card_num = card[2]
-            if card_num == '1':
+            if card_num == "1":
                 power = 14
-            elif card_num == '2':
+            elif card_num == "2":
                 power = 2
-            elif card_num == '3':
+            elif card_num == "3":
                 power = 3
-            elif card_num == '4':
+            elif card_num == "4":
                 power = 4
-            elif card_num == '5':
+            elif card_num == "5":
                 power = 5
-            elif card_num == '6':
+            elif card_num == "6":
                 power = 6
-            elif card_num == '7':
+            elif card_num == "7":
                 power = 7
-            elif card_num == '8':
+            elif card_num == "8":
                 power = 8
-            elif card_num == '9':
+            elif card_num == "9":
                 power = 9
-            elif card_num == '0':
+            elif card_num == "0":
                 power = 10
-            elif card_num == 'j':
+            elif card_num == "j":
                 power = 11
-            elif card_num == 'q':
+            elif card_num == "q":
                 power = 12
-            elif card_num == 'k':
+            elif card_num == "k":
                 power = 13
             power += 100
         elif card[0] == game.round_suit:  # trick_suit
             card_num = card[2]
-            if card_num == '1':
+            if card_num == "1":
                 power = 14
-            elif card_num == '2':
+            elif card_num == "2":
                 power = 2
-            elif card_num == '3':
+            elif card_num == "3":
                 power = 3
-            elif card_num == '4':
+            elif card_num == "4":
                 power = 4
-            elif card_num == '5':
+            elif card_num == "5":
                 power = 5
-            elif card_num == '6':
+            elif card_num == "6":
                 power = 6
-            elif card_num == '7':
+            elif card_num == "7":
                 power = 7
-            elif card_num == '8':
+            elif card_num == "8":
                 power = 8
-            elif card_num == '9':
+            elif card_num == "9":
                 power = 9
-            elif card_num == '0':
+            elif card_num == "0":
                 power = 10
-            elif card_num == 'j':
+            elif card_num == "j":
                 power = 11
-            elif card_num == 'q':
+            elif card_num == "q":
                 power = 12
-            elif card_num == 'k':
+            elif card_num == "k":
                 power = 13
         else:
             pass
@@ -162,10 +162,10 @@ class Rules(object):
         face_cards: Dict,
     ) -> int:
         # TODO get_point
-        point_cards = ['s-1', 's-k', 's-q', 's-j', 's-0',
-                       'd-1', 'd-k', 'd-q', 'd-j', 'd-0',
-                       'c-1', 'c-k', 'c-q', 'c-j', 'c-0',
-                       'h-1', 'h-k', 'h-q', 'h-j', 'h-0']
+        point_cards = ["s-1", "s-k", "s-q", "s-j", "s-0",
+                       "d-1", "d-k", "d-q", "d-j", "d-0",
+                       "c-1", "c-k", "c-q", "c-j", "c-0",
+                       "h-1", "h-k", "h-q", "h-j", "h-0"]
         point_card = []
         for uid in face_cards:
             face_card = face_cards[uid]
