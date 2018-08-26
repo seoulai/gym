@@ -39,5 +39,5 @@ class Price(Constants):
 
         self.price_ext = price.merge(extra, on='Date', how='left')
         self.price_ext.sort_values("Date", ascending=True, inplace=True)
-        self.price_list = price_ext.Close.tolist()
-        self.price_list_size = price_ext.shape[0]
+        self.price_list = self.price_ext.Close.tolist()
+        self.price_list_size = self.price_ext.shape[0]
