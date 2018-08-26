@@ -27,14 +27,17 @@ class Price(Constants):
         self,
     ) -> None:
         """Initialize trading data set.
-
-        TODO: add volume, crypto networking value and etc...
-
         """
         price_file = os.path.abspath(os.path.join(
             os.path.dirname(__file__), "bitcoin_price.csv"))
-        df = pd.read_csv(price_file)
-        df["Date"] = pd.to_datetime(df.Date)
-        df.sort_values("Date", ascending=True, inplace=True)
-        self.price_list = df.Close.tolist()
-        self.price_list_size = df.shape[0]
+        extra_file = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), "bitcoin_dataset.csv"))
+        price = pd.read_csv(price_file)
+        price["Date"] = pd.to_datetime(price.Date)
+        extra = pd.read_csv(extra_file)
+        extra["Date"] = pd.to_datetime(extra.Date)
+
+        self.price_ext = price.merge(extra, on='Date', how='left')
+        self.price_ext.sort_values("Date", ascending=True, inplace=True)
+        self.price_list = price_ext.Close.tolist()
+        self.price_list_size = price_ext.shape[0]
