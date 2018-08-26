@@ -16,14 +16,16 @@ from seoulai_gym.envs.market.base import Constants
 class Graphics(Constants):
     def __init__(
         self,
-        window_size: int=600,
+        window_size: int=700,
     ):
         self.window_size = window_size
         self.initialized_window = False
         self.fig = pylab.figure(
-            figsize=[4, 4],  # Inches
+            figsize=[7, 4],  # Inches
             dpi=100,  # 100 dots per inch, so the resulting buffer is 400x400 pixels
         )
+        # TODO: move to agents
+        self.wallet = []
 
     def _init_window(
         self,
@@ -68,16 +70,29 @@ class Graphics(Constants):
             None
         """
         self._init_window()
-
+        self.wallet.append(wallet)
         # render prices
+        price_color = 'tab:blue'
+        wallet_color = 'tab:red'
+
         ax = self.fig.gca()
-        ax.plot(prices)
+        ax.plot(prices, color=price_color)
+        ax.set_ylabel('price(Close)', color=price_color)
+
+        # instantiate a second axes that shares the same x-axis
+        ax2 = ax.twinx()
+        # we already handled the x-label with ax
+        ax2.set_ylabel('wallet', color=wallet_color)
+        ax2.tick_params(axis='y', labelcolor=wallet_color)
+        ax2.plot(self.wallet, color=wallet_color)
+
+        # text annotation to price decision
         ax.text(len(prices)-1, prices[-1], decision)
 
         canvas = agg.FigureCanvasAgg(self.fig)
         canvas.draw()
         renderer = canvas.get_renderer()
-        plt.cla()
+        plt.clf()
 
         raw_data = renderer.tostring_rgb()
         size = canvas.get_width_height()
@@ -87,6 +102,6 @@ class Graphics(Constants):
         # render wallet
         wallet_str = "Wallet {wallet}".format(wallet=round(wallet, 2))
         label = self.font.render(wallet_str, 1, (255, 255, 0))
-        self.screen.blit(label, (410, 50))
+        self.screen.blit(label, (10, 400))
 
         pygame.display.flip()
