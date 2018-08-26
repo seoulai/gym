@@ -5,7 +5,7 @@ seoulai.com
 2018
 """
 import pandas as pd
-from seoulai_gym.envs.traders.base import Constants
+from seoulai_gym.envs.market.base import Constants
 import os
 
 

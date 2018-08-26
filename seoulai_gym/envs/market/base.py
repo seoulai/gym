@@ -6,7 +6,7 @@ seoulai.com
 
 
 class Constants(object):
-    """ Constants to share between classes and functions for traders game.
+    """ Constants to share between classes and functions for market game.
         Actually It is not used now.
     """
     BUY = "buy"

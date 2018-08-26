@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pylab
 import pygame
 
-from seoulai_gym.envs.traders.base import Constants
+from seoulai_gym.envs.market.base import Constants
 
 
 class Graphics(Constants):
@@ -36,7 +36,7 @@ class Graphics(Constants):
         """
         if not self.initialized_window:
             pygame.init()
-            pygame.display.set_caption("Traders")
+            pygame.display.set_caption("market")
             self.window = pygame.display.set_mode([self.window_size] * 2)
             self.screen = pygame.display.get_surface()
             self.font = pygame.font.SysFont("monospace", 15)

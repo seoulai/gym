@@ -10,7 +10,7 @@ from abc import ABC
 from abc import abstractmethod
 from typing import Tuple
 
-from seoulai_gym.envs.traders.base import Constants
+from seoulai_gym.envs.market.base import Constants
 
 
 class Agent(ABC, Constants):

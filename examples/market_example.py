@@ -5,7 +5,7 @@ seoulai.com
 2018
 """
 import seoulai_gym as gym
-from seoulai_gym.envs.traders.agents import RandomAgentBuffett
+from seoulai_gym.envs.market.agents import RandomAgentBuffett
 
 
 def main():
