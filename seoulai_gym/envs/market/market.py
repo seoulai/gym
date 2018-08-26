@@ -63,7 +63,7 @@ class Market():
 
         self.init()
 
-        obs = [self.price.price_list[:1], self.fee_rt]
+        obs = [self.price.price_list[:1], self.fee_rt, self.tick]
         return obs
 
     def step(
@@ -173,7 +173,7 @@ class Market():
             done = True
             msg = "you earned 20percent of your money!!!"
 
-        obs = [self.price.price_list[:self.tick], self.fee_rt]
+        obs = [self.price.price_list[:self.tick], self.fee_rt, self.tick]
 
         info["priv_pflo_value"] = priv_pflo_value
         info["cur_pflo_value"] = cur_pflo_value
