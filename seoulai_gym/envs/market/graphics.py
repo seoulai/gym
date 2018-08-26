@@ -55,7 +55,8 @@ class Graphics(Constants):
     def update(
         self,
         prices: List,
-        wallet: int=10000,
+        agent,  # wallet: int=10000,
+        info,
         decision: str=Constants.BUY
     ) -> None:
         """Update visualization of prices and profits with respect to the current state.
@@ -70,7 +71,7 @@ class Graphics(Constants):
             None
         """
         self._init_window()
-        self.wallet.append(wallet)
+
         # render prices
         price_color = 'tab:blue'
         wallet_color = 'tab:red'
@@ -84,7 +85,7 @@ class Graphics(Constants):
         # we already handled the x-label with ax
         ax2.set_ylabel('wallet', color=wallet_color)
         ax2.tick_params(axis='y', labelcolor=wallet_color)
-        ax2.plot(self.wallet, color=wallet_color)
+        ax2.plot(agent.wallet_history, color=wallet_color)
 
         # text annotation to price decision
         ax.text(len(prices)-1, prices[-1], decision)
@@ -100,7 +101,8 @@ class Graphics(Constants):
         self.screen.blit(surf, (0, 0))
 
         # render wallet
-        wallet_str = "Wallet {wallet}".format(wallet=round(wallet, 2))
+        wallet_str = "Wallet {wallet}".format(
+            wallet=round(agent.wallet_history[-1], 2))
         label = self.font.render(wallet_str, 1, (255, 255, 0))
         self.screen.blit(label, (10, 400))
 

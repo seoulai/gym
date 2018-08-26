@@ -47,7 +47,7 @@ def main():
         except ValueError:
             break
 
-        env.render(current_agent.cash+current_agent.asset_val, decision)
+        env.render(current_agent, info, decision)
 
         if done:
             wallet = current_agent.cash+current_agent.asset_val
@@ -56,7 +56,8 @@ def main():
             print("total result. Agent wallet: % f, Agent total_return: % f, Agent total_ret_ratio : %f" %
                   (wallet, diff, ((wallet/init_cash)-1)*100))
             obs = env.reset()
-            break
+            # reset agent
+            current_agent = RandomAgentBuffett("Buffett", 100000000)
 
         i = i+1
 

@@ -187,7 +187,8 @@ class Market():
 
     def render(
         self,
-        wallet,
+        agent,
+        info,
         decision,
     ) -> None:
         """Display current state of board.
@@ -197,19 +198,18 @@ class Market():
 
         self.graphics.update(
             self.price.price_list[:self.tick],
-            wallet,
-            decision,
+            agent,
+            info,
+            decision
         )
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                # self.graphics.quit()
                 pygame.quit()
 
     def close(
         self,
     ) -> None:
-        # self.graphics.quit()
         pygame.display.quit()
         pygame.quit()
         # pygame has to be again initialized, otherwise window does not close

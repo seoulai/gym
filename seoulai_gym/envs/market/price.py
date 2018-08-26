@@ -33,7 +33,7 @@ class Price(Constants):
         extra_file = os.path.abspath(os.path.join(
             os.path.dirname(__file__), "bitcoin_dataset.csv"))
         price = pd.read_csv(price_file)
-        price["Date"] = pd.to_datetime(price.Date)
+        price["Date"] = pd.to_datetime(price.Date, format="%b %d, %Y")
         extra = pd.read_csv(extra_file)
         extra["Date"] = pd.to_datetime(extra.Date)
 

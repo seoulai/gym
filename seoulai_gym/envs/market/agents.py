@@ -55,6 +55,7 @@ class RandomAgent(Agent):
         self.cash = init_cash
         self.asset_qty = 0.0
         self.asset_val = 0.0
+        self.wallet_history = []
 
     def act(
         self,
@@ -97,6 +98,10 @@ class RandomAgent(Agent):
         else:
             # if max_qty = 0(you can't trade), you can't buy or sell.
             decision = Constants.HOLD
+
+        # FIXME: wallet history should be updated after order is closed
+        self.wallet_history.append(
+            self.cash + (self.asset_val * self.asset_qty))
 
         return decision, trad_price, trad_qty
 
