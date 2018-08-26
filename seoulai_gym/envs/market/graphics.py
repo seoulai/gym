@@ -38,10 +38,11 @@ class Graphics(Constants):
         """
         if not self.initialized_window:
             pygame.init()
+            pygame.font.init()
             pygame.display.set_caption("market")
             self.window = pygame.display.set_mode([self.window_size] * 2)
             self.screen = pygame.display.get_surface()
-            self.font = pygame.font.SysFont("monospace", 15)
+            self.font = pygame.font.SysFont(pygame.font.get_default_font(), 20)
 
     def _setup_colors(
         self,

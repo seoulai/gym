@@ -211,6 +211,7 @@ class Market():
         self,
     ) -> None:
         pygame.display.quit()
+        pygame.font.quit()
         pygame.quit()
         # pygame has to be again initialized, otherwise window does not close
         pygame.init()
