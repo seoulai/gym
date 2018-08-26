@@ -73,18 +73,18 @@ class Graphics(Constants):
         self._init_window()
 
         # render prices
-        price_color = 'tab:blue'
-        wallet_color = 'tab:red'
+        price_color = "tab:blue"
+        wallet_color = "tab:red"
 
         ax = self.fig.gca()
         ax.plot(prices, color=price_color)
-        ax.set_ylabel('price(Close)', color=price_color)
+        ax.set_ylabel("price(Close)", color=price_color)
 
         # instantiate a second axes that shares the same x-axis
         ax2 = ax.twinx()
         # we already handled the x-label with ax
-        ax2.set_ylabel('wallet', color=wallet_color)
-        ax2.tick_params(axis='y', labelcolor=wallet_color)
+        ax2.set_ylabel("wallet", color=wallet_color)
+        ax2.tick_params(axis="y", labelcolor=wallet_color)
         ax2.plot(agent.wallet_history, color=wallet_color)
 
         # text annotation to price decision
