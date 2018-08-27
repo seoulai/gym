@@ -63,7 +63,7 @@ class Market():
 
         self.init()
 
-        obs = [self.price.price_list[:1], self.fee_rt, self.tick]
+        obs = [self.price.price_list[:1], self.fee_rt]
         return obs
 
     def step(
@@ -163,17 +163,27 @@ class Market():
             msg = "tick overflow!! max_tick_size : %d, current_tick : %d " % (
                 self.max_tick_size, self.tick)
 
+        total_return = ((cur_pflo_value/agent.init_cash)-1)*100
+        
+        # comparing with buy and hold algo        
+        #if agent.invested:
+        #    bah_return = ((cur_price/agent.bah_base)-1)*100
+        #    print("%f vs %f"%(total_return, bah_return))
+        #    if total_return < bah_return:
+        #        done = True
+        #        msg = "your algo is worse than buy and hold algo!!!"  
+
         # if you lose 20% of your money,  game over
-        if ((cur_pflo_value/agent.init_cash)-1)*100 < -20.0:
+        if total_return < -20.0:
             done = True
-            msg = "you lose 20percent of your money!!!"
+            msg = "you lost 20% of your money!!!"
 
         # if you earned 20% of your money,  game over
-        if ((cur_pflo_value/agent.init_cash)-1)*100 > 20.0:
+        if total_return > 20.0:
             done = True
-            msg = "you earned 20percent of your money!!!"
+            msg = "you earned 20% of your money!!!"
 
-        obs = [self.price.price_list[:self.tick], self.fee_rt, self.tick]
+        obs = [self.price.price_list[:self.tick], self.fee_rt]
 
         info["priv_pflo_value"] = priv_pflo_value
         info["cur_pflo_value"] = cur_pflo_value
