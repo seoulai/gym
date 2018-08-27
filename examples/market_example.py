@@ -57,7 +57,8 @@ def main():
                   (wallet, diff, ((wallet/init_cash)-1)*100))
             obs = env.reset()
             # reset agent
-            current_agent = RandomAgentBuffett("Buffett", 100000000)
+            current_agent = MRV1Agent("MeanReverting%d"%(i+1), init_cash)
+            #current_agent = RandomAgentBuffett("Buffett", 100000000)
 
         i = i+1
 

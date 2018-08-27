@@ -56,6 +56,8 @@ class RandomAgent(Agent):
         self.asset_qty = 0.0
         self.asset_val = 0.0
         self.wallet_history = []
+        self.invested = False
+        self.bah_base = 0
 
     def act(
         self,
@@ -147,11 +149,11 @@ class MRV1Agent(RandomAgent):
 
         price_list = obs[0]
         fee_rt = obs[1]
-        tick = obs[2]
+        tick = len(price_list)
 
         trad_price = price_list[-1]    # select current price
         trad_qty = 0
-        #max_qty = 0
+        max_qty = 0
 
         # FIXME: wallet history should be updated after order is closed
         self.wallet_history.append(
@@ -161,9 +163,9 @@ class MRV1Agent(RandomAgent):
         thresh_hold = 1.0
 
         # mean reverting algorithm
-        if tick <= n:
+        if tick < n:
             return Constants.HOLD, 0, 0
-        
+
         cur_price = price_list[-1]
         price_n = price_list[:-n]
         avg_n = np.mean(price_n)
@@ -180,8 +182,19 @@ class MRV1Agent(RandomAgent):
         if decision == Constants.BUY:
             fee = trad_price*fee_rt    # calculate fee(commission)
             # max buy quantity = cash / (trading price + fee)
-            trad_qty = self.cash/(trad_price+fee)
+            max_qty = self.cash/(trad_price+fee)
         elif decision == Constants.SELL:
-            trad_qty = self.asset_qty
+            max_qty = self.asset_qty
+
+        # if max_qty >0 (you can trade), choose trading_qty randomly (0.0~max_qty)
+        if max_qty > 0:
+            trad_qty = np.random.random_sample() * max_qty
+        else:
+            # if max_qty = 0(you can't trade), you can't buy or sell.
+            decision = Constants.HOLD
+
+        if not(self.invested) and decision == Constants.BUY:
+            self.bah_base = trad_price
+            self.invested = True
 
         return decision, trad_price, trad_qty
