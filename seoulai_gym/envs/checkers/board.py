@@ -6,11 +6,38 @@ seoulai.com
 from typing import Tuple
 from typing import Dict
 from typing import List
+from types import SimpleNamespace
 
 from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.base import DarkPiece
 from seoulai_gym.envs.checkers.base import LightPiece
 from seoulai_gym.envs.checkers.rules import Rules
+
+class Rewards(object):
+    def __init__(self):
+        self._rew = SimpleNamespace(
+            default=1.0,
+            invalid_move=0.0,
+            move_opponent_piece=0.0,
+            remove_opponent_piece=5.0,
+            become_king=7.0,
+            opponent_no_pieces=10.0,
+            opponent_no_valid_move=20.0,
+        )
+
+    def __getitem__(self, name: str):
+        return self._get_reward(name)
+
+    def __setitem__(self, name: str, value: float):
+        # tests if reward exists, exception is not catched on purpose
+        self._get_reward(name)
+        return setattr(self._rew, name, value)
+
+    def _get_reward(self, name: str):
+        try:
+            return getattr(self._rew, name)
+        except AttributeError:
+            raise AttributeError(f"[{name}] reward does not exists")
 
 
 class Board(Constants, Rules):
@@ -25,6 +52,7 @@ class Board(Constants, Rules):
         """
         self.size = size
         self.init()
+        self.rewards = Rewards()
 
     def init(
         self,
@@ -44,6 +72,27 @@ class Board(Constants, Rules):
             sum([[LightPiece(), None] for _ in range(half_size)], []),
             sum([[None, LightPiece()] for _ in range(half_size)], []),
         ]
+
+    def update_rewards(
+        self,
+        rewards_map: Dict,
+    ) -> None:
+        """Update rewards. Adding new reward is not allowed.
+
+        If `rewards_map` contains reward that wasn't defined in `Rewards`,
+        AttributeError will be raised.
+
+        Args:
+            rewards_map: (Dict)
+
+        Returns:
+            None
+
+        Raises:
+            AttributeError: If attempts to add new reward.
+        """
+        for key, value in rewards_map.items():
+            self.rewards[key] = value
 
     def move(
         self,
@@ -68,30 +117,16 @@ class Board(Constants, Rules):
             done: information about end of game.
             info: additional information about current step.
         """
-        rew_map = {
-            # current agent
-            "default": 1.0,
-            "no_valid_move": 0.0,
-            "invalid_move": 0.0,
-            "move_opponent_piece": 0.0,
-            "remove_opponent_piece": 5.0,
-            "become_king": 7.0,
-
-            # opponent agent
-            "opponent_no_pieces": 10.0,
-            "opponent_no_valid_move": 20.0,
-        }
-
-        rew = rew_map["default"]
+        rew = self.rewards["default"]
         info = {}
         done = False
 
         if not self._can_opponent_move(self.board_list, self.get_opponent_type(ptype), self.size):
-            return self._opponent_cant_move(self.board_list, rew_map, info)
+            return self._opponent_cant_move(self.board_list, self.rewards, info)
 
         if not self.validate_move(self.board_list, from_row, from_col, to_row, to_col):
             obs = self.board_list
-            rew = rew_map["invalid_move"]
+            rew = self.rewards["invalid_move"]
             done = False
             info.update({"invalid_move": (from_row, from_col, to_row, to_col)})
             return obs, rew, done, info
@@ -99,7 +134,7 @@ class Board(Constants, Rules):
             # don't move with opponent's piece
             if ptype != self.board_list[from_row][from_col].ptype:
                 obs = self.board_list
-                rew = rew_map["move_opponent_piece"]
+                rew = self.rewards["move_opponent_piece"]
                 done = False
                 info.update({"move_opponent_piece": (from_row, from_col)})
                 return obs, rew, done, info
@@ -116,24 +151,24 @@ class Board(Constants, Rules):
             if p_between is not None:
                 self.board_list[between_row][between_col] = None
                 info.update({"removed": ((between_row, between_col), p_between)})
-                rew = rew_map["remove_opponent_piece"]
+                rew = self.rewards["remove_opponent_piece"]
 
         # become king
         p = self.board_list[to_row][to_col]
         if (to_row == 0 and p.direction == self.UP) or (to_row == self.size-1 and p.direction == self.DOWN):
             p.make_king()
             info.update({"king": (to_row, to_col)})
-            rew = rew_map["become_king"]
+            rew = self.rewards["become_king"]
 
         # end of game?
         if len(self.get_positions(self.board_list, self.get_opponent_type(p.ptype), self.size)) == 0:
             # opponent lost all his pieces
             done = True
-            rew = rew_map["opponent_no_pieces"]
+            rew = self.rewards["opponent_no_pieces"]
             info.update({"opponent_no_pieces": True})
 
         if not self._can_opponent_move(self.board_list, self.get_opponent_type(ptype), self.size):
-            return self._opponent_cant_move(self.board_list, rew_map, info)
+            return self._opponent_cant_move(self.board_list, self.rewards, info)
 
         obs = self.board_list
 
@@ -153,11 +188,11 @@ class Board(Constants, Rules):
     @staticmethod
     def _opponent_cant_move(
         board_list: List[List],
-        rew_map: Dict,
+        rewards: Rewards,
         info: Dict,
     ) -> Tuple[List[List], int, bool, Dict]:
         obs = board_list
-        rew = rew_map["opponent_no_valid_move"]
+        rew = rewards["opponent_no_valid_move"]
         info.update({"opponent_invalid_move": True})
         done = True
         return obs, rew, done, info
