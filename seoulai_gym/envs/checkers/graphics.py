@@ -133,7 +133,7 @@ class Graphics(Constants):
                         (get_pixel_coord(col), get_pixel_coord(row)),
                         self.piece_size)
 
-                    if board[row][col].is_king():
+                    if board[row][col].king:
                         pygame.draw.circle(
                             self.screen,
                             self.king_piece_color,
