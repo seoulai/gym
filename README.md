@@ -37,8 +37,8 @@ Every environment has three important methods: `reset`, `step` and `render`.
 Reset an environment to default state and return `observation` of default state.
 `observation` data structure depends on environment and is described separately for each environment.
 
-##### `step(self, action) -> observation, reward, done, info`
-Perform an `action` in environment lastly observed by either `reset` or `step`.
+##### `step(self, agent, action) -> observation, reward, done, info`
+Perform an `action` on behalf of `agent` in environment lastly observed by either `reset` or `step`.
 An `action` can differ among different environments but the return value of `step` method is always same.
 A `reward` is given to an agent when action that was done in the current step or some of the previous steps have led to a positive outcome for an agent (e.g winning a game).
 An `info` is a dictionary containing extra information about performed `action`.
@@ -131,7 +131,7 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
 * Mighty
   * https://github.com/seoulai/gym/blob/master/examples/mighty_example.py
 
-    [![Watch the video](http://img.youtube.com/vi/M3GCt8evGkQ/0.jpg)](https://youtu.be/M3GCt8evGkQ?t=0s) 
+    [![Watch the video](http://img.youtube.com/vi/M3GCt8evGkQ/0.jpg)](https://youtu.be/M3GCt8evGkQ?t=0s)
 
 * Market
   * https://github.com/seoulai/gym/blob/master/examples/trader_example.py
