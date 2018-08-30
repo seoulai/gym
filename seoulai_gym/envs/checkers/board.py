@@ -13,6 +13,7 @@ from seoulai_gym.envs.checkers.base import DarkPiece
 from seoulai_gym.envs.checkers.base import LightPiece
 from seoulai_gym.envs.checkers.rules import Rules
 
+
 class Rewards(object):
     def __init__(self):
         self._rew = SimpleNamespace(

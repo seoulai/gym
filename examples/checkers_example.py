@@ -26,8 +26,6 @@ def main():
         from_row, from_col, to_row, to_col = current_agent.act(obs)
         obs, rew, done, info = env.step(current_agent, from_row, from_col, to_row, to_col)
         current_agent.consume(obs, rew, done)
-        from IPython import embed; embed()  # XXX DEBUG
-
 
         if done:
             print(f"Game over! {current_agent} agent wins.")
@@ -38,7 +36,7 @@ def main():
         current_agent = next_agent
         next_agent = temporary_agent
 
-        # env.render()
+        env.render()
 
     env.close()
 
