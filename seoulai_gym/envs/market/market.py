@@ -13,9 +13,9 @@ from typing import Tuple
 import pygame
 from pygame.locals import QUIT
 
-from seoulai_gym.envs.traders.base import Constants
-from seoulai_gym.envs.traders.price import Price
-from seoulai_gym.envs.traders.graphics import Graphics
+from seoulai_gym.envs.market.base import Constants
+from seoulai_gym.envs.market.price import Price
+from seoulai_gym.envs.market.graphics import Graphics
 
 
 class Market():
@@ -38,17 +38,17 @@ class Market():
         self,
     ):
         self.price = Price()    # TODO: data generator
-        self.tick = 0
-        self.max_tick_size = 1000
+        self.t = 0
+        self.max_t_size = 1000
 
     def select(
         self,
-        exchang_name: str,
+        exchange_name: str,
     ):
 
         # TODO : add some exchanges. ex. bithumb, bittrex, coinone, binance...
         # TODO : fixed parameters(fee ratio...) can't be edited.
-        if exchang_name == "upbit":
+        if exchange_name == "upbit":
             self.fee_rt = 0.05/100
         else:
             self.fee_rt = 0.10/100
@@ -106,7 +106,7 @@ class Market():
         # It is assumed that order is concluded as agent action.
         # in real world, it can't be possible.
         # TODO : develop backtesting logic like real world. ex. slippage
-        # TODO : add tax ratio and calculate tax. but crypto currency tax don't exist for now.
+        # TODO : crypto currency tax doesn't exist now.
         ccld_price = trad_price    # concluded price. (체결가격)
         ccld_qty = trad_qty   # concluded quantity. (체결수량)
 
@@ -128,17 +128,17 @@ class Market():
             # quantity of asset will decrease. (매도 후, 자산 수량은 줄어든다.)
             agent.asset_qty = agent.asset_qty - ccld_qty
 
-        cur_price = self.price.price_list[self.tick]    # current price (현재가)
+        cur_price = self.price.price_list[self.t]    # current price (현재가)
         # current asset value is asset_qty x current price (현재 자산 가치 = 자산 수량 x 현재가)
         agent.asset_val = agent.asset_qty*cur_price
         # current potfolio value(current cash+asset_value) 현재 포트폴리오 가치(현재 현금, 현재 자산 가치)
         cur_pflo_value = agent.cash+agent.asset_val
 
-        # money that you earn or lose in 1 tick. (1 tick 동안의 decision으로 변화한 포트폴리오 가치를 reward로 잡음)
+        # money that you earn or lose in 1 t. (1 t 동안의 decision으로 변화한 포트폴리오 가치를 reward로 잡음)
         rew = cur_pflo_value-priv_pflo_value
 
-        # checking valid order
-        # self.stock_total_volume will be discussed.
+        # vaildation
+        # TODO: self.stock_total_volume will be discussed.
         """
         if decision == Constants.BUY and (self.stock_total_volume - stock_volume) > 0:
             self.stock_total_volume = self.stock_total_volume - stock_volume
@@ -153,32 +153,42 @@ class Market():
             done = False
         """
 
-        # next tick
-        self.tick = self.tick + 1
+        # next t
+        self.t = self.t + 1
 
         # end of trading game?
         msg = ""
-        if self.tick >= self.max_tick_size:
+        if self.t >= self.max_t_size:
             done = True
-            msg = "tick overflow!! max_tick_size : %d, current_tick : %d " % (
-                self.max_tick_size, self.tick)
+            msg = "t overflow!! max_t_size : %d, current_t : %d " % (
+                self.max_t_size, self.t)
+
+        total_return = ((cur_pflo_value/agent.init_cash)-1)*100
+        
+        # comparing with buy and hold algo        
+        #if agent.invested:
+        #    bah_return = ((cur_price/agent.bah_base)-1)*100
+        #    print("%f vs %f"%(total_return, bah_return))
+        #    if total_return < bah_return:
+        #        done = True
+        #        msg = "your algo is worse than buy and hold algo!!!"  
 
         # if you lose 20% of your money,  game over
-        if ((cur_pflo_value/agent.init_cash)-1)*100 < -20.0:
+        if total_return < -20.0:
             done = True
-            msg = "you lose 20percent of your money!!!"
+            msg = "you lost 20% of your money!!!"
 
         # if you earned 20% of your money,  game over
-        if ((cur_pflo_value/agent.init_cash)-1)*100 > 20.0:
+        if total_return > 20.0:
             done = True
-            msg = "you earned 20percent of your money!!!"
+            msg = "you earned 20% of your money!!!"
 
-        obs = [self.price.price_list[:self.tick], self.fee_rt]
+        obs = [self.price.price_list[:self.t], self.fee_rt]
 
         info["priv_pflo_value"] = priv_pflo_value
         info["cur_pflo_value"] = cur_pflo_value
-        info["1tick_return"] = cur_pflo_value-priv_pflo_value
-        info["1tick_ret_ratio"] = ((cur_pflo_value/priv_pflo_value)-1)*100
+        info["1t_return"] = cur_pflo_value-priv_pflo_value
+        info["1t_ret_ratio"] = ((cur_pflo_value/priv_pflo_value)-1)*100
         info["fee"] = fee
         info["portfolio_value"] = cur_pflo_value
         info["msg"] = msg
@@ -187,7 +197,8 @@ class Market():
 
     def render(
         self,
-        wallet,
+        agent,
+        info,
         decision,
     ) -> None:
         """Display current state of board.
@@ -196,20 +207,19 @@ class Market():
         """
 
         self.graphics.update(
-            self.price.price_list[:self.tick],
-            wallet,
-            decision,
+            self.price.price_list[:self.t],
+            agent,
+            info,
+            decision
         )
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                # self.graphics.quit()
                 pygame.quit()
 
     def close(
         self,
     ) -> None:
-        # self.graphics.quit()
         pygame.display.quit()
         pygame.quit()
         # pygame has to be again initialized, otherwise window does not close

@@ -4,7 +4,7 @@ seoulai.com
 2018
 """
 from seoulai_gym.envs.checkers.checkers import Checkers
-from seoulai_gym.envs.traders.market import Market
+from seoulai_gym.envs.market.market import Market
 from seoulai_gym.envs.mighty.mighty import Mighty
 
 
