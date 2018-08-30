@@ -3,8 +3,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-import numpy as np
-
 from typing import Tuple
 from typing import Dict
 from typing import List
@@ -155,10 +153,10 @@ class Rules(object):
             return False
 
         # cant move in opposite direction, except king
-        if p.direction == Constants().UP and from_row < to_row and not p.is_king():
+        if p.direction == Constants().UP and from_row < to_row and not p.king:
             return False
 
-        if p.direction == Constants().DOWN and from_row > to_row and not p.is_king():
+        if p.direction == Constants().DOWN and from_row > to_row and not p.king:
             return False
 
         # cant jump over itself or empty square
@@ -230,17 +228,3 @@ class Rules(object):
         ]
 
         return moves
-
-    @staticmethod
-    def board_list2numpy(
-        board_list: List[List],
-    ) -> np.array:
-        board_size = len(board_list)
-        board_numpy = Constants().EMPTY * np.ones((board_size, board_size))
-
-        for row in range(board_size):
-            for col in range(board_size):
-                if board_list[row][col] is not None:
-                    board_numpy[row][col] = board_list[row][col].ptype
-
-        return board_numpy

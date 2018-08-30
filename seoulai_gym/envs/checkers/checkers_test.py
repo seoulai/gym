@@ -6,6 +6,7 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
+# TODO reward tests
 import pytest
 
 from seoulai_gym.envs.checkers.base import Constants
@@ -33,50 +34,52 @@ def light():
 @pytest.fixture
 def empty_board():
     board = Board()
-    board.board_list = [[None] * board.size] * board.size
+    board.board_list = [[None] * board.size for _ in range(board.size)]
     return board
 
 
 class TestInvalidMoves(object):
+    """Rewards should not be positive when performing invalid move.
+    """
     def test_jump_from_non_jump_position(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 0, 0, 3, 3)
+        obs, rew, done, info = board.move(dark, 0, 0, 3, 3)
+        assert rew <= 0
 
     def test_jump_from_non_jump_to_no_jump_position(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 0, 0, 2, 2)
+        obs, rew, done, info = board.move(dark, 0, 0, 2, 2)
+        assert rew <= 0
 
     def test_no_move(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 0, 0, 0, 0)
+        obs, rew, done, info = board.move(dark, 0, 0, 0, 0)
+        assert rew <= 0
 
     def test_invalid_from_coord(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, -1, -1, 0, 0)
+        obs, rew, done, info = board.move(dark, -1, -1, 0, 0)
+        assert rew <= 0
 
     def test_invalid_to_coord(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 0, 0, -1, -1)
+        obs, rew, done, info = board.move(dark, 0, 0, -1, -1)
+        assert rew <= 0
 
     def test_move_empty_square(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 0, 1, 1, 2)
+        obs, rew, done, info = board.move(dark, 0, 1, 1, 2)
+        assert rew <= 0
 
     def test_move_in_opposite_direction(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 0, 1, 1, 2)
+        obs, rew, done, info = board.move(dark, 0, 1, 1, 2)
+        assert rew <= 0
 
     def test_jump_over_empty_square(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 2, 0, 4, 2)
+        obs, rew, done, info = board.move(dark, 2, 0, 4, 2)
+        assert rew <= 0
 
     def test_jump_with_opponents_dark_piece(self, board, light):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 3, 3, 4, 4)
+        obs, rew, done, info = board.move(dark, 3, 3, 4, 4)
+        assert rew <= 0
 
     def test_jump_with_opponents_light_piece(self, board, dark):
-        with pytest.raises(ValueError):
-            obs, rew, done, info = board.move(dark, 6, 6, 5, 5)
+        obs, rew, done, info = board.move(dark, 6, 6, 5, 5)
+        assert rew <= 0
 
 
 class TestRemove(object):
@@ -153,33 +156,38 @@ class TestInitialization(object):
 class TestKings(object):
     def test_become_king(self, empty_board):
         # Dark piece
+        empty_board.board_list[1][6] = LightPiece()  # auxiliary piece, single type piece cannot move
         empty_board.board_list[5][5] = DarkPiece()
         empty_board.move(Constants().DARK, 5, 5, 6, 6)
-        assert empty_board.board_list[6][6].is_king() is False
+        assert empty_board.board_list[6][6].king is False
         empty_board.move(Constants().DARK, 6, 6, 7, 7)
-        assert empty_board.board_list[7][7].is_king() is True
+        assert empty_board.board_list[7][7].king is True
 
         # Light piece
+        empty_board.board_list[1][6] = DarkPiece()  # auxiliary piece, single type piece cannot move
         empty_board.board_list[2][2] = LightPiece()
         empty_board.move(Constants().LIGHT, 2, 2, 1, 1)
-        assert empty_board.board_list[1][1].is_king() is False
+        assert empty_board.board_list[1][1].king is False
         empty_board.move(Constants().LIGHT, 1, 1, 0, 0)
-        assert empty_board.board_list[0][0].is_king() is True
+        assert empty_board.board_list[0][0].king is True
 
     def test_move(self, empty_board):
         # Dark piece
+        init_board = empty_board
         empty_board.board_list[5][5] = DarkPiece()
-        with pytest.raises(ValueError):
-            empty_board.move(Constants().DARK, 5, 5, 4, 4)
+        empty_board.move(Constants().DARK, 5, 5, 4, 4)
+        assert init_board == empty_board
+
         # move any direction
         empty_board.board_list[5][5].make_king()
         empty_board.move(Constants().DARK, 5, 5, 4, 4)
         empty_board.move(Constants().DARK, 4, 4, 5, 5)
 
         # Light Piece
+        init_board = empty_board
         empty_board.board_list[5][5] = LightPiece()
-        with pytest.raises(ValueError):
-            empty_board.move(Constants().LIGHT, 5, 5, 6, 6)
+        empty_board.move(Constants().LIGHT, 5, 5, 6, 6)
+        assert init_board == empty_board
         # move any direction
         empty_board.board_list[5][5].make_king()
         empty_board.move(Constants().LIGHT, 5, 5, 6, 6)

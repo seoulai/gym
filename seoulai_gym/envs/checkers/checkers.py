@@ -40,6 +40,26 @@ class Checkers(Constants, Rules):
         self.board = Board()
         self.graphics = Graphics()
 
+    def update_rewards(
+        self,
+        rewards_map: Dict,
+    ) -> None:
+        """Update rewards. Adding new reward is not allowed.
+
+        If `rewards_map` contains reward that wasn't defined in `Rewards`,
+        AttributeError will be raised.
+
+        Args:
+            rewards_map: (Dict)
+
+        Returns:
+            None
+
+        Raises:
+            AttributeError: If attempts to add new reward.
+        """
+        self.board.update_rewards(rewards_map)
+
     def step(
         self,
         agent,

@@ -4,30 +4,37 @@ seoulai.com
 2018
 """
 import random
+from abc import ABC
 from abc import abstractmethod
 from typing import List
 from typing import Tuple
 
-from seoulai_gym.envs.base_agent import BaseAgent
 from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.rules import Rules
 
 
-class Agent(BaseAgent, Constants, Rules):
+class Agent(ABC, Constants, Rules):
     @abstractmethod
     def __init__(
         self,
         name: str,
         ptype: int,
     ):
-        super().__init__(name)
         self._ptype = ptype
+        self._name = name
 
     @abstractmethod
     def act(
         self,
         obs,
-        reward: int,
+    ):
+        pass
+
+    @abstractmethod
+    def consume(
+        self,
+        obs,
+        reward: float,
         done: bool,
     ) -> None:
         pass
@@ -50,6 +57,9 @@ class Agent(BaseAgent, Constants, Rules):
         elif self.ptype == self.LIGHT:
             return f"LIGHT {_name}"
 
+    def __str__(self):
+        return self._name
+
 
 class RandomAgent(Agent):
     def __init__(
@@ -68,8 +78,6 @@ class RandomAgent(Agent):
     def act(
         self,
         board: List[List],
-        reward: int,
-        done: bool,
     ) -> Tuple[int, int, int, int]:
         """
         Choose a piece and its possible moves randomly.
@@ -77,8 +85,6 @@ class RandomAgent(Agent):
 
         Args:
             board: information about positions of pieces.
-            reward: reward for perfomed step.
-            done: information about end of game.
 
         Returns:
             Current and new location of piece.
@@ -86,8 +92,26 @@ class RandomAgent(Agent):
         board_size = len(board)
         valid_moves = self.generate_valid_moves(board, self.ptype, board_size)
         rand_from_row, rand_from_col = random.choice(list(valid_moves.keys()))
+
         rand_to_row, rand_to_col = random.choice(valid_moves[(rand_from_row, rand_from_col)])
         return rand_from_row, rand_from_col, rand_to_row, rand_to_col
+
+    def consume(
+        self,
+        obs: List[List],
+        reward: float,
+        done: bool,
+    ) -> None:
+        """Agent processes information returned by environment based on agent's latest action.
+        Random agent does not need `reward` or `done` variables, but this method is called anyway
+        when used with other agents.
+
+        Args:
+            board: information about positions of pieces.
+            reward: reward for perfomed step.
+            done: information about end of game.
+        """
+        pass
 
 
 class RandomAgentLight(RandomAgent):

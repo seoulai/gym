@@ -11,21 +11,25 @@ class Constants(object):
     EMPTY = 0
     LIGHT = 1
     DARK = 2
-    UP = 3
-    DOWN = 4
+    LIGHT_KING = 3
+    DARK_KING = 4
+
+    UP = 5
+    DOWN = 6
 
 
 class Piece(object):
     def __init__(self, ptype: int, direction: int):
         self.ptype = ptype
         self.direction = direction
-        self.king = False
+        self._king = False
 
     def make_king(self):
-        self.king = True
+        self._king = True
 
-    def is_king(self):
-        return self.king
+    @property
+    def king(self):
+        return self._king
 
     def __str__(self):
         return str(self.ptype)
