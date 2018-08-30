@@ -31,12 +31,14 @@ def main():
             print(f"Game over! {current_agent} agent wins.")
             obs = env.reset()
 
+        from IPython import embed; embed()  # XXX DEBUG
+
         # switch agents
         temporary_agent = current_agent
         current_agent = next_agent
         next_agent = temporary_agent
 
-        env.render()
+        # env.render()
 
     env.close()
 
