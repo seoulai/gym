@@ -33,6 +33,7 @@ class Market():
 
         # graphics is for visualization
         self.graphics = Graphics()
+        self.pause = False  # pause game
 
     def init(
         self,
@@ -164,14 +165,14 @@ class Market():
                 self.max_t_size, self.t)
 
         total_return = ((cur_pflo_value/agent.init_cash)-1)*100
-        
-        # comparing with buy and hold algo        
-        #if agent.invested:
+
+        # comparing with buy and hold algo
+        # if agent.invested:
         #    bah_return = ((cur_price/agent.bah_base)-1)*100
         #    print("%f vs %f"%(total_return, bah_return))
         #    if total_return < bah_return:
         #        done = True
-        #        msg = "your algo is worse than buy and hold algo!!!"  
+        #        msg = "your algo is worse than buy and hold algo!!!"
 
         # if you lose 20% of your money,  game over
         if total_return < -20.0:
@@ -205,17 +206,34 @@ class Market():
         Returns:
             None
         """
-
         self.graphics.update(
             self.price.price_list[:self.t],
             agent,
             info,
             decision
         )
-
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    self.pause = True
+                    self.paused()
+                if event.key == pygame.K_c:
+                    self.pause = False
+
+    def paused(self):
+
+        while self.pause:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_c:
+                        self.pause = False
+
+            pygame.display.update()
 
     def close(
         self,

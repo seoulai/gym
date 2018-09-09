@@ -105,6 +105,10 @@ class Graphics(Constants):
         wallet_str = "Wallet {wallet}".format(
             wallet=round(agent.wallet_history[-1], 2))
         label = self.font.render(wallet_str, 1, (255, 255, 0))
-        self.screen.blit(label, (10, 400))
+        self.screen.blit(label, (10, 420))
+
+        shortcuts = self.font.render(
+            "Paused(P), Continue(C)", 2, (255, 0, 0))
+        self.screen.blit(shortcuts, (10, 400))
 
         pygame.display.flip()

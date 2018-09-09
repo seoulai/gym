@@ -6,7 +6,9 @@ seoulai.com
 """
 import seoulai_gym as gym
 from seoulai_gym.envs.market.agents import RandomAgentBuffett
-from seoulai_gym.envs.market.agents import MRV1Agent    # MeanReverting Agent Version 1.0
+# MeanReverting Agent Version 1.0
+from seoulai_gym.envs.market.agents import MRV1Agent
+
 
 def main():
 
@@ -57,7 +59,7 @@ def main():
                   (wallet, diff, ((wallet/init_cash)-1)*100))
             obs = env.reset()
             # reset agent
-            current_agent = MRV1Agent("MeanReverting%d"%(i+1), init_cash)
+            current_agent = MRV1Agent("MeanReverting%d" % (i+1), init_cash)
             #current_agent = RandomAgentBuffett("Buffett", 100000000)
 
         i = i+1
