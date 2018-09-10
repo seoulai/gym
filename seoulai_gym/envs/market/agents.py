@@ -43,6 +43,7 @@ class RandomAgent(Agent):
             self,
             name: str,
             init_cash: float,
+            fee_rt: float,
     ):
         """Initialize random agent.
 
@@ -52,7 +53,13 @@ class RandomAgent(Agent):
         """
         super().__init__(name)
         self.init_cash = init_cash
-        self.cash = init_cash
+        self.fee_rt = fee_rt 
+        self.init()
+    
+    def init(
+        self,
+    ):
+        self.cash = self.init_cash
         self.asset_qty = 0.0
         self.asset_val = 0.0
         self.wallet_history = []
@@ -101,12 +108,13 @@ class RandomAgent(Agent):
             # if max_qty = 0(you can't trade), you can't buy or sell.
             decision = Constants.HOLD
 
+        self.record_wallet()
+        return decision, trad_price, trad_qty
+  
+    def record_wallet(self):
         # FIXME: wallet history should be updated after order is closed
         self.wallet_history.append(
             self.cash + self.asset_val)
-
-        return decision, trad_price, trad_qty
-
 
 class RandomAgentBuffett(RandomAgent):
     def __init__(
