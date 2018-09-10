@@ -29,6 +29,9 @@ class Market():
         Returns:
             None
         """
+        self.state_size = 10 
+        self.action_size = 3
+        self.traders = 0    # for multi-players
         self.init()
 
         # graphics is for visualization
@@ -39,7 +42,7 @@ class Market():
         self,
     ):
         self.price = Price()    # TODO: data generator
-        self.t = 0
+        self.t = self.state_size-1
         self.max_t_size = 1000
 
     def select(
@@ -53,7 +56,7 @@ class Market():
             self.fee_rt = 0.05/100
         else:
             self.fee_rt = 0.10/100
-
+        return self.fee_rt
     def reset(
         self
     ) -> List:
@@ -64,7 +67,7 @@ class Market():
 
         self.init()
 
-        obs = [self.price.price_list[:1], self.fee_rt]
+        obs = self.price.price_list[:self.state_size]
         return obs
 
     def step(
@@ -155,7 +158,8 @@ class Market():
         """
 
         # next t
-        self.t = self.t + 1
+        nt = self.t + 1
+        self.t = nt
 
         # end of trading game?
         msg = ""
@@ -166,25 +170,35 @@ class Market():
 
         total_return = ((cur_pflo_value/agent.init_cash)-1)*100
 
-        # comparing with buy and hold algo
-        # if agent.invested:
-        #    bah_return = ((cur_price/agent.bah_base)-1)*100
-        #    print("%f vs %f"%(total_return, bah_return))
+        # comparing with buy and hold algo        
+        #if agent.invested:
+        #    next_price = self.price.price_list[nt]
+        #    print(next_price)
+        #    print(agent.bah_base)
+        #    bah_return = ((next_price/agent.bah_base)-1)*100
+        #    print("%lf vs %lf"%(total_return, bah_return))
         #    if total_return < bah_return:
         #        done = True
-        #        msg = "your algo is worse than buy and hold algo!!!"
+        #        msg = "your algo is worse than buy and hold algo!!!"  
 
-        # if you lose 20% of your money,  game over
-        if total_return < -20.0:
+        # bankrupt
+        # print(cur_pflo_value)
+        if cur_pflo_value < 0:
             done = True
-            msg = "you lost 20% of your money!!!"
+            msg = "you bankrupt!!!" 
+       
+        # if you lose 20% of your money,  game over
+        # if total_return < -20.0:
+        #     done = True
+        #     msg = "you lost 20% of your money!!!"
 
         # if you earned 20% of your money,  game over
-        if total_return > 20.0:
-            done = True
-            msg = "you earned 20% of your money!!!"
+        # if total_return > 20.0:
+        #     done = True
+        #     msg = "you earned 20% of your money!!!"
 
-        obs = [self.price.price_list[:self.t], self.fee_rt]
+        cur_ts = self.price.price_list[ :nt+1]
+        obs = cur_ts[-self.state_size: ]    # we just observe state_size time series data.
 
         info["priv_pflo_value"] = priv_pflo_value
         info["cur_pflo_value"] = cur_pflo_value
