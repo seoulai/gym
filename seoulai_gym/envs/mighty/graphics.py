@@ -51,7 +51,7 @@ LOGO title                                                      credit
 """
 
 ui_path = os.path.dirname(os.path.abspath(__file__))
-form_class = uic.loadUiType(os.path.join(ui_path, "graphics.ui"))[0]
+form_class = uic.loadUiType(os.path.join(ui_path, "resource/graphics.ui"))[0]
 
 
 class Graphics(QMainWindow, form_class):

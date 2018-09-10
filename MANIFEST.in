@@ -1,4 +1,5 @@
 include seoulai_gym/envs/checkers/board.png
+include seoulai_gym/envs/mighty/resource/*
 recursive-include seoulai_gym *.py
 include README.md
 include LICENSE
