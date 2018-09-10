@@ -13,7 +13,6 @@ class Price(Constants):
     def __init__(
         self,
         price_list_size: int=1000,  # trading game size
-        tick: int=0,
     ):
         """Price constructor.
 
