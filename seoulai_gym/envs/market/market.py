@@ -42,7 +42,7 @@ class Market():
         self,
     ):
         self.price = Price()    # TODO: data generator
-        self.t = self.state_size-1
+        self.t = -1 
         self.max_t_size = 1000
 
     def select(
@@ -67,7 +67,7 @@ class Market():
 
         self.init()
 
-        obs = self.price.price_list[:self.state_size]
+        obs = self.price.price_list[:1]
         return obs
 
     def step(
@@ -89,6 +89,8 @@ class Market():
             done: Information about end of game.
             info: Additional information about current step.
         """
+        # next t
+        self.t = self.t + 1
 
         obs, rew, done, info = self.conclude(
             agent, decision, trad_price, trad_qty)
@@ -157,9 +159,6 @@ class Market():
             done = False
         """
 
-        # next t
-        nt = self.t + 1
-        self.t = nt
 
         # end of trading game?
         msg = ""
@@ -197,6 +196,8 @@ class Market():
         #     done = True
         #     msg = "you earned 20% of your money!!!"
 
+        # make next_obs
+        nt = self.t + 1
         cur_ts = self.price.price_list[ :nt+1]
         obs = cur_ts[-self.state_size: ]    # we just observe state_size time series data.
 

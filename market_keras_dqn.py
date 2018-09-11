@@ -48,19 +48,26 @@ class DQNAgent(RandomAgent):
         return model
 
     def remember(self, state, action, reward, next_state, done):
+        # skip remember
+        if len(state) < self.state_size or len(next_state) < self.state_size:
+            return
+        state = np.reshape(state, [1, self.state_size])    # https://stackoverflow.com/questions/22053050/difference-between-numpy-array-shape-r-1-and-r
+        next_state = np.reshape(next_state, [1, self.state_size])    # https://stackoverflow.com/questions/22053050/difference-between-numpy-array-shape-r-1-and-r
 
-        state = np.reshape(state, [1, state_size])    # https://stackoverflow.com/questions/22053050/difference-between-numpy-array-shape-r-1-and-r
-        next_state = np.reshape(next_state, [1, state_size])    # https://stackoverflow.com/questions/22053050/difference-between-numpy-array-shape-r-1-and-r
         self.memory.append((state, action, reward, next_state, done))
 
     def act(self, obs, reward, done):
-        # decision = random.choice(
-        #    list([Constants.BUY, Constants.SELL, Constants.HOLD]))
 
-        
         price_list = obs
 
-        
+        # next t
+        self.t = self.t + 1 
+
+        # you should wait to accumulate data because of input state_size 
+        if self.t < self.state_size:
+            return Constants.HOLD, 0, 0
+  
+        # process of making action : decision -> trad_price -> trad_qty  
         if np.random.rand() <= self.epsilon:
             decision = random.randrange(self.action_size) #, trad_price, trad_qty
         else:
@@ -69,7 +76,6 @@ class DQNAgent(RandomAgent):
             decision = np.argmax(act_values[0])
 
         trad_price = price_list[-1]    # select current price
-        # print(price_list)
         trad_qty = 0
 
         # caculate max_qty 
@@ -82,22 +88,10 @@ class DQNAgent(RandomAgent):
             # if max_qty = 0(you can't trade), you can't buy or sell.
             decision = Constants.HOLD
         
-        if not(self.invested) and decision == Constants.BUY:                                                           
-            self.bah_base = trad_price                                                                                 
-            self.invested = True  
-        
+        self.record_bah(decision, trad_price) 
         self.record_wallet()
+        
         return decision, trad_price, trad_qty  # returns action
-
-    def calc_max_qty(self, decision, trad_price):
-        fee_rt = self.fee_rt
-        if decision == Constants.HOLD:
-            return 0
-        elif decision == Constants.BUY:
-            fee = trad_price*fee_rt    # calculate fee(commission)
-            return self.cash/(trad_price+fee)    # max buy quantity = cash / (trading price + fee)
-        elif decision == Constants.SELL:
-            return  self.asset_qty
 
     def replay(self, batch_size):
         minibatch = random.sample(self.memory, batch_size)
@@ -108,7 +102,6 @@ class DQNAgent(RandomAgent):
                           np.amax(self.model.predict(next_state)[0]))
 
             target_f = self.model.predict(state)
-            # print(action)
             target_f[0][action]= target
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
@@ -147,7 +140,7 @@ if __name__ == "__main__":
     for e in range(episodes):
         # reset env
         obs = env.reset()
-        # reset agent condition
+        # reset agent condition(cash, asset_qty)
         current_agent.init()
         rew = 0
         done = False
@@ -155,7 +148,7 @@ if __name__ == "__main__":
         print("episode : %d"%e)
         print("cash : %lf, asset_val : %lf"%(current_agent.cash, current_agent.asset_val))
 
-        record = pd.DataFrame(index = range(time_series_size), columns = COLUMN_LIST) 
+        record = pd.DataFrame(columns = COLUMN_LIST) 
        
         for t in range(time_series_size):
             decision, trad_price, trad_qty = current_agent.act(obs, rew, done)
@@ -165,9 +158,9 @@ if __name__ == "__main__":
             # rew = rew if not done else -10
             current_agent.remember(obs, decision, rew, next_obs, done)
             obs = next_obs
-            env.render(current_agent, info, Constants.DECISION[decision])
+            # env.render(current_agent, info, Constants.DECISION[decision])
             
-            record.ix[t, COLUMN_LIST] = \
+            record.loc[t] = \
                 [Constants.DECISION[decision], trad_price, trad_qty \
                 , current_agent.cash, current_agent.asset_qty \
                 , info['cur_pflo_value'], info['fee'], info['1t_return'], info['1t_ret_ratio']]
@@ -185,4 +178,5 @@ if __name__ == "__main__":
                 current_agent.replay(batch_size)
         # logging
         print(record)
+        print(record.describe())
             #env.close()

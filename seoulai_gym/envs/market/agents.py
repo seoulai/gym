@@ -65,6 +65,7 @@ class RandomAgent(Agent):
         self.wallet_history = []
         self.invested = False
         self.bah_base = 0
+        self.t = -1    # in act fucntion, it will increase. 
 
     def act(
         self,
@@ -82,24 +83,19 @@ class RandomAgent(Agent):
             Current and new location of piece.
         """
 
+        price_list = obs
+
+        # process of making action : decision -> trad_price -> trad_qty
+
         # TODO : RL Algo
         decision = random.choice(
             list([Constants.BUY, Constants.SELL, Constants.HOLD]))
 
-        price_list = obs[0]
-        fee_rt = obs[1]
-
         trad_price = price_list[-1]    # select current price
         trad_qty = 0
-        max_qty = 0
 
-        # validation
-        if decision == Constants.BUY:
-            fee = trad_price*fee_rt    # calculate fee(commission)
-            # max buy quantity = cash / (trading price + fee)
-            max_qty = self.cash/(trad_price+fee)
-        elif decision == Constants.SELL:
-            max_qty = self.asset_qty
+        # caculate max_qty 
+        max_qty = self.calc_max_qty(decision, trad_price)
 
         # if max_qty >0 (you can trade), choose trading_qty randomly (0.0~max_qty)
         if max_qty > 0:
@@ -107,10 +103,26 @@ class RandomAgent(Agent):
         else:
             # if max_qty = 0(you can't trade), you can't buy or sell.
             decision = Constants.HOLD
-
+        
+        self.record_bah(decision, trad_price)
         self.record_wallet()
         return decision, trad_price, trad_qty
-  
+
+    def  calc_max_qty(self, decision, trad_price):
+        fee_rt = self.fee_rt
+        if decision == Constants.HOLD:
+            return 0
+        elif decision == Constants.BUY:
+            fee = trad_price*fee_rt    # calculate fee(commission)
+            return self.cash/(trad_price+fee)    # max buy quantity = cash / (trading price + fee)
+        elif decision == Constants.SELL:
+            return  self.asset_qty
+
+    def record_bah(self, decision, trad_price):
+        if not(self.invested) and decision == Constants.BUY:                                                                                                                          
+            self.bah_base = trad_price                                                                                                                                                
+            self.invested = True  
+ 
     def record_wallet(self):
         # FIXME: wallet history should be updated after order is closed
         self.wallet_history.append(
