@@ -2,6 +2,8 @@
 Cinyoung Hur, cinyoung.hur@gmail.com
 James Park, laplacian.k@gmail.com
 seoulai.com
+Agent inspired by keon.io 
+https://keon.io/deep-q-learning/
 2018
 """
 import seoulai_gym as gym
