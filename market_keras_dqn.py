@@ -60,13 +60,14 @@ class DQNAgent(RandomAgent):
 
     def act(self, obs, reward, done):
 
-        price_list = obs
-
         # next t
         self.t = self.t + 1 
 
+        price_list = obs
+
         # you should wait to accumulate data because of input state_size 
         if self.t < self.state_size:
+            self.record_wallet()
             return Constants.HOLD, 0, 0
   
         # process of making action : decision -> trad_price -> trad_qty  
@@ -89,10 +90,12 @@ class DQNAgent(RandomAgent):
         else:
             # if max_qty = 0(you can't trade), you can't buy or sell.
             decision = Constants.HOLD
+            trad_price = 0
+            trad_qty = 0
         
         self.record_bah(decision, trad_price) 
         self.record_wallet()
-        
+
         return decision, trad_price, trad_qty  # returns action
 
     def replay(self, batch_size):

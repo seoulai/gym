@@ -42,7 +42,7 @@ class Market():
         self,
     ):
         self.price = Price()    # TODO: data generator
-        self.t = -1 
+        self.t = 0 
         self.max_t_size = 1000
 
     def select(
@@ -89,11 +89,12 @@ class Market():
             done: Information about end of game.
             info: Additional information about current step.
         """
-        # next t
-        self.t = self.t + 1
 
         obs, rew, done, info = self.conclude(
             agent, decision, trad_price, trad_qty)
+
+        # next t
+        self.t = self.t + 1
         return copy.deepcopy(obs), rew, done, info
 
     def conclude(
@@ -198,8 +199,8 @@ class Market():
 
         # make next_obs
         nt = self.t + 1
-        cur_ts = self.price.price_list[ :nt+1]
-        obs = cur_ts[-self.state_size: ]    # we just observe state_size time series data.
+        next_ts = self.price.price_list[ :nt+1]
+        obs = next_ts[-self.state_size: ]    # we just observe state_size time series data.
 
         info["priv_pflo_value"] = priv_pflo_value
         info["cur_pflo_value"] = cur_pflo_value
