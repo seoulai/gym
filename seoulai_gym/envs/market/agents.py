@@ -167,11 +167,14 @@ class MRV1Agent(RandomAgent):
             decision(direction), trading price, trading quantity
         """
 
-        price_list = obs["data"]
-        fee_rt = obs["fee_rt"]
-        tick = len(price_list)
+        # next t
+        self.t = self.t + 1
 
-        trad_price = price_list["Close"].tolist()[-1]    # select current price
+        df = obs["data"]
+        price_list = df["Close"].tolist()
+        fee_rt = obs["fee_rt"]
+
+        trad_price = price_list[-1]    # select current price
         trad_qty = 0
         max_qty = 0
 
@@ -183,11 +186,11 @@ class MRV1Agent(RandomAgent):
         thresh_hold = 1.0
 
         # mean reverting algorithm
-        if tick < n:
+        if self.t < n:
             return Constants.HOLD, 0, 0
 
         cur_price = price_list[-1]
-        price_n = price_list[:-n]
+        price_n = price_list[-n:]
         avg_n = np.mean(price_n)
         std_n = np.std(price_n)
 
@@ -213,8 +216,7 @@ class MRV1Agent(RandomAgent):
             # if max_qty = 0(you can't trade), you can't buy or sell.
             decision = Constants.HOLD
 
-        if not(self.invested) and decision == Constants.BUY:
-            self.bah_base = trad_price
-            self.invested = True
+        self.record_bah(decision, trad_price)
+        self.record_wallet()
 
         return decision, trad_price, trad_qty
