@@ -12,6 +12,7 @@ import numpy as np
 import random 
 from seoulai_gym.envs.market.base import Constants 
 from seoulai_gym.envs.market.agents import RandomAgent
+from seoulai_gym.envs.market.price import Bithumb
 from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
@@ -24,11 +25,10 @@ class DQNAgent(RandomAgent):
         self,
         name: str,
         init_cash: float,
-        fee_rt: float,
         state_size: int,
         action_size: int,
     ):
-        super().__init__(name, init_cash, fee_rt)
+        super().__init__(name, init_cash)
         self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
@@ -49,7 +49,16 @@ class DQNAgent(RandomAgent):
                       optimizer=Adam(lr=self.learning_rate))
         return model
 
-    def remember(self, state, action, reward, next_state, done):
+    def remember(self, obs, action, reward, next_obs, done):
+        df = obs["data"]
+        ndf = next_obs["data"]
+        
+        state = df[-self.state_size:]
+        next_state = ndf[-self.state_size:]
+
+        state = state.Close.tolist()
+        next_state = next_state.Close.tolist()
+
         # skip remember
         if len(state) < self.state_size or len(next_state) < self.state_size:
             return
@@ -63,7 +72,12 @@ class DQNAgent(RandomAgent):
         # next t
         self.t = self.t + 1 
 
-        price_list = obs
+        df = obs["data"]                                                                                       
+        fee_rt = obs["fee_rt"] 
+        
+        # we should observe only 10 state.
+        price_list = df[-self.state_size:]        
+        price_list = price_list.Close.tolist()
 
         # you should wait to accumulate data because of input state_size 
         if self.t < self.state_size:
@@ -74,7 +88,7 @@ class DQNAgent(RandomAgent):
         if np.random.rand() <= self.epsilon:
             decision = random.randrange(self.action_size) #, trad_price, trad_qty
         else:
-            state = np.reshape(obs, [1, state_size])    # https://stackoverflow.com/questions/22053050/difference-between-numpy-array-shape-r-1-and-r
+            state = np.reshape(price_list, [1, state_size])    # https://stackoverflow.com/questions/22053050/difference-between-numpy-array-shape-r-1-and-r
             act_values = self.model.predict(state)
             decision = np.argmax(act_values[0])
 
@@ -82,7 +96,7 @@ class DQNAgent(RandomAgent):
         trad_qty = 0
 
         # caculate max_qty 
-        max_qty = self.calc_max_qty(decision, trad_price)
+        max_qty = self.calc_max_qty(decision, trad_price, fee_rt)
 
         # if max_qty >0 (you can trade), choose trading_qty randomly (0.0~max_qty)
         if max_qty > 0:
@@ -127,14 +141,14 @@ if __name__ == "__main__":
     # select exchange
     # TODO: add trading condition of real exchanges.
     # then users will be able to choose exchange.
-    fee_rt = env.select("upbit")
+    env.select(Bithumb)
 
     state_size = env.state_size    # env.observation_space.shape[0]
     action_size = env.action_size    # env.action_space.n
     batch_size = 32
     init_cash = 100000000  # KRW
     
-    a1 = DQNAgent("DQN", init_cash, fee_rt, state_size, action_size)
+    a1 = DQNAgent("DQN", init_cash, state_size, action_size)
     current_agent = a1
 
     episodes = 10

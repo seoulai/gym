@@ -14,7 +14,7 @@ import pygame
 from pygame.locals import QUIT
 
 from seoulai_gym.envs.market.base import Constants
-from seoulai_gym.envs.market.price import Price, ICO
+from seoulai_gym.envs.market.price import Price, Exchange 
 from seoulai_gym.envs.market.graphics import Graphics
 
 
@@ -46,8 +46,8 @@ class Market():
 
     def select(
             self,
-            ico: ICO):
-        self.price = Price(ico)
+            exchange: Exchange):
+        self.price = Price(exchange)
 
     def reset(
         self
@@ -60,7 +60,7 @@ class Market():
         self.init()
 
         obs = dict(data=self.price.price_ext[:1],
-                   fee_rt=self.price.ico.fee_rt)
+                   fee_rt=self.price.exchange.fee_rt)
         return obs
 
     def step(
@@ -113,7 +113,7 @@ class Market():
 
         # total amount of moved money. (거래금액)
         trading_amt = ccld_price*ccld_qty
-        fee = trading_amt*self.price.ico.fee_rt    # fee(commission, 수수료)
+        fee = trading_amt*self.price.exchange.fee_rt    # fee(commission, 수수료)
 
         # previus potfolio value(previous cash+asset_value), 이전 포트폴리오 가치(이전 현금 + 이전 자산 가치)
         priv_pflo_value = agent.cash+agent.asset_val
@@ -161,11 +161,11 @@ class Market():
             msg = "t overflow!! max_t_size : %d, current_t : %d " % (
                 self.max_t_size, self.t)
 
-        # total_return = ((cur_pflo_value/agent.init_cash)-1)*100
+        total_return = ((cur_pflo_value/agent.init_cash)-1)*100
 
         # comparing with buy and hold algo
         # if agent.invested:
-        #    next_price = self.price.price_list[nt]
+        #    next_price = self.price.price_list[self.t+1]
         #    print(next_price)
         #    print(agent.bah_base)
         #    bah_return = ((next_price/agent.bah_base)-1)*100
@@ -193,9 +193,10 @@ class Market():
         # make next_obs
         nt = self.t + 1
         next_ts = self.price.price_ext[:nt+1]
-        # we just observe state_size time series data.
-        obs = dict(data=next_ts[-self.state_size:],
-                   fee_rt=self.price.ico.fee_rt)
+
+        # we should offer raw data. then, users can customize their algo easily.
+        obs = dict(data=next_ts,
+                   fee_rt=self.price.exchange.fee_rt)
 
         info["priv_pflo_value"] = priv_pflo_value
         info["cur_pflo_value"] = cur_pflo_value
