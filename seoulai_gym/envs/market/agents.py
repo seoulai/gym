@@ -81,7 +81,7 @@ class RandomAgent(Agent):
             Current and new location of piece.
         """
 
-        price_list = obs['data']['Close'].tolist()
+        price_list = obs["data"]["Close"].tolist()
         # process of making action : decision -> trad_price -> trad_qty
 
         # TODO : RL Algo
