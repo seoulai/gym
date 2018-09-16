@@ -138,8 +138,7 @@ if __name__ == "__main__":
     current_agent = a1
 
     episodes = 10
-    time_series_size = 1000
-    
+    time_series_size = env.max_t_size 
 
     # iterate trading simulation
     for e in range(episodes):
@@ -151,6 +150,7 @@ if __name__ == "__main__":
         done = False
         
         print("episode : %d"%e)
+        print("time_series_size : %d"%time_series_size)
         print("cash : %lf, asset_val : %lf"%(current_agent.cash, current_agent.asset_val))
 
         record = pd.DataFrame(columns = COLUMN_LIST) 
@@ -163,7 +163,7 @@ if __name__ == "__main__":
             # rew = rew if not done else -10
             current_agent.remember(obs, decision, rew, next_obs, done)
             obs = next_obs
-            # env.render(current_agent, info, Constants.DECISION[decision])
+            env.render(current_agent, info, Constants.DECISION[decision])
             
             record.loc[t] = \
                 [Constants.DECISION[decision], trad_price, trad_qty \
@@ -181,7 +181,7 @@ if __name__ == "__main__":
                 break
             if len(current_agent.memory) > batch_size:
                 current_agent.replay(batch_size)
+        env.close()
         # logging
         print(record)
         print(record.describe())
-            #env.close()

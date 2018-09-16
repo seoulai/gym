@@ -41,7 +41,7 @@ class Market():
     def init(
         self,
     ):
-        self.t = 0
+        self.t = -1
         self.max_t_size = 1000
 
     def select(
@@ -83,11 +83,12 @@ class Market():
             info: Additional information about current step.
         """
 
+        # next t
+        self.t = self.t + 1
+
         obs, rew, done, info = self.conclude(
             agent, decision, trad_price, trad_qty)
 
-        # next t
-        self.t = self.t + 1
         return copy.deepcopy(obs), rew, done, info
 
     def conclude(
@@ -155,7 +156,7 @@ class Market():
 
         # end of trading game?
         msg = ""
-        if self.t >= self.max_t_size:
+        if self.t+1 >= self.max_t_size:
             done = True
             msg = "t overflow!! max_t_size : %d, current_t : %d " % (
                 self.max_t_size, self.t)
@@ -217,7 +218,7 @@ class Market():
             None
         """
         self.graphics.update(
-            self.price.price_list[:self.t],
+            self.price.price_list[:self.t+1],
             agent,
             info,
             decision
