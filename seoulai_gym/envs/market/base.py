@@ -12,4 +12,4 @@ class Constants(object):
     BUY = 1
     SELL = 2
     HOLD = 0
-    DECISION = ['hold', 'buy', 'sell']
+    DECISION = ["hold", "buy", "sell"]

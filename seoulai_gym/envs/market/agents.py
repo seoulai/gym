@@ -92,7 +92,7 @@ class RandomAgent(Agent):
         trad_qty = 0
 
         # caculate max_qty
-        max_qty = self.calc_max_qty(decision, trad_price, obs['fee_rt'])
+        max_qty = self.calc_max_qty(decision, trad_price, obs["fee_rt"])
 
         # if max_qty >0 (you can trade), choose trading_qty randomly (0.0~max_qty)
         if max_qty > 0:
@@ -167,11 +167,11 @@ class MRV1Agent(RandomAgent):
             decision(direction), trading price, trading quantity
         """
 
-        price_list = obs['data']
-        fee_rt = obs['fee_rt']
+        price_list = obs["data"]
+        fee_rt = obs["fee_rt"]
         tick = len(price_list)
 
-        trad_price = price_list['Close'].tolist()[-1]    # select current price
+        trad_price = price_list["Close"].tolist()[-1]    # select current price
         trad_qty = 0
         max_qty = 0
 
