@@ -8,27 +8,29 @@ import pandas as pd
 import os
 
 
-class ICO(object):
+class Exchange(object):
     pass
 
 
-class Bithumb(ICO):
-    fee_rt = 0.05/100
+class Bithumb(Exchange):
+    fee_rt = 0.15/100
 
+class Upbit(Exchange):
+    fee_rt = 0.05/100
 
 class Price():
     def __init__(
         self,
-        ico: ICO
+        exchange: Exchange
     ):
         """Price constructor.
 
         Args:
-            ico: ICO.
+            exchange: Exchange.
         """
         self.stock_total_volume = 2000
         self.init()
-        self.ico = ico
+        self.exchange = exchange 
 
     def init(
         self,
