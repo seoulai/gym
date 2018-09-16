@@ -15,8 +15,10 @@ class Exchange(object):
 class Bithumb(Exchange):
     fee_rt = 0.15/100
 
+
 class Upbit(Exchange):
     fee_rt = 0.05/100
+
 
 class Price():
     def __init__(
@@ -30,7 +32,7 @@ class Price():
         """
         self.stock_total_volume = 2000
         self.init()
-        self.exchange = exchange 
+        self.exchange = exchange
 
     def init(
         self,
