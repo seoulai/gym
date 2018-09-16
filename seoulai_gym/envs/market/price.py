@@ -5,22 +5,30 @@ seoulai.com
 2018
 """
 import pandas as pd
-from seoulai_gym.envs.market.base import Constants
 import os
 
 
-class Price(Constants):
+class ICO(object):
+    pass
+
+
+class Bithumb(ICO):
+    fee_rt = 0.05/100
+
+
+class Price():
     def __init__(
         self,
-        price_list_size: int=1000,  # trading game size
+        ico: ICO
     ):
         """Price constructor.
 
         Args:
-            size: Price length.
+            ico: ICO.
         """
         self.stock_total_volume = 2000
         self.init()
+        self.ico = ico
 
     def init(
         self,

@@ -14,7 +14,7 @@ import pygame
 from pygame.locals import QUIT
 
 from seoulai_gym.envs.market.base import Constants
-from seoulai_gym.envs.market.price import Price
+from seoulai_gym.envs.market.price import Price, ICO
 from seoulai_gym.envs.market.graphics import Graphics
 
 
@@ -29,7 +29,7 @@ class Market():
         Returns:
             None
         """
-        self.state_size = 10 
+        self.state_size = 10
         self.action_size = 3
         self.traders = 0    # for multi-players
         self.init()
@@ -41,22 +41,14 @@ class Market():
     def init(
         self,
     ):
-        self.price = Price()    # TODO: data generator
-        self.t = 0 
+        self.t = 0
         self.max_t_size = 1000
 
     def select(
-        self,
-        exchange_name: str,
-    ):
+            self,
+            ico: ICO):
+        self.price = Price(ico)
 
-        # TODO : add some exchanges. ex. bithumb, bittrex, coinone, binance...
-        # TODO : fixed parameters(fee ratio...) can't be edited.
-        if exchange_name == "upbit":
-            self.fee_rt = 0.05/100
-        else:
-            self.fee_rt = 0.10/100
-        return self.fee_rt
     def reset(
         self
     ) -> List:
@@ -67,7 +59,8 @@ class Market():
 
         self.init()
 
-        obs = self.price.price_list[:1]
+        obs = dict(data=self.price.price_ext[:1],
+                   fee_rt=self.price.ico.fee_rt)
         return obs
 
     def step(
@@ -119,7 +112,7 @@ class Market():
 
         # total amount of moved money. (거래금액)
         trading_amt = ccld_price*ccld_qty
-        fee = trading_amt*self.fee_rt    # fee(commission, 수수료)
+        fee = trading_amt*self.price.ico.fee_rt    # fee(commission, 수수료)
 
         # previus potfolio value(previous cash+asset_value), 이전 포트폴리오 가치(이전 현금 + 이전 자산 가치)
         priv_pflo_value = agent.cash+agent.asset_val
@@ -160,7 +153,6 @@ class Market():
             done = False
         """
 
-
         # end of trading game?
         msg = ""
         if self.t >= self.max_t_size:
@@ -168,10 +160,10 @@ class Market():
             msg = "t overflow!! max_t_size : %d, current_t : %d " % (
                 self.max_t_size, self.t)
 
-        total_return = ((cur_pflo_value/agent.init_cash)-1)*100
+        # total_return = ((cur_pflo_value/agent.init_cash)-1)*100
 
-        # comparing with buy and hold algo        
-        #if agent.invested:
+        # comparing with buy and hold algo
+        # if agent.invested:
         #    next_price = self.price.price_list[nt]
         #    print(next_price)
         #    print(agent.bah_base)
@@ -179,14 +171,14 @@ class Market():
         #    print("%lf vs %lf"%(total_return, bah_return))
         #    if total_return < bah_return:
         #        done = True
-        #        msg = "your algo is worse than buy and hold algo!!!"  
+        #        msg = "your algo is worse than buy and hold algo!!!"
 
         # bankrupt
         # print(cur_pflo_value)
         if cur_pflo_value < 0:
             done = True
-            msg = "you bankrupt!!!" 
-       
+            msg = "you bankrupt!!!"
+
         # if you lose 20% of your money,  game over
         # if total_return < -20.0:
         #     done = True
@@ -199,8 +191,10 @@ class Market():
 
         # make next_obs
         nt = self.t + 1
-        next_ts = self.price.price_list[ :nt+1]
-        obs = next_ts[-self.state_size: ]    # we just observe state_size time series data.
+        next_ts = self.price.price_ext[:nt+1]
+        # we just observe state_size time series data.
+        obs = dict(data=next_ts[-self.state_size:],
+                   fee_rt=self.price.ico.fee_rt)
 
         info["priv_pflo_value"] = priv_pflo_value
         info["cur_pflo_value"] = cur_pflo_value

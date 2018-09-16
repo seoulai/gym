@@ -5,6 +5,7 @@ seoulai.com
 2018
 """
 import seoulai_gym as gym
+from seoulai_gym.envs.market.price import Bithumb
 from seoulai_gym.envs.market.agents import RandomAgentBuffett
 # MeanReverting Agent Version 1.0
 from seoulai_gym.envs.market.agents import MRV1Agent
@@ -18,12 +19,10 @@ def main():
     # select exchange
     # TODO: add trading condition of real exchanges.
     # then users will be able to choose exchange.
-    env.select("upbit")
+    env.select(Bithumb)
 
     init_cash = 100000000  # KRW
-    #a1 = RandomAgentBuffett("Buffett", init_cash)
-    a1 = MRV1Agent("MeanReverting", init_cash)
-    current_agent = a1
+    current_agent = RandomAgentBuffett("Buffett", init_cash)
 
     obs = env.reset()
 
