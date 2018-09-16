@@ -119,18 +119,28 @@ Currently, environment simulating game of [Checkers](https://en.wikipedia.org/wi
   import seoulai_gym as gym
   from seoulai_gym.envs.market.agents import RandomAgentBuffett
 
-  # make enviroment
+  # make enviroment and select exchange
   env = gym.make("Market")
+  env.select(Bithumb)
+  
+  # reset enviroment and make first observation
+  obs = env.reset()
 
-  # select exchange
-  env.select("upbit")
-
+  # make agents
   init_cash = 100000000  # KRW
   a1 = RandomAgentBuffett("Buffett", init_cash)
   current_agent = a1
+  ...
 
-  env.reset()
-  env.render()
+  # iterate your trading episodes
+  for e in range(episodes):
+      ...
+      # training your algo for 't' time.
+      for i in range(t)
+          action = current_agent.act(obs, rew, done)
+          next_obs = env.step(action)
+          obs = next_obs
+          env.render()
   ```
 
 ## Examples
