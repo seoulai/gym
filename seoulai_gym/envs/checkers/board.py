@@ -64,14 +64,14 @@ class Board(Constants, Rules):
         """
         half_size = self.size//2
         self.board_list = [
-            sum([[DarkPiece(), None] for _ in range(half_size)], []),
             sum([[None, DarkPiece()] for _ in range(half_size)], []),
             sum([[DarkPiece(), None] for _ in range(half_size)], []),
+            sum([[None, DarkPiece()] for _ in range(half_size)], []),
             sum([[None] for _ in range(self.size)], []),
             sum([[None] for _ in range(self.size)], []),
-            sum([[None, LightPiece()] for _ in range(half_size)], []),
             sum([[LightPiece(), None] for _ in range(half_size)], []),
             sum([[None, LightPiece()] for _ in range(half_size)], []),
+            sum([[LightPiece(), None] for _ in range(half_size)], []),
         ]
 
     def update_rewards(
