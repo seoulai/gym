@@ -119,8 +119,6 @@ class Rules(object):
     ) -> bool:
         """Validate move given by current and desired piece coordinates.
 
-        TODO king moves
-
         Args:
             board_list: Information about positions of pieces.
             from_row: Row of board of original piece location.
