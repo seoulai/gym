@@ -3,7 +3,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-import random
 from abc import ABC
 from abc import abstractmethod
 from typing import List
