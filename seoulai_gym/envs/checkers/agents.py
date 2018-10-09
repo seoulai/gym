@@ -51,11 +51,11 @@ class Agent(ABC, Constants, Rules):
             raise ValueError("Invalid piece type.")
 
     @property
-    def name(self, _name):
+    def name(self):
         if self.ptype == self.DARK:
-            return f"DARK {_name}"
+            return f"DARK {self._name}"
         elif self.ptype == self.LIGHT:
-            return f"LIGHT {_name}"
+            return f"LIGHT {self._name}"
 
     def __str__(self):
         return self._name
