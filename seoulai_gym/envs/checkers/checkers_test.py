@@ -74,7 +74,7 @@ class TestInvalidMoves(object):
         assert rew <= 0
 
     def test_jump_with_opponents_dark_piece(self, board, light):
-        obs, rew, done, info = board.move(dark, 3, 3, 4, 4)
+        obs, rew, done, info = board.move(light, 3, 3, 4, 4)
         assert rew <= 0
 
     def test_jump_with_opponents_light_piece(self, board, dark):
