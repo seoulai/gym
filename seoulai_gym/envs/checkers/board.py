@@ -12,6 +12,7 @@ from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.base import DarkPiece
 from seoulai_gym.envs.checkers.base import LightPiece
 from seoulai_gym.envs.checkers.rules import Rules
+from seoulai_gym.envs.checkers.utils import generate_random_move
 
 
 class Rewards(object):
@@ -125,25 +126,31 @@ class Board(Constants, Rules):
         if not self._can_opponent_move(self.board_list, self.get_opponent_type(ptype), self.size):
             return self._opponent_cant_move(self.board_list, self.rewards, info)
 
+        # general invalid move
         if not self.validate_move(self.board_list, from_row, from_col, to_row, to_col):
-            obs = self.board_list
             rew = self.rewards["invalid_move"]
-            done = False
             info.update({"invalid_move": (from_row, from_col, to_row, to_col)})
-            return obs, rew, done, info
-        else:
-            # don't move with opponent's piece
-            if ptype != self.board_list[from_row][from_col].ptype:
-                obs = self.board_list
-                rew = self.rewards["move_opponent_piece"]
-                done = False
-                info.update({"move_opponent_piece": (from_row, from_col)})
-                return obs, rew, done, info
-            else:
-                # moved
-                info.update({"moved": ((from_row, from_col), (to_row, to_col))})
-                self.board_list[to_row][to_col] = self.board_list[from_row][from_col]
-                self.board_list[from_row][from_col] = None
+
+            from_row, from_col, to_row, to_col = generate_random_move(
+                self.board_list,
+                ptype,
+                self.size,
+            )
+
+        # don't move with opponent's piece
+        if ptype != self.board_list[from_row][from_col].ptype:
+            rew = self.rewards["move_opponent_piece"]
+            info.update({"move_opponent_piece": (from_row, from_col)})
+
+            from_row, from_col, to_row, to_col = generate_random_move(
+                self.board_list,
+                ptype,
+                self.size,
+            )
+
+        # move piece
+        info_update = self.execute_move(from_row, from_col, to_row, to_col)
+        info.update(info_update)
 
         # remove opponent's piece
         between_row, between_col = self.get_between_position(from_row, from_col, to_row, to_col)
@@ -174,6 +181,17 @@ class Board(Constants, Rules):
         obs = self.board_list
 
         return obs, rew, done, info
+
+    def execute_move(
+        self,
+        from_row: int,
+        from_col: int,
+        to_row: int,
+        to_col: int,
+    ) -> Dict:
+        self.board_list[to_row][to_col] = self.board_list[from_row][from_col]
+        self.board_list[from_row][from_col] = None
+        return {"moved": ((from_row, from_col), (to_row, to_col))}
 
     @staticmethod
     def _can_opponent_move(

@@ -81,6 +81,14 @@ class TestInvalidMoves(object):
         obs, rew, done, info = board.move(dark, 6, 6, 5, 5)
         assert rew <= 0
 
+    def test_random_move_if_dark_attempts_invalid_move(self, board, dark):
+        obs, rew, done, info = board.move(dark, 0, 0, 0, 0)
+        assert obs[2][1] is None or obs[2][3] is None or obs[2][5] is None or obs[2][7] is None
+
+    def test_random_move_if_light_attempts_invalid_move(self, board, light):
+        obs, rew, done, info = board.move(light, 7, 7, 7, 7)
+        assert obs[5][0] is None or obs[5][2] is None or obs[5][4] is None or obs[5][6] is None
+
 
 class TestRemove(object):
     def test_jump_dark_forward(self, empty_board, dark):
