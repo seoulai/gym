@@ -24,12 +24,8 @@ from seoulai_gym.envs.checkers.rules import Rules
 class Checkers(Constants, Rules):
     def __init__(
         self,
-        state: str=None,
     ) -> None:
         """Initialize checkers board and its visualization.
-
-        Args:
-            state: Optional, path to saved game state. TODO
 
         Returns:
             None

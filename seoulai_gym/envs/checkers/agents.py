@@ -3,7 +3,6 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-import random
 from abc import ABC
 from abc import abstractmethod
 from typing import List
@@ -11,6 +10,7 @@ from typing import Tuple
 
 from seoulai_gym.envs.checkers.base import Constants
 from seoulai_gym.envs.checkers.rules import Rules
+from seoulai_gym.envs.checkers.utils import generate_random_move
 
 
 class Agent(ABC, Constants, Rules):
@@ -51,11 +51,11 @@ class Agent(ABC, Constants, Rules):
             raise ValueError("Invalid piece type.")
 
     @property
-    def name(self, _name):
+    def name(self):
         if self.ptype == self.DARK:
-            return f"DARK {_name}"
+            return f"DARK {self._name}"
         elif self.ptype == self.LIGHT:
-            return f"LIGHT {_name}"
+            return f"LIGHT {self._name}"
 
     def __str__(self):
         return self._name
@@ -89,11 +89,11 @@ class RandomAgent(Agent):
         Returns:
             Current and new location of piece.
         """
-        board_size = len(board)
-        valid_moves = self.generate_valid_moves(board, self.ptype, board_size)
-        rand_from_row, rand_from_col = random.choice(list(valid_moves.keys()))
-
-        rand_to_row, rand_to_col = random.choice(valid_moves[(rand_from_row, rand_from_col)])
+        rand_from_row, rand_from_col, rand_to_row, rand_to_col = generate_random_move(
+            board,
+            self.ptype,
+            len(board),
+        )
         return rand_from_row, rand_from_col, rand_to_row, rand_to_col
 
     def consume(

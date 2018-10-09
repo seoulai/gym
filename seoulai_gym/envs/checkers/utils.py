@@ -3,10 +3,13 @@ Martin Kersner, m.kersner@gmail.com
 seoulai.com
 2018
 """
-import numpy as np
+import random
 from typing import List
 
+import numpy as np
+
 from seoulai_gym.envs.checkers.base import Constants
+from seoulai_gym.envs.checkers.rules import Rules
 
 
 class BoardEncoding(object):
@@ -101,3 +104,21 @@ def board_list2numpy(
                 board_numpy[row][col] = encoding[piece_type]
 
     return board_numpy
+
+
+def generate_random_move(
+    board: List[List],
+    ptype: int,
+    board_size: int,
+):
+    """Generate random move from all `ptype` valid moves but does not execute it.
+
+    Args:
+        board: (List[List[Piece]]) State of the game.
+        ptype: (int) type of piece for which random move will be generated
+        board_size: (int) size of board
+    """
+    valid_moves = Rules.generate_valid_moves(board, ptype, board_size)
+    rand_from_row, rand_from_col = random.choice(list(valid_moves.keys()))
+    rand_to_row, rand_to_col = random.choice(valid_moves[(rand_from_row, rand_from_col)])
+    return rand_from_row, rand_from_col, rand_to_row, rand_to_col
