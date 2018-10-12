@@ -64,7 +64,6 @@ class Agent(ABC, Constants, Rules):
 class RandomAgent(Agent):
     def __init__(
         self,
-        name: str,
         ptype: int,
     ):
         """Initialize random agent.
@@ -73,6 +72,13 @@ class RandomAgent(Agent):
             name: name of agent.
             ptype: type of piece that agent is responsible for.
         """
+        if ptype == Constants().DARK:
+            name = "RandomAgentDark"
+        elif ptype == Constants().LIGHT:
+            name = "RandomAgentLight"
+        else:
+            raise ValueError
+
         super().__init__(name, ptype)
 
     def act(
@@ -117,14 +123,12 @@ class RandomAgent(Agent):
 class RandomAgentLight(RandomAgent):
     def __init__(
         self,
-        name: str,
     ):
-        super().__init__(name, Constants().LIGHT)
+        super().__init__(Constants().LIGHT)
 
 
 class RandomAgentDark(RandomAgent):
     def __init__(
         self,
-        name: str,
     ):
-        super().__init__(name, Constants().DARK)
+        super().__init__(Constants().DARK)
