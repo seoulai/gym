@@ -11,8 +11,8 @@ from seoulai_gym.envs.checkers.agents import RandomAgentDark
 def main():
     env = gym.make("Checkers")
 
-    a1 = RandomAgentLight("Agent 1")
-    a2 = RandomAgentDark("Agent 2")
+    a1 = RandomAgentLight()
+    a2 = RandomAgentDark()
 
     obs = env.reset()
 
