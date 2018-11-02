@@ -20,7 +20,9 @@ class BaseAPI():
     ):
         url = BASE_URL + cmd
         print(url, json.dumps(data))
+        headers = {'content-type': 'application/json'}
         r = requests.post(url,
+                          headers=headers,
                           data = json.dumps(data))
         return r.json()
 
@@ -31,6 +33,8 @@ class BaseAPI():
     ):
         url = BASE_URL + cmd
         print(url, json.dumps(data))
+        headers = {'content-type': 'application/json'}
         r = requests.get(url,
+                          headers=headers,
                          data = json.dumps(data))
         return r.json()
