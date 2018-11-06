@@ -51,5 +51,6 @@ class Price():
         self.price_ext = price.merge(extra, on="Date", how="left")
         self.price_ext["daily_return"] = self.price_ext["Close"].pct_change()
         self.price_ext.sort_values("Date", ascending=True, inplace=True)
+        self.price_ext.set_index("Date", inplace=True)
         self.price_list = self.price_ext.Close.tolist()
         self.price_list_size = self.price_ext.shape[0]

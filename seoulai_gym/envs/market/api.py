@@ -1,12 +1,13 @@
 import requests
 import json
-from seoulai_gym.envs.market.config import BASE_URL 
+from seoulai_gym.envs.market.config import BASE_URL
+
 
 class BaseAPI():
     def __init__(
         self,
     ) -> None:
-        """Initialize BaseAPI 
+        """Initialize BaseAPI
         Args:
             None
         Returns:
@@ -20,10 +21,10 @@ class BaseAPI():
     ):
         url = BASE_URL + cmd
         print(url, json.dumps(data))
-        headers = {'content-type': 'application/json'}
+        headers = {"content-type": "application/json"}
         r = requests.post(url,
                           headers=headers,
-                          data = json.dumps(data))
+                          data=json.dumps(data))
         return r.json()
 
     def api_get(
@@ -33,8 +34,8 @@ class BaseAPI():
     ):
         url = BASE_URL + cmd
         print(url, json.dumps(data))
-        headers = {'content-type': 'application/json'}
+        headers = {"content-type": "application/json"}
         r = requests.get(url,
-                          headers=headers,
-                         data = json.dumps(data))
+                         headers=headers,
+                         data=json.dumps(data))
         return r.json()

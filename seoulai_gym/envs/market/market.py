@@ -5,25 +5,14 @@ James Park, laplacian.k@gmail.com
 seoulai.com
 2018
 """
-import copy
-from typing import Dict
-from typing import List
-from typing import Tuple
-
-import pygame
-from pygame.locals import QUIT
-import numpy as np
-
 from seoulai_gym.envs.market.api import BaseAPI
 from seoulai_gym.envs.market.base import Constants
-from seoulai_gym.envs.market.price import Price, Exchange 
-from seoulai_gym.envs.market.graphics import Graphics
 
 
 class Market(BaseAPI):
     def __init__(
         self,
-        state: str=None,
+        state: str = None,
     ) -> None:
         """Initialize market and its visualization.
         Args:
@@ -31,43 +20,45 @@ class Market(BaseAPI):
         Returns:
             None
         """
-        #self.traders = 0    # for multi-players
-
         # graphics is for visualization
         # self.graphics = Graphics()
-        # self.pause = False  # pause game
+        # self.pause = False
 
     def select(
         self,
         exchange
     ) -> None:
 
-        data = dict(exchange=exchange,
-                   )
+        data = dict(exchange=exchange,)
         self.fee_rt = self.api_get("select", data)
 
     def reset(
-        self
+        self,
+        agent_id,
     ):
         """Reset all variables and initialize new game.
         Returns:
             obs: Information about trading parameters.
         """
-        data = {}
-        state = self.api_post("reset", data)
- 
+        data = dict(agent_id=agent_id,
+                    step_type=0,    # Local
+                    decision=Constants.HOLD,
+                    trad_qty=0.0,
+                    trad_price=0.0,)
+        state, _, _, _ = self.api_post("step", data)
         return state
 
     def step(
         self,
-        agent,
+        agent_id,
+        step_type: int,
         decision: int,
         trad_qty: float,
         trad_price: float,
     ):
         """Make a step (= move) within market.
         Args:
-            agent: Agent name(id) 
+            agent: Agent name(id)
             decision : buy, sell or hold. Agent position.
             trad_price: Price that Agent want to trade.
             trad_qty: Quantity that Agent want to trade.
@@ -77,19 +68,20 @@ class Market(BaseAPI):
             done: Information about end of game.
             info: Additional information about current step.
         """
-        data = dict(agent=agent,
+        data = dict(agent_id=agent_id,
+                    step_type=step_type,
                     decision=decision,
                     trad_qty=trad_qty,
                     trad_price=trad_price,
                     )
         r = self.api_post("step", data)
 
-        next_state = r.get("agent")
+        next_state = r.get("next_state")
         reward = r.get("reward")
         done = r.get("done")
         info = r.get("info")
 
-        return next_state, reward, done, info 
+        return next_state, reward, done, info
 
     def render(
         self,

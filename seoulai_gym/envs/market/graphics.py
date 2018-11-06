@@ -16,7 +16,7 @@ from seoulai_gym.envs.market.base import Constants
 class Graphics(Constants):
     def __init__(
         self,
-        window_size: int=700,
+        window_size: int = 700,
     ):
         self.window_size = window_size
         self.initialized_window = False
@@ -58,7 +58,7 @@ class Graphics(Constants):
         prices: List,
         agent,  # wallet: int=10000,
         info,
-        decision: str=Constants.BUY
+        decision: str = Constants.BUY
     ) -> None:
         """Update visualization of prices and profits with respect to the current state.
         Agent"s decisions at certain timestamp are displayed.
