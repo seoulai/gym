@@ -34,14 +34,13 @@ class Market(BaseAPI):
 
     def reset(
         self,
-        agent_id,
     ):
-        """Reset all variables and initialize new game.
+        """Reset all variables and initialize trading game.
         Returns:
-            obs: Information about trading parameters.
+            state: Information about trading parameters.
         """
-        data = dict(agent_id=agent_id,
-                    step_type=0,    # Local
+        data = dict(agent_id="RESET",    # TODO: change id
+                    step_type=Constants.LOCAL,    # Local
                     decision=Constants.HOLD,
                     trad_qty=0.0,
                     trad_price=0.0,)
@@ -50,8 +49,8 @@ class Market(BaseAPI):
 
     def step(
         self,
-        agent_id,
-        step_type: int,
+        env_type: int,
+        agent_id: int,
         decision: int,
         trad_qty: float,
         trad_price: float,
@@ -68,8 +67,8 @@ class Market(BaseAPI):
             done: Information about end of game.
             info: Additional information about current step.
         """
-        data = dict(agent_id=agent_id,
-                    step_type=step_type,
+        data = dict(env_type=env_type,
+                    agent_id=agent_id,
                     decision=decision,
                     trad_qty=trad_qty,
                     trad_price=trad_price,

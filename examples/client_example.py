@@ -2,51 +2,66 @@
 Cinyoung Hur, cinyoung.hur@gmail.com
 James Park, laplacian.k@gmail.com
 seoulai.com
-Agent inspired by keon.io 
+Agent inspired by keon.io
 https://keon.io/deep-q-learning/
 2018
 """
 
 import seoulai_gym as gym
-import requests
 
-from seoulai_gym.envs.market.agents import RandomAgent
+from seoulai_gym.envs.market.agents import Agent 
+from seoulai_gym.envs.market.base import Constants
 from itertools import count
 
-class TestAgent(RandomAgent):
-    def __init__(
-        self,
-        name: str,
-        init_cash,
-    ):
-        super().__init__(name, init_cash)
 
-    def act(
+class MeanRevertingAgent(Agent):
+
+    def define_state(
+        self,
+        obs,
+    ):
+        state = obs
+        return state
+
+    def algo(
         self,
         state,
     ):
-        return 0, 0, 0    # decision, trad_qty, trad_price
+        return 0, 0.0, 0.0    # decision, trad_qty, trad_price
+    
+    def define_reward(
+        self,
+    ):
+        pass
 
-if __name__ == "__main__": 
-    env = gym.make("Market")
-    env.select("Upbit")
+    # TODO : prevent to define act method.
+    # def act(
+    #     self,
+    #     obs,
+    # ):
+    #     state = self.define_state(obs)
+    #     return self._agent_id, 0, 0.0, 0.0    # agent_id, decision, trad_qty, trad_price
 
-    #state = env.reset()
-    state = dict(cur_price=10000.0, 
-                 ma60 = 11000.0,
-                 ma40 = 12000.0,
-                 ma20 = 10000.0,
-                 )
 
-    a1 = TestAgent(
-         "Test",
-         100000000.0,
+if __name__ == "__main__":
+
+    a1 = MeanRevertingAgent(
+         "laplace",
          )
 
-    hackathon_id = "laplace"
+    env = gym.make("Market")
+    obs = env.reset()
+     
+    # state = dict(cur_price=10000.0,
+    #              ma60 = 11000.0,
+    #              ma40 = 12000.0,
+    #              ma20 = 10000.0,
+    #              )
+
+
     for t in count():    # online RL
-        action = a1.act(state)    # local function
-        next_state, reward, done, info = env.step(hackathon_id, *action)
+        action = a1.act(obs)    # local function
+        next_obs, reward, done, info = env.step(Constants.LOCAL, *action)    # participants can select env_type
 
         if done:
             break

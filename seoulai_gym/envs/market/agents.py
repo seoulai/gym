@@ -8,34 +8,52 @@ import numpy as np
 import random
 from abc import ABC
 from abc import abstractmethod
+from seoulai_gym.envs.market.api import BaseAPI
 from typing import Tuple
 
 from seoulai_gym.envs.market.base import Constants
 
 
-class Agent(ABC, Constants):
-    @abstractmethod
+class Agent(ABC, BaseAPI, Constants):
     def __init__(
         self,
-        name: str,
+        agent_id: str,
     ):
-        self._name = name
+        self._agent_id = agent_id
+        data = dict(agent_id=agent_id,)
+        self.api_post("participate", data)
 
     @abstractmethod
+    def define_state(
+        self,
+        obs,
+    ):
+        pass
+
+    @abstractmethod
+    def algo(
+        self,
+        state,
+    ):
+        pass
+
+    # FIXME: participants can't define act method
     def act(
         self,
         obs,
-        reward: int,
-        done: bool,
     ) -> None:
-        pass
+        state = self.define_state(obs)
+        # TODO : simplify code.
+        decision, trad_qty, trad_price = self.algo(state)
+        action = (self._agent_id, decision, trad_qty, trad_price)
+        return action
 
     @property
-    def name(self, _name):
-        return _name
+    def name(self, _agent_id):
+        return _agent_id
 
     def __str__(self):
-        return self._name
+        return self._agent_id
 
 
 class RandomAgent(Agent):

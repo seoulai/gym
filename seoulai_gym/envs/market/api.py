@@ -25,7 +25,9 @@ class BaseAPI():
         r = requests.post(url,
                           headers=headers,
                           data=json.dumps(data))
-        return r.json()
+        if r.status_code == 200:
+            return r.json()
+        return None
 
     def api_get(
         self,
@@ -38,4 +40,6 @@ class BaseAPI():
         r = requests.get(url,
                          headers=headers,
                          data=json.dumps(data))
-        return r.json()
+        if r.status_code == 200:
+            return r.json()
+        return None
