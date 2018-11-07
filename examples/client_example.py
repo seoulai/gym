@@ -9,38 +9,68 @@ https://keon.io/deep-q-learning/
 
 import seoulai_gym as gym
 
-from seoulai_gym.envs.market.agents import Agent 
+from seoulai_gym.envs.market.agents import Agent
 from seoulai_gym.envs.market.base import Constants
 from itertools import count
 
 
 class MeanRevertingAgent(Agent):
 
+    def define_action(
+        self,
+    ):
+
+        # action_spaces = x(ticker) * 2(buy, sell) * 100(%) * y(tick) + 1(hold) = 200xy+1
+        # TODO: we should make x, y constants.
+        # TODO: {key : {func1, func2, ...}} structure for pair trading.
+
+        # normal define
+        self.actions = dict(
+            hold=("hold", "BTC", 0, 0),
+            buy_all_at_cur_price=("buy", "BTC", 100, 0),
+            sell_20per_at_cur_price=("sell", "BTC", 20, 0),)
+
+        # serial define
+        # for i in range(100):
+        #     self.actions.update( {f"buy_{i+1}%_at_cur_price" : ("buy", "BTC", i+1, 0)} )
+        #
+        # for i in range(100):
+        #     self.actions.update( {f"sell_{i+1}%_at_cur_price" : ("sell", "BTC", i+1, 0)} )
+        #
+        # self.actions.update( {"hold" : ("hold", "BTC", 0, 0)})
+
+    # data preprocessing
     def define_state(
         self,
         obs,
     ):
         state = obs
+        self.ma10 = obs.get("ma10")
+        self.std10 = obs.get("std10")
         return state
 
     def algo(
         self,
         state,
     ):
-        return 0, 0.0, 0.0    # decision, trad_qty, trad_price
-    
+        # print(state.columns)
+        cur_price = self.cur_price
+        ma10 = self.ma10
+        std10 = self.std10
+        thresh_hold = 1.0
+
+        # TODO: dataframe structure?
+        if cur_price > ma10 + std10*thresh_hold:
+            return self.action("buy_all_at_cur_price")
+        elif cur_price < ma10 - std10*thresh_hold:
+            return self.action("sell_20per_at_cur_price")
+        else:
+            return self.action(0)
+
     def define_reward(
         self,
     ):
         pass
-
-    # TODO : prevent to define act method.
-    # def act(
-    #     self,
-    #     obs,
-    # ):
-    #     state = self.define_state(obs)
-    #     return self._agent_id, 0, 0.0, 0.0    # agent_id, decision, trad_qty, trad_price
 
 
 if __name__ == "__main__":
@@ -48,16 +78,11 @@ if __name__ == "__main__":
     a1 = MeanRevertingAgent(
          "laplace",
          )
+    print(a1.action_spaces)
+    print(a1.action_keys)
 
     env = gym.make("Market")
     obs = env.reset()
-     
-    # state = dict(cur_price=10000.0,
-    #              ma60 = 11000.0,
-    #              ma40 = 12000.0,
-    #              ma20 = 10000.0,
-    #              )
-
 
     for t in count():    # online RL
         action = a1.act(obs)    # local function

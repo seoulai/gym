@@ -39,18 +39,20 @@ class Market(BaseAPI):
         Returns:
             state: Information about trading parameters.
         """
-        data = dict(agent_id="RESET",    # TODO: change id
-                    step_type=Constants.LOCAL,    # Local
+        data = dict(env_type=Constants.LOCAL,    # Local
+                    agent_id="RESET",    # TODO: change id
                     decision=Constants.HOLD,
                     trad_qty=0.0,
                     trad_price=0.0,)
-        state, _, _, _ = self.api_post("step", data)
-        return state
+        r = self.api_post("step", data)
+        obs = r.get("next_state")
+        return obs
 
     def step(
         self,
         env_type: int,
         agent_id: int,
+        ticker: str,
         decision: int,
         trad_qty: float,
         trad_price: float,
@@ -69,6 +71,7 @@ class Market(BaseAPI):
         """
         data = dict(env_type=env_type,
                     agent_id=agent_id,
+                    ticker=ticker,
                     decision=decision,
                     trad_qty=trad_qty,
                     trad_price=trad_price,

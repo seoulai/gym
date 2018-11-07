@@ -4,13 +4,9 @@ James Park, laplacian.k@gmail.com
 seoulai.com
 2018
 """
-import numpy as np
-import random
 from abc import ABC
 from abc import abstractmethod
 from seoulai_gym.envs.market.api import BaseAPI
-from typing import Tuple
-
 from seoulai_gym.envs.market.base import Constants
 
 
@@ -23,10 +19,75 @@ class Agent(ABC, BaseAPI, Constants):
         data = dict(agent_id=agent_id,)
         self.api_post("participate", data)
 
-    @abstractmethod
+        self.actions = {}
+        self.define_action()
+        self.action_spaces = len(self.actions)
+        self.action_keys = list(self.actions.keys())
+
+        # self.define_state()
+        # self.define_reward()
+
     def define_state(
         self,
         obs,
+    ):
+        state = obs
+        return state
+
+    @abstractmethod
+    def define_action(
+        self,
+    ):
+        pass
+
+    # TODO: simplify code
+    def action(
+        self,
+        index,
+    ):
+        try:
+            if type(index) == str:
+                key = index
+            else:
+                key = self.action_keys[index]
+            parameters = self.actions[key]
+            return self.order(*parameters)
+        # FIXME:
+        except IndexError:
+            raise "index error!!!"
+
+    def order(
+        self,
+        order_type: str,
+        ticker: str,
+        order_percent: int,
+        d: int,
+    ):
+        self.validate(order_type, ticker, order_percent, d)
+
+        if order_type == "buy":
+            #  trad_price x trad_qty x (1+fee_rt) <= cash
+            #  max_buy_qty = cash / {trad_price x (1+fee_rt)}
+
+            trad_price = self.cur_price+self.tick*d
+            max_buy_qty = self.cash / (trad_price * (1+self.fee_rt))
+            trad_qty = max_buy_qty*(order_percent/100.0)
+            return ticker, Constants.BUY, trad_qty, trad_price
+
+        elif order_type == "sell":
+            trad_price = self.cur_price+self.tick*d
+            max_sell_qty = self.asset_qtys[ticker]
+            trad_qty = max_sell_qty*(order_percent/100.0)
+            return ticker, Constants.SELL, trad_qty, trad_price
+        else:
+            return ticker, Constants.HOLD, 0.0, 0.0
+
+    def validate(
+        self,
+        order_type: str,
+        ticker: str,
+        order_percent: int,
+        d: int,
     ):
         pass
 
@@ -37,15 +98,35 @@ class Agent(ABC, BaseAPI, Constants):
     ):
         pass
 
-    # FIXME: participants can't define act method
+    def get_common(
+        self,
+        obs,
+    ):
+        self.fee_rt = obs.get("fee_rt")    # FIXME: unnecessary repeated assign
+        self.cash = obs.get("cash")
+
+        # self.asset_qtys = obs.get("asset_qty")
+        self.asset_qtys = dict(
+            BTC=100,
+            ETH=20,)
+
+        # DotDict(post_data.get("ticks"))
+        self.cur_price = obs.get("cur_price")
+        self.tick = 10.0    # a + nd
+
+    # FIXME: participants shouldn't define act method
     def act(
         self,
         obs,
     ) -> None:
+        if self.action_spaces == 0:
+            raise AttributeError(f"actions does not exists")
+
+        self.get_common(obs)
         state = self.define_state(obs)
         # TODO : simplify code.
-        decision, trad_qty, trad_price = self.algo(state)
-        action = (self._agent_id, decision, trad_qty, trad_price)
+        ticker, decision, trad_qty, trad_price = self.algo(state)
+        action = (self._agent_id, ticker, decision, trad_qty, trad_price)
         return action
 
     @property
@@ -54,187 +135,3 @@ class Agent(ABC, BaseAPI, Constants):
 
     def __str__(self):
         return self._agent_id
-
-
-class RandomAgent(Agent):
-    def __init__(
-            self,
-            name: str,
-            init_cash: float
-    ):
-        """Initialize random agent.
-
-        Args:
-            name: name of agent.
-            ptype: type of piece that agent is responsible for.
-        """
-        super().__init__(name)
-        self.init_cash = init_cash
-        self.init()
-
-    def init(
-        self,
-    ):
-        self.cash = self.init_cash
-        self.asset_qty = 0.0
-        self.asset_val = 0.0
-        self.wallet_history = []
-        self.invested = False
-        self.bah_base = 0
-        self.t = -1    # in act fucntion, it will increase.
-
-    def act(
-        self,
-        obs,  # price history
-        reward: int,
-        done: bool,
-    ) -> Tuple[int, int, int]:
-        """
-        Args:
-            prices: price data set of stock.
-            reward: reward for perfomed step.
-            done: information about end of game.
-
-        Returns:
-            Current and new location of piece.
-        """
-
-        price_list = obs["data"]["Close"].tolist()
-        # process of making action : decision -> trad_price -> trad_qty
-
-        # TODO : RL Algo
-        decision = random.choice(
-            list([Constants.BUY, Constants.SELL, Constants.HOLD]))
-
-        trad_price = price_list[-1]    # select current price
-        trad_qty = 0
-
-        # caculate max_qty
-        max_qty = self.calc_max_qty(decision, trad_price, obs["fee_rt"])
-
-        # if max_qty >0 (you can trade), choose trading_qty randomly (0.0~max_qty)
-        if max_qty > 0:
-            trad_qty = np.random.random_sample() * max_qty
-        else:
-            # if max_qty = 0(you can't trade), you can't buy or sell.
-            decision = Constants.HOLD
-
-        self.record_bah(decision, trad_price)
-        self.record_wallet()
-        return decision, trad_price, trad_qty
-
-    def calc_max_qty(self, decision, trad_price, fee_rt):
-        if decision == Constants.HOLD:
-            return 0
-        elif decision == Constants.BUY:
-            fee = trad_price*fee_rt    # calculate fee(commission)
-            # max buy quantity = cash / (trading price + fee)
-            return self.cash/(trad_price+fee)
-        elif decision == Constants.SELL:
-            return self.asset_qty
-
-    def record_bah(self, decision, trad_price):
-        if not(self.invested) and decision == Constants.BUY:
-            self.bah_base = trad_price
-            self.invested = True
-
-    def record_wallet(self):
-        # FIXME: wallet history should be updated after order is closed
-        self.wallet_history.append(
-            self.cash + self.asset_val)
-
-
-class RandomAgentBuffett(RandomAgent):
-    def __init__(
-        self,
-        name: str,
-        init_cash: float,
-    ):
-        super().__init__(name, init_cash)
-
-
-class RandomAgentSon(RandomAgent):
-    def __init__(
-        self,
-        name: str,
-    ):
-        super().__init__(name)
-
-
-class MRV1Agent(RandomAgent):
-    def __init__(
-        self,
-        name: str,
-        init_cash: float,
-    ):
-        super().__init__(name, init_cash)
-
-    def act(
-        self,
-        obs,
-        reward: int,
-        done: bool,
-    ) -> Tuple[int, int, int]:
-        """
-        Args:
-            obs: data set of obsevation
-            reward: reward for perfomed step.
-            done: information about end of game.
-
-        Returns:
-            decision(direction), trading price, trading quantity
-        """
-
-        # next t
-        self.t = self.t + 1
-
-        df = obs["data"]
-        price_list = df["Close"].tolist()
-        fee_rt = obs["fee_rt"]
-
-        trad_price = price_list[-1]    # select current price
-        trad_qty = 0
-        max_qty = 0
-
-        # FIXME: wallet history should be updated after order is closed
-        self.wallet_history.append(
-            self.cash + self.asset_val)
-
-        n = 10
-        thresh_hold = 1.0
-
-        # mean reverting algorithm
-        if self.t < n:
-            return Constants.HOLD, 0, 0
-
-        cur_price = price_list[-1]
-        price_n = price_list[-n:]
-        avg_n = np.mean(price_n)
-        std_n = np.std(price_n)
-
-        if cur_price > avg_n + std_n*thresh_hold:
-            decision = Constants.SELL
-        elif cur_price < avg_n - std_n*thresh_hold:
-            decision = Constants.BUY
-        else:
-            decision = Constants.HOLD
-
-        # validation
-        if decision == Constants.BUY:
-            fee = trad_price*fee_rt    # calculate fee(commission)
-            # max buy quantity = cash / (trading price + fee)
-            max_qty = self.cash/(trad_price+fee)
-        elif decision == Constants.SELL:
-            max_qty = self.asset_qty
-
-        # if max_qty >0 (you can trade), choose trading_qty randomly (0.0~max_qty)
-        if max_qty > 0:
-            trad_qty = np.random.random_sample() * max_qty
-        else:
-            # if max_qty = 0(you can't trade), you can't buy or sell.
-            decision = Constants.HOLD
-
-        self.record_bah(decision, trad_price)
-        self.record_wallet()
-
-        return decision, trad_price, trad_qty
