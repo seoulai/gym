@@ -14,20 +14,30 @@ class Agent(ABC, BaseAPI, Constants):
     def __init__(
         self,
         agent_id: str,
+        agent_key: str = "",
     ):
         self._agent_id = agent_id
-        data = dict(agent_id=agent_id,)
-        self.api_post("participate", data)
+        self._common_data_columns=["fee_rt", "cash", "asset_qtys", "cur_price", "order_book"]
+        # self._agent_key = agent_key
+        # data = dict(agent_id=agent_id)
 
         self.actions = {}
-        self.define_action()
+        self.actions = self.define_action()
+        if type(self.actions) != dict:
+            raise AttributeError(f"you must return dictionary!!!")
         self.action_spaces = len(self.actions)
-        self.action_keys = list(self.actions.keys())
+        if self.action_spaces == 0:
+            raise AttributeError(f"you didn't define actions")
+        self.action_names = list(self.actions.keys())
 
-        # self.define_state()
-        # self.define_reward()
+    def preprocess(
+        self,
+        obs,
+    ):
+        state = obs
+        return state
 
-    def define_state(
+    def postprocess(
         self,
         obs,
     ):
@@ -49,8 +59,9 @@ class Agent(ABC, BaseAPI, Constants):
             if type(index) == str:
                 key = index
             else:
-                key = self.action_keys[index]
+                key = self.action_names[index]
             parameters = self.actions[key]
+            print("parameters", parameters)
             return self.order(*parameters)
         # FIXME:
         except IndexError:
@@ -59,26 +70,27 @@ class Agent(ABC, BaseAPI, Constants):
     def order(
         self,
         order_type: str,
-        ticker: str,
-        order_percent: int,
-        d: int,
+        order_percent: int = 0,
+        d: int = 0,
+        ticker: str = "KRW-BTC",
     ):
-        self.validate(order_type, ticker, order_percent, d)
+        self.validate(order_type, order_percent, d, ticker)    # for type or user mistake
 
         if order_type == "buy":
             #  trad_price x trad_qty x (1+fee_rt) <= cash
             #  max_buy_qty = cash / {trad_price x (1+fee_rt)}
 
-            trad_price = self.cur_price+self.tick*d
+            trad_price = self.order_book[d+10]
             max_buy_qty = self.cash / (trad_price * (1+self.fee_rt))
             trad_qty = max_buy_qty*(order_percent/100.0)
             return ticker, Constants.BUY, trad_qty, trad_price
 
         elif order_type == "sell":
-            trad_price = self.cur_price+self.tick*d
+            trad_price = self.order_book[d+10]
             max_sell_qty = self.asset_qtys[ticker]
             trad_qty = max_sell_qty*(order_percent/100.0)
             return ticker, Constants.SELL, trad_qty, trad_price
+
         else:
             return ticker, Constants.HOLD, 0.0, 0.0
 
@@ -102,17 +114,15 @@ class Agent(ABC, BaseAPI, Constants):
         self,
         obs,
     ):
-        self.fee_rt = obs.get("fee_rt")    # FIXME: unnecessary repeated assign
-        self.cash = obs.get("cash")
-
-        # self.asset_qtys = obs.get("asset_qty")
-        self.asset_qtys = dict(
-            BTC=100,
-            ETH=20,)
-
-        # DotDict(post_data.get("ticks"))
-        self.cur_price = obs.get("cur_price")
-        self.tick = 10.0    # a + nd
+        print(obs)
+        self.order_book = obs.get("order_book")
+        self.agent_info = obs.get("agent_info")
+        self.portfolio_ret = obs.get("portfolio_ret")
+        self.statistics = obs.get("statistics")
+        # self.fee_rt = obs.get("fee_rt")    
+        # self.cash = obs.get("cash")
+        # self.asset_qtys = obs.get("asset_qtys")
+        # self.cur_price = obs.get("cur_price")
 
     # FIXME: participants shouldn't define act method
     def act(
@@ -123,7 +133,7 @@ class Agent(ABC, BaseAPI, Constants):
             raise AttributeError(f"actions does not exists")
 
         self.get_common(obs)
-        state = self.define_state(obs)
+        state = self.preprocess(obs)
         # TODO : simplify code.
         ticker, decision, trad_qty, trad_price = self.algo(state)
         action = (self._agent_id, ticker, decision, trad_qty, trad_price)
