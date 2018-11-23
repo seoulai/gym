@@ -21,8 +21,12 @@ class Agent(ABC, BaseAPI, Constants):
         # self._agent_key = agent_key
         # data = dict(agent_id=agent_id)
 
+        # TODO : to tracking algo
+        # data = dict(agent_id = agent_id)
+        # self.api_post = ("submit", data)
+
         self.actions = {}
-        self.actions = self.define_action()
+        self.actions = self.set_actions()
         if type(self.actions) != dict:
             raise AttributeError(f"you must return dictionary!!!")
         self.action_spaces = len(self.actions)
@@ -45,7 +49,7 @@ class Agent(ABC, BaseAPI, Constants):
         return state
 
     @abstractmethod
-    def define_action(
+    def set_actions(
         self,
     ):
         pass
@@ -80,13 +84,13 @@ class Agent(ABC, BaseAPI, Constants):
             #  trad_price x trad_qty x (1+fee_rt) <= cash
             #  max_buy_qty = cash / {trad_price x (1+fee_rt)}
 
-            trad_price = self.order_book[d+10]
+            trad_price = self.order_book[d+1]
             max_buy_qty = self.cash / (trad_price * (1+self.fee_rt))
             trad_qty = max_buy_qty*(order_percent/100.0)
             return ticker, Constants.BUY, trad_qty, trad_price
 
         elif order_type == "sell":
-            trad_price = self.order_book[d+10]
+            trad_price = self.order_book[d+1]
             max_sell_qty = self.asset_qtys[ticker]
             trad_qty = max_sell_qty*(order_percent/100.0)
             return ticker, Constants.SELL, trad_qty, trad_price
@@ -97,11 +101,26 @@ class Agent(ABC, BaseAPI, Constants):
     def validate(
         self,
         order_type: str,
-        ticker: str,
         order_percent: int,
         d: int,
+        ticker: str,
     ):
-        pass
+        if order_type not in ["buy", "sell", "hold"]:
+            raise Exception("invalid order type!!! : order_type = [buy, sell, hold]")
+
+        if order_type == "hold":
+            if order_percent != 0 or d != 0:
+                raise Exception("""invalid order!!! if you want to hold order, use this ("hold", 0, 0)""")
+        else:
+            if order_percent <= 0 or order_percent > 100: 
+                print(order_percent)
+                raise Exception("invalid order_percent!!! : 0 < order_percent <= 100")
+
+        if d < -1 or d > 1:
+            raise Exception("invalid tick!!! : -1 <= tick <= 1")
+
+        if ticker not in ["KRW-BTC"]: 
+            raise Exception("invalid ticker!!! : ticker = KRW-BTC")
 
     @abstractmethod
     def algo(
@@ -116,13 +135,14 @@ class Agent(ABC, BaseAPI, Constants):
     ):
         print(obs)
         self.order_book = obs.get("order_book")
-        self.agent_info = obs.get("agent_info")
-        self.portfolio_ret = obs.get("portfolio_ret")
         self.statistics = obs.get("statistics")
-        # self.fee_rt = obs.get("fee_rt")    
-        # self.cash = obs.get("cash")
-        # self.asset_qtys = obs.get("asset_qtys")
-        # self.cur_price = obs.get("cur_price")
+
+        self.agent_info = obs.get("agent_info")
+        self.portfolio_ret = obs.get("portfolio_rets")
+
+        self.cash = self.agent_info["cash"]
+        self.asset_qtys = self.agent_info.get("asset_qtys")
+        self.cur_price = self.order_book[0+1]
 
     # FIXME: participants shouldn't define act method
     def act(
