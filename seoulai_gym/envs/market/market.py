@@ -8,7 +8,7 @@ seoulai.com
 import pandas as pd
 from seoulai_gym.envs.market.api import BaseAPI
 from seoulai_gym.envs.market.base import Constants
-from seoulai_gym.envs.market.price import Price 
+from seoulai_gym.envs.market.data import Data 
 from seoulai_gym.envs.market.dbclient import AgentInfo 
 
 
@@ -23,86 +23,102 @@ class Market(BaseAPI):
         Returns:
             None
         """
+        self.exchange = "Upbit"
+        data = dict(exchange=self.exchange)
+        r = self.api_get("select", data)
+        self.fee_rt = r.get("fee_rt")
+
         # graphics is for visualization
         # self.graphics = Graphics()
         # self.pause = False
 
-        # dbclient = DBClient()
-        self.agent_info = AgentInfo()
-        self.t = 0
-        self.max_t_size = 100 
-        self.price = Price("Upbit")
-        self.fee_rt = 0.05/100
-
-    # def select(
-    #     self,
-    #     exchange
-    # ) -> None:
-
-    #     data = dict(exchange=exchange)
-    #     self.fee_rt = self.api_get("select", data)
-
     def reset(
         self,
-        env_type: int,
+        agent_id: str,
+        mode: int=Constants.LOCAL,
     ):
-        if env_type == Constants.LOCAL:
-            return self.local_reset()
-        elif env_type == Constants.HACKATHON:
-            return self.api_reset()
+        if mode == Constants.LOCAL:
+            return self.local_reset(agent_id)
+        elif mode == Constants.HACKATHON:
+            return self.api_reset(agent_id)
         else:
-            return {}, 0.0, False, {}
-        
-        return obs
+            raise Exception("invalid mode!!! : LOCAL = 0, HACKATHON = 1")
 
     def local_reset(
         self,
+        agent_id: str,
     ):
-        obs= dict(
-            order_book=[102.0],
+        # initialize variables for local excution
+        self.agent_info = AgentInfo()
+        self.t = 0
+        d = Data("Upbit")
+        # self.data = d.tsv
+
+
+        # load data
+        # TODO : load local data
+        # df = self.data.iloc[self.t]
+        # print(df.order_book.tolist())
+        # ob = self.data.order_books[0]
+        # pf = self.data.portfolio_rets[0]
+        # st = self.data.stats[0]
+        # self.local_data = [] 
+
+        #obs = self.data[0]
+        obs = dict(
+            order_book= ob,
             agent_info=dict(
                 cash=100000000.0, # cash, asset_qtys
                 asset_qtys={"KRW-BTC":0}
             ),
-            portfolio_ret={"value":0},    # portfolio_value, mdd, sharp_ratio
-            statistics=dict(
-                ma10=105.0,
-                std10=5.0,
-            )
-        )    # ma10, ma20, ... , std10, std20, ...
+            portfolio_ret={"value":pf[0], "mdd":pf[1], "sharp":pf[2]},
+            statistics={"ma10":st[0], "std10":st[1]})
+
+        # local_data = self.data.local_data
+        # obs = local_data[0]
+        # obs= dict(
+        #     order_book=[102.0, 102.0, 103.0],
+        #     agent_info=dict(
+        #         cash=100000000.0, # cash, asset_qtys
+        #         asset_qtys={"KRW-BTC":0}
+        #     ),
+        #     portfolio_ret={"value":0, "mdd":0, "sharp":0},    # portfolio_value, max drawdown, sharp_ratio
+        #     statistics=dict(
+        #         ma10=105.0,
+        #         std10=5.0,
+        #     )
+        # )    # ma10, ma20, ... , std10, std20, ...
         return obs
 
     def api_reset(
         self,
+        agent_id: str,
     ):
         """Reset all variables and initialize trading game.
         Returns:
             state: Information about trading parameters.
         """
-        data = dict(env_type=Constants.LOCAL,    # Local
-                    agent_id="RESET",    # TODO: change id
-                    decision=Constants.HOLD,
-                    trad_qty=0.0,
-                    trad_price=0.0,)
-        r = self.api_post("step", data)
-        obs = r.get("next_state")
+        data = dict(agent_id=agent_id)
+        r = self.api_get("reset", data)
+        obs = r.get("state")
+
         return obs
 
     def step(
         self,
-        env_type: int,
         agent_id: int,
         ticker: str,
         decision: int,
         trad_qty: float,
         trad_price: float,
+        mode: int=Constants.LOCAL,
     ):
-        if env_type == Constants.LOCAL:
+        if mode == Constants.LOCAL:
             return self.local_step(agent_id, ticker, decision, trad_qty, trad_price) 
-        elif env_type == Constants.HACKATHON:
+        elif mode == Constants.HACKATHON:
             return self.api_step(agent_id, ticker, decision, trad_qty, trad_price) 
         else:
-            return {}, 0.0, False, {}
+            raise Exception("invalid mode!!! : LOCAL = 0, HACKATHON = 1")
 
     def local_step(
         self,
@@ -117,11 +133,13 @@ class Market(BaseAPI):
         done = False
         info = {}
 
+        # cur_data = self.local_data[self.t]
+
         # current potfolio value(current cash + current asset value)
         # select_agent_info = \
         #     """ SELECT cash, asset_qtys
         #         FROM agent_info
-        #         WHERE agent_id = '%s' """ % agent_id    # agent info is result table
+        #         WHERE agent_id = '%s' """ % agent_id    # agent info is redis table
         # agent_info = dbclient.select(select_agent_info)
         agent_info = self.agent_info
         cash = agent_info.cash
@@ -130,10 +148,11 @@ class Market(BaseAPI):
 
         # select_cur_price = \
         #     """ SELECT ccld_price
-        #         FROM trade
-        #         WHERE ticker = '%s' """ % ticker    # trade is result table
+        #         FROM order_books 
+        #         WHERE ticker = '%s' """ % ticker    # order_books is redis table
         # cur_price = dbclient.excute(select_cur_price)
-        cur_price = self.price.price_list[self.t]    # current price (현재가)
+        cur_ob = self.data.order_books[self.t]
+        cur_price = cur_ob[1]    # current price (현재가)
         cur_pflo_value = cash + (asset_qty * cur_price)
 
         ccld_price, ccld_qty = self.conclude(
@@ -158,6 +177,9 @@ class Market(BaseAPI):
         #         , asset_qtys = '%s'
         #         WHERE agent_id = '%s' """ % (cash, asset_qtys, agent_id)
         # dbclient.excute(update_agent_info)
+
+        # update cache table
+        # insert log table
         self.agent_info.cash = cash
         self.agent_info.asset_qtys = asset_qtys 
 
@@ -167,7 +189,7 @@ class Market(BaseAPI):
         #         WHERE agent_id = '%s' """ % agent_id 
         # portfolio_ret = dbclient.excute(select_portfolio_ret)
         # mdd = portfolio_ret.mdd
-        mdd = 0.0
+        # mdd = 0.0
 
         msg = ""
         # if mdd < -80.0:
@@ -182,10 +204,9 @@ class Market(BaseAPI):
         # next t
         nt = self.t + 1
         self.t = nt
-        next_ts = self.price.price_ext[:nt+1]
-        cur_price = next_ts.Close.ix[-1]
+        next_ob = self.data.order_books[self.t]
+        cur_price = cur_ob[1]    # current price (현재가)
         # cur_price = dbclient.excute(select_cur_price)
-        # cur_price = self.price.price_list[self.t+1]    # current price (현재가)
         next_pflo_value = cash + (asset_qty * cur_price)
 
         rewards = dict(
@@ -199,13 +220,13 @@ class Market(BaseAPI):
 
         next_obs = dict(
             order_book=[102.0],
-            agent_info={},    # cash, asset_qtys
+            agent_info={"cash":cash, "asset_qtys":asset_qtys},    # cash, asset_qtys
             portfolio_ret={},    # portfolio_value, mdd, sharp_ratio
             statistics=dict(
                 ma10=105.0,
                 std10=5.0,
             )
-        )    # ma10, ma20, ... , std10, std20, ...
+        )
 
         return next_obs, rewards, done, info
 
@@ -255,6 +276,7 @@ class Market(BaseAPI):
         r = self.api_post("step", data)
 
         next_state = r.get("next_state")
+        print(next_state)
         reward = r.get("reward")
         done = r.get("done")
         info = r.get("info")
