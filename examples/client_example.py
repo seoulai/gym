@@ -14,23 +14,40 @@ from itertools import count
 
 class MeanRevertingAgent(Agent):
 
-    def define_action(
+    def set_actions(
         self,
     )->dict:
 
         # action_spaces = 1(ticker) * 2(buy, sell) * 100(%) * (20+1)(tick) + 1(hold) = 200x21+1 = 4201
-        # TODO: {key : {func1, func2, ...}} structure for pair trading.
 
-        """ you must return actions dictionary!
-            row1 : action_name1 = (decision1, order_percent 1, tick 1)
-            row2 : action_name2 = (decision2, order_percent 2, tick 2)
+        """ 1. you must return dictionary of actions!
+            row1 : action_name1 = (decision1, order_percent 1, order price 1)
+            row2 : action_name2 = (decision2, order_percent 2, order price 2)
             ...
 
-            If you want to add "hold" action, you just define action_name.
+            2. If you want to add "hold" action, just define ("hold", 0, 0)
+            3. order_percent = 10 means that your agent'll order 10% of possible quantity.
+            
+            order_price = 0 means current price.
+            order_price = 10 means that your agent'll order at sell_price_10.
+            order_price = -10 means that your agent'll order at buy_price_10.
+
+            below table is order book.
+            ==========================
+            sell_price_10
+            sell_price_9
+            ...
+            sell_price_1
+                          buy_price_1
+                          buy_price_2
+                          ...
+                          buy_price_10 
+            ==========================
         """
 
         # normal define
         your_actions = {}
+
         your_actions = dict(
             # TODO : simplify hold
             holding=("hold", 0, 0),
@@ -39,6 +56,7 @@ class MeanRevertingAgent(Agent):
         )
 
         # serial define
+        # your_actions = {}
         # for i in range(100):
         #     your_actions.update( {f"buy_{i+1}%_at_cur_price" : ("buy", i+1, 0)} )
         # 
@@ -53,7 +71,7 @@ class MeanRevertingAgent(Agent):
         self,
         obs,
     ):
-        cur_price = self.order_book[0]
+        cur_price = self.cur_price
         ma10 = self.statistics.get("ma10")
         std10 = self.statistics.get("std10")
         thresh_hold = 1.0
@@ -76,7 +94,7 @@ class MeanRevertingAgent(Agent):
         elif state["sell_signal"]:
             return self.action("sell_20per_at_cur_price")
         else:
-            return self.action(0)
+            return self.action(0)    # participants can use number of index.
 
     def postprocess(
         self,
@@ -91,23 +109,24 @@ class MeanRevertingAgent(Agent):
 
 if __name__ == "__main__":
 
+    your_id = "seoul_ai"
+    mode = Constants.HACKATHON    # participants can select mode 
+
     a1 = MeanRevertingAgent(
-         "laplace",
+         your_id,
          )
-    mode = Constants.LOCAL
 
     print(f"actions_spaces = {a1.action_spaces}")
     print(f"your_action_names = {a1.action_names}")
     print(f"you can use self.common_column. common_columns = {a1._common_data_columns}")
 
     env = gym.make("Market")
-    obs = env.reset(mode)
+    obs = env.reset(your_id, mode)
 
     for t in count():    # Online RL
         action = a1.act(obs)    # Local function
-        next_obs, rewards, done, info = env.step(mode, *action)    # participants can select env_type
+        next_obs, rewards, done, info = env.step(*action, mode)
         a1.postprocess(obs, action, next_obs, rewards, done)
-        time.sleep(0.1)
 
         if done:
             break
