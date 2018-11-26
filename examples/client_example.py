@@ -104,13 +104,18 @@ class MeanRevertingAgent(Agent):
         rewards,
         done,
     ):
+        # define reward
+        # define turn_on
+        # memory
+        # replay
+        # other technics.
         pass
 
 
 if __name__ == "__main__":
 
     your_id = "seoul_ai"
-    mode = Constants.HACKATHON    # participants can select mode 
+    mode = Constants.LOCAL    # participants can select mode 
 
     a1 = MeanRevertingAgent(
          your_id,

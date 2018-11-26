@@ -65,7 +65,6 @@ class Agent(ABC, BaseAPI, Constants):
             else:
                 key = self.action_names[index]
             parameters = self.actions[key]
-            print("parameters", parameters)
             return self.order(*parameters)
         # FIXME:
         except IndexError:
