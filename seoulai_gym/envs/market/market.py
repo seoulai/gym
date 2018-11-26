@@ -23,9 +23,7 @@ class Market(BaseAPI):
             None
         """
         self.exchange = "Upbit"
-        data = dict(exchange=self.exchange)
-        r = self.api_get("select", data)
-        self.fee_rt = r.get("fee_rt")
+        self.fee_rt = 0.05/100
 
         # graphics is for visualization
         # self.graphics = Graphics()
@@ -48,9 +46,8 @@ class Market(BaseAPI):
         agent_id: str,
     ):
         # initialize variables for local excution
-        self.local_data = Data()
-
-        obs = self.local_data.get_obs()
+        self.database = Data()
+        obs = self.database.observe()
 
         return obs
 
@@ -62,6 +59,10 @@ class Market(BaseAPI):
         Returns:
             state: Information about trading parameters.
         """
+        data = dict(exchange=self.exchange)
+        r = self.api_get("select", data)
+        self.fee_rt = r.get("fee_rt")
+
         data = dict(agent_id=agent_id)
         r = self.api_get("reset", data)
         obs = r.get("obs")
@@ -97,18 +98,20 @@ class Market(BaseAPI):
         done = False
         info = {}
 
-        agent_info = self.local_data.agent_info
+        ccld_price, ccld_qty = self.conclude(
+            agent_id, ticker, decision, trad_qty, trad_price)
+
+        # SELECT * FROM agent_info WHERE agent_id = 'seoul_ai' -> result table
+        # OR SELECT * FROM agent_info_log WHERE agent_id = 'seoul_ai' LIMIT 1 -> log_table
+        agent_info = self.database.agent_info
         cash = agent_info.cash
         asset_qtys = agent_info.asset_qtys    # MAP or JSON String
         asset_qty = asset_qtys[ticker]
-
-        ccld_price, ccld_qty = self.conclude(
-            agent_id, ticker, decision, trad_price, trad_qty)
+        # cur_portfolio_val = agent_info.portfolio_val
 
         # UPDATE agent_info
         trading_amt = ccld_price*ccld_qty
         fee = trading_amt*self.fee_rt
-
         if decision == Constants.BUY:
             cash = cash-trading_amt-fee    # after buying, cash will decrease.
             asset_qty = asset_qty + ccld_qty    # quantity of asset will increase.
@@ -117,14 +120,10 @@ class Market(BaseAPI):
             cash = cash+(trading_amt-fee)    # after selling, cash will increase.
             asset_qty = asset_qty - ccld_qty    # quantity of asset will decrease.
             asset_qtys[ticker] = asset_qty
+        self.database.agent_info.cash = cash
+        self.database.agent_info.asset_qtys = asset_qtys 
 
-        self.local_data.agent_info.cash = cash
-        self.local_data.agent_info.asset_qtys = asset_qtys 
-
-        # UPDATE portfolio_rets
-        # mdd = 0.0
-        # cur_pflo_value = cash + (asset_qty * cur_price)
-        next_obs = self.local_data.get_obs()
+        next_obs = self.database.observe()    # next_obs is based on current time.
 
         msg = ""
         # if mdd < -80.0:
@@ -145,16 +144,6 @@ class Market(BaseAPI):
         #     next_pflo_value=next_pflo_value,
         #     cur_pflo_value=cur_pflo_value)
 
-        # next_obs = dict(
-        #     order_book=[102.0],
-        #     agent_info={"cash":cash, "asset_qtys":asset_qtys},    # cash, asset_qtys
-        #     portfolio_ret={},    # portfolio_value, mdd, sharp_ratio
-        #     statistics=dict(
-        #         ma10=105.0,
-        #         std10=5.0,
-        #     )
-        # )
-
         return next_obs, rewards, done, info
 
     def conclude(
@@ -162,8 +151,8 @@ class Market(BaseAPI):
         agent_id,
         ticker,
         decision,
-        trad_price: float,
         trad_qty: float,
+        trad_price: float,
     ):
 
         # It is assumed that order is concluded as agent action.
@@ -209,6 +198,16 @@ class Market(BaseAPI):
         info = r.get("info")
 
         return next_obs, reward, done, info
+
+    def scrap(
+        self,
+        start_time,
+        end_time,
+    ) -> None:
+        data = dict(start_time=start_time,
+                    end_time=end_time)
+        data = self.api_get("scrap", data)
+        return data 
 
     def render(
         self,
