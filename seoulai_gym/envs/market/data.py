@@ -32,8 +32,11 @@ class Data():
         Args:
             exchange: Exchange.
         """
-        # self.stock_total_volume = 2000
-        self.agent_info = AgentInfo()    # table
+        # agent_info table 
+        self.agent_info = dict(
+            cash=100_000_000,
+            asset_qtys={"KRW-BTC":0.0},
+        )
 
         # TODO : portfolio indicators
         # self.portfolio_rets = PortfolioRets()
@@ -64,10 +67,11 @@ class Data():
         # TODO : optimize for low latency
 
         # SELECT * FROM agent_info WHERE agent_id='seoul_ai'
-        cash = self.agent_info.cash
-        asset_qtys = self.agent_info.asset_qtys
+        agent_info = self.agent_info
+        print(agent_info)
+        cash = agent_info.get("cash")
+        asset_qtys = agent_info.get("asset_qtys")
         asset_qty = asset_qtys.get("KRW-BTC")
-        agent_info={"cash":cash, "asset_qtys":asset_qtys}
 
         obs = self.real_stream_data[self.t]
 

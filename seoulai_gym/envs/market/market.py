@@ -29,21 +29,27 @@ class Market(BaseAPI):
         # self.graphics = Graphics()
         # self.pause = False
 
-    def reset(
+
+    def participate(
         self,
-        agent_id: str,
+        agent_id: str="your_id",
         mode: int=Constants.LOCAL,
     ):
-        if mode == Constants.LOCAL:
-            return self.local_reset(agent_id)
-        elif mode == Constants.HACKATHON:
-            return self.api_reset(agent_id)
+        self._agent_id = agent_id
+        self._mode = mode
+
+    def reset(
+        self,
+    ):
+        if self._mode == Constants.LOCAL:
+            return self.local_reset()
+        elif self._mode == Constants.HACKATHON:
+            return self.api_reset()
         else:
             raise Exception("invalid mode!!! : LOCAL = 0, HACKATHON = 1")
 
     def local_reset(
         self,
-        agent_id: str,
     ):
         # initialize variables for local excution
         self.database = Data()
@@ -53,7 +59,6 @@ class Market(BaseAPI):
 
     def api_reset(
         self,
-        agent_id: str,
     ):
         """Reset all variables and initialize trading game.
         Returns:
@@ -63,7 +68,7 @@ class Market(BaseAPI):
         r = self.api_get("select", data)
         self.fee_rt = r.get("fee_rt")
 
-        data = dict(agent_id=agent_id)
+        data = dict(agent_id=self._agent_id)
         r = self.api_get("reset", data)
         obs = r.get("obs")
 
@@ -76,14 +81,23 @@ class Market(BaseAPI):
         decision: int,
         trad_qty: float,
         trad_price: float,
-        mode: int=Constants.LOCAL,
     ):
-        if mode == Constants.LOCAL:
+        if self._mode == Constants.LOCAL:
             return self.local_step(agent_id, ticker, decision, trad_qty, trad_price) 
-        elif mode == Constants.HACKATHON:
+        elif self._mode == Constants.HACKATHON:
             return self.api_step(agent_id, ticker, decision, trad_qty, trad_price) 
         else:
             raise Exception("invalid mode!!! : LOCAL = 0, HACKATHON = 1")
+
+    def validate_action(
+        self,
+        agent_id: int,
+        ticker: str,
+        decision: int,
+        trad_qty: float,
+        trad_price: float,
+    ):
+        return True
 
     def local_step(
         self,
@@ -98,30 +112,41 @@ class Market(BaseAPI):
         done = False
         info = {}
 
-        ccld_price, ccld_qty = self.conclude(
+        is_valid_order = self.validate_action(agent_id, tiker, decision, trad_qty, trad_price)
+        if not is_valid_order:
+            # reward...
+            # info...
+            pass
+        
+        is_concluded, ccld_price, ccld_qty = self.conclude(
             agent_id, ticker, decision, trad_qty, trad_price)
 
-        # SELECT * FROM agent_info WHERE agent_id = 'seoul_ai' -> result table
-        # OR SELECT * FROM agent_info_log WHERE agent_id = 'seoul_ai' LIMIT 1 -> log_table
-        agent_info = self.database.agent_info
-        cash = agent_info.cash
-        asset_qtys = agent_info.asset_qtys    # MAP or JSON String
-        asset_qty = asset_qtys[ticker]
-        # cur_portfolio_val = agent_info.portfolio_val
+        # TODO : order cancel
+        if not is_concluded:
+            # order_cancel()
+            pass
+        else:
+            # server-side don't need to execute select query. just execute below UPDATE agent_info 
+            agent_info = self.database.agent_info
+            cash = agent_info.get("cash")
+            asset_qtys = agent_info.get("asset_qtys")
+            asset_qty = asset_qtys[ticker]
+            # cur_portfolio_val = agent_info.portfolio_val
 
-        # UPDATE agent_info
-        trading_amt = ccld_price*ccld_qty
-        fee = trading_amt*self.fee_rt
-        if decision == Constants.BUY:
-            cash = cash-trading_amt-fee    # after buying, cash will decrease.
-            asset_qty = asset_qty + ccld_qty    # quantity of asset will increase.
-            asset_qtys[ticker] = asset_qty
-        elif decision == Constants.SELL:
-            cash = cash+(trading_amt-fee)    # after selling, cash will increase.
-            asset_qty = asset_qty - ccld_qty    # quantity of asset will decrease.
-            asset_qtys[ticker] = asset_qty
-        self.database.agent_info.cash = cash
-        self.database.agent_info.asset_qtys = asset_qtys 
+            # UPDATE agent_info
+            trading_amt = ccld_price*ccld_qty
+            fee = trading_amt*self.fee_rt
+            if decision == Constants.BUY:
+                cash = cash-trading_amt-fee    # after buying, cash will decrease.
+                asset_qty = asset_qty + ccld_qty    # quantity of asset will increase.
+                asset_qtys[ticker] = asset_qty
+            elif decision == Constants.SELL:
+                cash = cash+(trading_amt-fee)    # after selling, cash will increase.
+                asset_qty = asset_qty - ccld_qty    # quantity of asset will decrease.
+                asset_qtys[ticker] = asset_qty
+            self.database.agent_info["cash"] = cash
+            self.database.agent_info["asset_qtys"] = asset_qtys 
+            print("UPDATED!!!!!!!!!", cash, asset_qtys)
 
         next_obs = self.database.observe()    # next_obs is based on current time.
 
@@ -161,7 +186,7 @@ class Market(BaseAPI):
         ccld_price = trad_price    # concluded price.
         ccld_qty = trad_qty   # concluded quantity.
 
-        return ccld_price, ccld_qty
+        return True, ccld_price, ccld_qty
 
     def api_step(
         self,
