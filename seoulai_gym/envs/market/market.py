@@ -112,7 +112,7 @@ class Market(BaseAPI):
         done = False
         info = {}
 
-        is_valid_order = self.validate_action(agent_id, tiker, decision, trad_qty, trad_price)
+        is_valid_order = self.validate_action(agent_id, ticker, decision, trad_qty, trad_price)
         if not is_valid_order:
             # reward...
             # info...
