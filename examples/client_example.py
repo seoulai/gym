@@ -5,6 +5,7 @@ seoulai.com
 """
 
 import seoulai_gym as gym
+import numpy as np
 import time
 
 from seoulai_gym.envs.market.agents import Agent
@@ -73,8 +74,8 @@ class MeanRevertingAgent(Agent):
         state,
     ):
         # print(state.keys())
-        print(state["buy_signal"], state["sell_signal"])
 
+        # return self.action(np.random.choice(range(self.action_spaces)))
         if state["buy_signal"]: 
             return self.action("buy_all")
         elif state["sell_signal"]:
@@ -88,14 +89,48 @@ class MeanRevertingAgent(Agent):
         action,
         next_obs,
         rewards,
-        done,
     ):
+
         # define reward
+        your_reward = 0
+
+        print(rewards)
+        # normal reward
+        your_reward = rewards.get("return_sign")
+
+        # customized reward 1
+        portfolio_rets = obs.get("portfolio_rets")
+        next_portfolio_rets = next_obs.get("portfolio_rets")
+
+        portfolio_val= portfolio_rets.get("val")
+        next_portfolio_val= next_portfolio_rets.get("val")
+
+        your_reward = portfolio_val/next_portfolio_val
+
+        # customized reward 2
+        decision = action.get("decision")
+        order_book = obs.get("order_book")
+        cur_price = order_book[0+1]
+
+        next_order_book = obs.get("order_book")
+        next_price = next_order_book[0+1]
+        diff = next_price - cur_price
+
+        if decision == Constants.BUY and diff > 0:
+            your_reward = 1
+        elif decision == Constants.SELL and diff < 0:
+            your_reward = 1
+
         # define turn_on
+        condition1 = True
+        if condition1:
+            self.mode = "HACKATHON"
+        else:
+            self.mode = "LOCAL"
+
         # memory
         # replay
         # other technics.
-        pass
 
 
 if __name__ == "__main__":
@@ -112,11 +147,13 @@ if __name__ == "__main__":
     obs = env.reset()
 
     for t in count():    # Online RL
+        print(f"step {t}") 
         action = a1.act(obs)    # Local function
-        next_obs, rewards, done, info = env.step(*action)
-        a1.postprocess(obs, action, next_obs, rewards, done)
+        next_obs, rewards, done, _= env.step(**action)
+        a1.postprocess(obs, action, next_obs, rewards)
 
         if done:
             break
 
         obs = next_obs
+        print(f"==========================================================================================")

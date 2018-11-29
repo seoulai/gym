@@ -33,9 +33,14 @@ class Agent(ABC, BaseAPI, Constants):
         if self.action_spaces == 0:
             raise AttributeError(f"you didn't define actions")
         self.action_names = list(self.actions.keys())
+        print(f"================================================================================================================")
+        print(f"SEOUL AI HACKATHON FOR TRADING")
         print(f"actions_spaces = {self.action_spaces}")
         print(f"your_action_names = {self.action_names}")
-        print(f"you can use common_columns in agent class. common_columns = {self._common_data_columns}")
+        print(f"you can use common_columns in your agent class. common_columns = {self._common_data_columns}")
+        print(f"================================================================================================================\n")
+
+        self.fee_rt = 0.05/100
 
     def preprocess(
         self,
@@ -80,26 +85,37 @@ class Agent(ABC, BaseAPI, Constants):
     ):
         self.validate(order_percent, ticker)
 
+        BASE = Constants.BASE
+        FEE_BASE = Constants.FEE_BASE
+
+        fee_rt0 = int(self.fee_rt*FEE_BASE)
+
         # BUY
-        if order_percent > 0:
+        if self.cash >= 1000 and order_percent > 0:    # minimal order price = 1,000 KRW
             #  trad_price x trad_qty x (1+fee_rt) <= cash
             #  max_buy_qty = cash / {trad_price x (1+fee_rt)}
 
             trad_price = self.order_book[-1+1]
-            max_buy_qty = self.cash / (trad_price * (1+self.fee_rt))
-            trad_qty = max_buy_qty*(order_percent/100.0)
+            trad_price = int(trad_price)
+            max_buy_qty = self.cash / (trad_price * ((1*FEE_BASE+fee_rt0)/FEE_BASE))
+            trad_qty0 = max_buy_qty*(order_percent/100.0)
+            trad_qty = int(trad_qty0 * BASE)/BASE
             return ticker, Constants.BUY, trad_qty, trad_price
 
         # SELL 
-        elif order_percent < 0:
+        elif self.asset_qtys[ticker] > 0 and order_percent < 0:
             trad_price = self.order_book[1+1]
+            trad_price = int(trad_price)
             max_sell_qty = self.asset_qtys[ticker]
-            trad_qty = max_sell_qty*(order_percent/100.0)
+            trad_qty0 = max_sell_qty*(order_percent/100.0)
+            trad_qty = int(trad_qty0 * BASE)/BASE
             return ticker, Constants.SELL, trad_qty, trad_price
 
         # HOLD
         else:
             return ticker, Constants.HOLD, 0.0, 0.0
+
+        return ticker, decision, trad_qty, trad_price
 
     def validate(
         self,
@@ -119,7 +135,7 @@ class Agent(ABC, BaseAPI, Constants):
     ):
         pass
 
-    def get_common(
+    def _get_common(
         self,
         obs,
     ):
@@ -141,11 +157,16 @@ class Agent(ABC, BaseAPI, Constants):
         if self.action_spaces == 0:
             raise AttributeError(f"actions does not exists")
 
-        self.get_common(obs)
+        self._get_common(obs)
         state = self.preprocess(obs)
         # TODO : simplify code.
         ticker, decision, trad_qty, trad_price = self.algo(state)
-        action = (self._agent_id, ticker, decision, trad_qty, trad_price)
+        action = dict(
+            agent_id=self._agent_id,
+            ticker=ticker,
+            decision=decision,
+            trad_qty=trad_qty,
+            trad_price=trad_price)
         print(action)
         return action
 

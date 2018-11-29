@@ -6,6 +6,9 @@ seoulai.com
 2018
 """
 import pandas as pd
+import numpy as np
+
+from seoulai_gym.envs.market.base import Constants
 from seoulai_gym.envs.market.api import BaseAPI
 from seoulai_gym.envs.market.base import Constants
 from seoulai_gym.envs.market.data import Data 
@@ -105,12 +108,13 @@ class Market(BaseAPI):
         ticker: str,
         decision: int,
         trad_qty: float,
-        trad_price: float,
+        trad_price: int,
     ):
         # TODO : reward can be changed. ex. daily return, duration of winning.
         rewards = {} 
         done = False
         info = {}
+
 
         is_valid_order = self.validate_action(agent_id, ticker, decision, trad_qty, trad_price)
         if not is_valid_order:
@@ -121,55 +125,65 @@ class Market(BaseAPI):
         is_concluded, ccld_price, ccld_qty = self.conclude(
             agent_id, ticker, decision, trad_qty, trad_price)
 
+        # SELECT portfolio_val FROM portfolio_rets WHERE agent_id = 'seoul_ai'
+        portfolio_rets = self.database.portfolio_rets
+        portfolio_val = portfolio_rets.get("val")
+
         # TODO : order cancel
         if not is_concluded:
             # order_cancel()
             pass
         else:
-            # server-side don't need to execute select query. just execute below UPDATE agent_info 
+            # server-side don't need to execute select query. just execute below UPDATE agent_info
             agent_info = self.database.agent_info
             cash = agent_info.get("cash")
             asset_qtys = agent_info.get("asset_qtys")
             asset_qty = asset_qtys[ticker]
-            # cur_portfolio_val = agent_info.portfolio_val
 
             # UPDATE agent_info
-            trading_amt = ccld_price*ccld_qty
-            fee = trading_amt*self.fee_rt
+            BASE = Constants.BASE
+            FEE_BASE = Constants.FEE_BASE
+
+            trading_amt0 = int(ccld_price*ccld_qty*BASE)
+            fee_rt0 = int(self.fee_rt*FEE_BASE)
+            fee0 = int((trading_amt0*fee_rt0)/FEE_BASE)
+            cash0 = int(cash*BASE)
+            asset_qty0 = int(asset_qty*BASE)
+            ccld_qty0 = int(ccld_qty*BASE)
+
             if decision == Constants.BUY:
-                cash = cash-trading_amt-fee    # after buying, cash will decrease.
-                asset_qty = asset_qty + ccld_qty    # quantity of asset will increase.
+                cash = (cash0-trading_amt0-fee0)/BASE    # after buying, cash will decrease.
+                asset_qty = (asset_qty0 + ccld_qty0)/BASE    # quantity of asset will increase.
                 asset_qtys[ticker] = asset_qty
             elif decision == Constants.SELL:
-                cash = cash+(trading_amt-fee)    # after selling, cash will increase.
-                asset_qty = asset_qty - ccld_qty    # quantity of asset will decrease.
+                cash = (cash0-trading_amt0-fee0)/BASE    # after selling, cash will increase.
+                asset_qty = (asset_qty0 - ccld_qty0)/BASE    # quantity of asset will decrease.
                 asset_qtys[ticker] = asset_qty
             self.database.agent_info["cash"] = cash
             self.database.agent_info["asset_qtys"] = asset_qtys 
-            print("UPDATED!!!!!!!!!", cash, asset_qtys)
 
         next_obs = self.database.observe()    # next_obs is based on current time.
 
-        msg = ""
-        # if mdd < -80.0:
-        #     done = True
+        portfolio_rets = self.database.portfolio_rets
+        next_portfolio_val = portfolio_rets.get("val")
 
-        # if self.t >= self.max_t_size-1:
-        #     done = True
-        #     msg = "t overflow!! max_t_size : %d, current_t : %d " % (
-        #         self.max_t_size, self.t)
-        # info["msg"] = msg
+        portfolio_val0 = int(portfolio_val*BASE)
+        next_portfolio_val0 = int(next_portfolio_val*BASE)
+        
+        return_amt = (next_portfolio_val0 - portfolio_val0)/BASE
+        return_per = int((next_portfolio_val0/float(portfolio_val0)-1)*100*100)/100.0
+        return_sign = np.sign(return_amt)
+        score_amt = (next_portfolio_val0 - 100_000_000*BASE)/BASE
+        score= int((next_portfolio_val0/float(100_000_000*BASE)-1)*100*100)/100.0
 
         rewards = dict(
-            test1=0.0,
-            test2=2.0)
-        # rewards = dict(
-        #     1step_return_amt=(next_pflo_value-cur_pflo_value),
-        #     1step_return_per=((next_pflo_value/cur_pflo_value)-1)*100,
-        #     next_pflo_value=next_pflo_value,
-        #     cur_pflo_value=cur_pflo_value)
+            return_amt=return_amt,
+            return_per=return_per,
+            return_sign=return_sign,
+            score_amt=score_amt,
+            score=score)
 
-        return next_obs, rewards, done, info
+        return next_obs, rewards, done, info 
 
     def conclude(
         self,
@@ -217,7 +231,6 @@ class Market(BaseAPI):
         r = self.api_post("step", data)
 
         next_obs = r.get("next_obs")
-        print(next_obs)
         reward = r.get("reward")
         done = r.get("done")
         info = r.get("info")
