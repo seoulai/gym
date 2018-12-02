@@ -231,11 +231,11 @@ class Market(BaseAPI):
         r = self.api_post("step", data)
 
         next_obs = r.get("next_obs")
-        reward = r.get("reward")
+        rewards = r.get("rewards")
         done = r.get("done")
         info = r.get("info")
 
-        return next_obs, reward, done, info
+        return next_obs, rewards, done, info
 
     def scrap(
         self,

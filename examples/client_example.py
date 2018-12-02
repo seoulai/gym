@@ -58,8 +58,8 @@ class MeanRevertingAgent(Agent):
         obs,
     ):
         cur_price = self.cur_price
-        ma10 = self.statistics.get("ma10")
-        std10 = self.statistics.get("std10")
+        ma10 = self.ma[10]
+        std10 = self.std[10]
         thresh_hold = 1.0
 
         your_state = dict(
@@ -110,10 +110,10 @@ class MeanRevertingAgent(Agent):
         # customized reward 2
         decision = action.get("decision")
         order_book = obs.get("order_book")
-        cur_price = order_book[0+1]
+        cur_price = obs.get("cur_price") 
 
         next_order_book = obs.get("order_book")
-        next_price = next_order_book[0+1]
+        next_price = obs.get("cur_price") 
         diff = next_price - cur_price
 
         if decision == Constants.BUY and diff > 0:
@@ -136,7 +136,7 @@ class MeanRevertingAgent(Agent):
 if __name__ == "__main__":
 
     your_id = "seoul_ai"
-    mode = Constants.LOCAL    # participants can select mode 
+    mode = Constants.HACKATHON    # participants can select mode 
 
     a1 = MeanRevertingAgent(
          your_id,

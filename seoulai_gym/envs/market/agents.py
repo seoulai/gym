@@ -95,7 +95,7 @@ class Agent(ABC, BaseAPI, Constants):
             #  trad_price x trad_qty x (1+fee_rt) <= cash
             #  max_buy_qty = cash / {trad_price x (1+fee_rt)}
 
-            trad_price = self.order_book[-1+1]
+            trad_price = self.order_book.get("bid_price")
             trad_price = int(trad_price)
             max_buy_qty = self.cash / (trad_price * ((1*FEE_BASE+fee_rt0)/FEE_BASE))
             trad_qty0 = max_buy_qty*(order_percent/100.0)
@@ -104,7 +104,7 @@ class Agent(ABC, BaseAPI, Constants):
 
         # SELL 
         elif self.asset_qtys[ticker] > 0 and order_percent < 0:
-            trad_price = self.order_book[1+1]
+            trad_price = self.order_book.get("ask_price")
             trad_price = int(trad_price)
             max_sell_qty = self.asset_qtys[ticker]
             trad_qty0 = max_sell_qty*(order_percent/100.0)
@@ -114,8 +114,6 @@ class Agent(ABC, BaseAPI, Constants):
         # HOLD
         else:
             return ticker, Constants.HOLD, 0.0, 0.0
-
-        return ticker, decision, trad_qty, trad_price
 
     def validate(
         self,
@@ -139,15 +137,21 @@ class Agent(ABC, BaseAPI, Constants):
         self,
         obs,
     ):
+        print(obs)
         self.order_book = obs.get("order_book")
         self.statistics = obs.get("statistics")
+        self.ma = self.statistics.get("ma")
+        self.sma = self.statistics.get("sma")
+        self.std = self.statistics.get("std")
 
         self.agent_info = obs.get("agent_info")
         self.portfolio_ret = obs.get("portfolio_rets")
 
+        self.cur_price = obs.get("cur_price")
+        self.cur_volume = obs.get("cur_volume")
+
         self.cash = self.agent_info["cash"]
         self.asset_qtys = self.agent_info.get("asset_qtys")
-        self.cur_price = self.order_book[0+1]
 
     # FIXME: participants shouldn't define act method
     def act(
