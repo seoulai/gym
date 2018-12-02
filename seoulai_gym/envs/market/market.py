@@ -7,11 +7,13 @@ seoulai.com
 """
 import pandas as pd
 import numpy as np
+import time
 
 from seoulai_gym.envs.market.base import Constants
 from seoulai_gym.envs.market.api import BaseAPI
 from seoulai_gym.envs.market.base import Constants
-from seoulai_gym.envs.market.data import Data 
+from seoulai_gym.envs.market.crawler import DataCrawler 
+from seoulai_gym.envs.market.database import DataBase 
 
 
 class Market(BaseAPI):
@@ -25,13 +27,8 @@ class Market(BaseAPI):
         Returns:
             None
         """
+
         self.exchange = "Upbit"
-        self.fee_rt = 0.05/100
-
-        # graphics is for visualization
-        # self.graphics = Graphics()
-        # self.pause = False
-
 
     def participate(
         self,
@@ -55,8 +52,21 @@ class Market(BaseAPI):
         self,
     ):
         # initialize variables for local excution
-        self.database = Data()
-        obs = self.database.observe()
+
+        self.fee_rt = 0.05/100
+
+        self.db = DataBase()
+
+        self.crawler = DataCrawler(self.db)
+        self.crawler.scrap()
+
+        obs = dict(
+            order_book=self.db.order_book,
+            trade=self.db.trade,
+            statistics=self.db.statistics,
+            agent_info=self.db.agent_info,
+            portfolio_rets=self.db.portfolio_rets,
+        )
 
         return obs
 
@@ -110,11 +120,10 @@ class Market(BaseAPI):
         trad_qty: float,
         trad_price: int,
     ):
-        # TODO : reward can be changed. ex. daily return, duration of winning.
+
         rewards = {} 
         done = False
         info = {}
-
 
         is_valid_order = self.validate_action(agent_id, ticker, decision, trad_qty, trad_price)
         if not is_valid_order:
@@ -122,59 +131,68 @@ class Market(BaseAPI):
             # info...
             pass
         
-        is_concluded, ccld_price, ccld_qty = self.conclude(
+        # 1. Conclude
+        ccld_price, ccld_qty = self.conclude(
             agent_id, ticker, decision, trad_qty, trad_price)
 
-        # SELECT portfolio_val FROM portfolio_rets WHERE agent_id = 'seoul_ai'
-        portfolio_rets = self.database.portfolio_rets
+
+        # 2. Scrapping
+        self.crawler.scrap()
+
+
+        # 3. Data Select & Update
+        # 3-1. Select portfolio_rets
+        portfolio_rets = self.db.portfolio_rets
         portfolio_val = portfolio_rets.get("val")
 
-        # TODO : order cancel
-        if not is_concluded:
-            # order_cancel()
-            pass
-        else:
-            # server-side don't need to execute select query. just execute below UPDATE agent_info
-            agent_info = self.database.agent_info
-            cash = agent_info.get("cash")
-            asset_qtys = agent_info.get("asset_qtys")
-            asset_qty = asset_qtys[ticker]
+        agent_info = self.db.agent_info
+        cash = agent_info.get("cash")
+        asset_qtys = agent_info.get("asset_qtys")
+        asset_qty = asset_qtys[ticker]
 
-            # UPDATE agent_info
-            BASE = Constants.BASE
-            FEE_BASE = Constants.FEE_BASE
+        # 3-2. Update agent_info(Floating Point Problem)
+        trading_amt = round(ccld_price*ccld_qty, 4)
+        fee = round(trading_amt*self.fee_rt, 4)    # fee = trading_amt x 0.0005
 
-            trading_amt0 = int(ccld_price*ccld_qty*BASE)
-            fee_rt0 = int(self.fee_rt*FEE_BASE)
-            fee0 = int((trading_amt0*fee_rt0)/FEE_BASE)
-            cash0 = int(cash*BASE)
-            asset_qty0 = int(asset_qty*BASE)
-            ccld_qty0 = int(ccld_qty*BASE)
+        if decision == Constants.BUY:
+            asset_val = round(trading_amt + fee, 4)
+            cash = round(cash - asset_val, 4)    # after buying, cash will decrease.
+            asset_qty = round(asset_qty + ccld_qty, 4)    # quantity of asset will increase.
+            asset_qtys[ticker] = asset_qty
 
-            if decision == Constants.BUY:
-                cash = (cash0-trading_amt0-fee0)/BASE    # after buying, cash will decrease.
-                asset_qty = (asset_qty0 + ccld_qty0)/BASE    # quantity of asset will increase.
-                asset_qtys[ticker] = asset_qty
-            elif decision == Constants.SELL:
-                cash = (cash0-trading_amt0-fee0)/BASE    # after selling, cash will increase.
-                asset_qty = (asset_qty0 - ccld_qty0)/BASE    # quantity of asset will decrease.
-                asset_qtys[ticker] = asset_qty
-            self.database.agent_info["cash"] = cash
-            self.database.agent_info["asset_qtys"] = asset_qtys 
+        elif decision == Constants.SELL:
+            asset_qty = round(asset_qty - ccld_qty, 4)    # quantity of asset will decrease.
+            asset_qtys[ticker] = asset_qty
+            asset_val = round(trading_amt - fee, 4)
+            cash = round(cash + asset_val, 4)    # after selling, cash will increase.
 
-        next_obs = self.database.observe()    # next_obs is based on current time.
+        self.db.agent_info["cash"] = cash
+        self.db.agent_info["asset_qtys"] = asset_qtys 
 
-        portfolio_rets = self.database.portfolio_rets
-        next_portfolio_val = portfolio_rets.get("val")
 
-        portfolio_val0 = int(portfolio_val*BASE)
-        next_portfolio_val0 = int(next_portfolio_val*BASE)
-        
-        return_amt = (next_portfolio_val0 - portfolio_val0)/BASE
-        return_per = int((next_portfolio_val0/float(portfolio_val0)-1)*100*100)/100.0
+        # 4. Generate obs
+        next_obs = dict(
+            order_book=self.db.order_book,
+            trade=self.db.trade,
+            statistics=self.db.statistics,
+            agent_info=self.db.agent_info,
+            portfolio_rets=self.db.portfolio_rets,
+        )
+
+
+        # 5. Update portfolio_rets(Floating Point Problem)
+        cur_price = self.db.trade.get("cur_price")
+        asset_val = round(asset_qty * cur_price, 4)
+        next_portfolio_val = round(cash + asset_val, 4) 
+        self.db.portfolio_rets["val"] = next_portfolio_val
+
+
+        # 6. Generate rewards(Floating Point Problem)
+        return_amt = round(next_portfolio_val - portfolio_val, 4)
+        return_per = round(((next_portfolio_val/portfolio_val)-1.0)*100.0, 2)
         return_sign = np.sign(return_amt)
-        score_amt = (next_portfolio_val0 - 100_000_000*BASE)/BASE
-        score= int((next_portfolio_val0/float(100_000_000*BASE)-1)*100*100)/100.0
+        score_amt = round(next_portfolio_val - 100000000.0, 4)
+        score= round(((next_portfolio_val/100000000.0)-1.0)*100.0, 2)
 
         rewards = dict(
             return_amt=return_amt,
@@ -182,6 +200,10 @@ class Market(BaseAPI):
             return_sign=return_sign,
             score_amt=score_amt,
             score=score)
+
+
+        # 7. Time sleep
+        time.sleep(0.1)
 
         return next_obs, rewards, done, info 
 
@@ -191,16 +213,16 @@ class Market(BaseAPI):
         ticker,
         decision,
         trad_qty: float,
-        trad_price: float,
+        trad_price: int,
     ):
 
         # It is assumed that order is concluded as agent action.
         # in real world, it can't be possible.
         # TODO : develop backtesting logic like real world. ex. slippage
-        ccld_price = trad_price    # concluded price.
+        ccld_price = int(trad_price)    # concluded price.
         ccld_qty = trad_qty   # concluded quantity.
 
-        return True, ccld_price, ccld_qty
+        return ccld_price, ccld_qty
 
     def api_step(
         self,
@@ -246,23 +268,3 @@ class Market(BaseAPI):
                     end_time=end_time)
         data = self.api_get("scrap", data)
         return data 
-
-    def render(
-        self,
-        agent,
-        info,
-        decision,
-    ) -> None:
-        """Display current state of board.
-        Returns:
-            None
-        """
-        pass
-
-    def paused(self):
-        pass
-
-    def close(
-        self,
-    ) -> None:
-        pass

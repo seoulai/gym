@@ -4,6 +4,7 @@ James Park, laplacian.k@gmail.com
 seoulai.com
 2018
 """
+from math import floor
 from abc import ABC
 from abc import abstractmethod
 from seoulai_gym.envs.market.api import BaseAPI
@@ -85,35 +86,37 @@ class Agent(ABC, BaseAPI, Constants):
     ):
         self.validate(order_percent, ticker)
 
-        BASE = Constants.BASE
-        FEE_BASE = Constants.FEE_BASE
-
-        fee_rt0 = int(self.fee_rt*FEE_BASE)
+        # initialize
+        decision = Constants.HOLD
+        trad_qty = 0.0
+        trad_price = 0
 
         # BUY
         if self.cash >= 1000 and order_percent > 0:    # minimal order price = 1,000 KRW
             #  trad_price x trad_qty x (1+fee_rt) <= cash
             #  max_buy_qty = cash / {trad_price x (1+fee_rt)}
 
-            trad_price = self.order_book.get("bid_price")
+            decision = Constants.BUY
+            trad_price = self.order_book.get("ask_price")
             trad_price = int(trad_price)
-            max_buy_qty = self.cash / (trad_price * ((1*FEE_BASE+fee_rt0)/FEE_BASE))
-            trad_qty0 = max_buy_qty*(order_percent/100.0)
-            trad_qty = int(trad_qty0 * BASE)/BASE
-            return ticker, Constants.BUY, trad_qty, trad_price
+            max_buy_qty = self.cash / (trad_price * (1 + self.fee_rt))
+            trad_qty = max_buy_qty*(order_percent/100.0)
+            trad_qty = floor(trad_qty*10000)/10000
 
         # SELL 
         elif self.asset_qtys[ticker] > 0 and order_percent < 0:
-            trad_price = self.order_book.get("ask_price")
+            decision = Constants.SELL
+            trad_price = self.order_book.get("bid_price")
             trad_price = int(trad_price)
             max_sell_qty = self.asset_qtys[ticker]
-            trad_qty0 = max_sell_qty*(order_percent/100.0)
-            trad_qty = int(trad_qty0 * BASE)/BASE
-            return ticker, Constants.SELL, trad_qty, trad_price
+            trad_qty = max_sell_qty*(-order_percent/100.0)
+            trad_qty = floor(trad_qty*10000)/10000
 
         # HOLD
-        else:
-            return ticker, Constants.HOLD, 0.0, 0.0
+        if int(trad_qty*10000) == 0:
+            decision = Constants.HOLD
+
+        return ticker, decision, trad_qty, trad_price
 
     def validate(
         self,
@@ -137,21 +140,26 @@ class Agent(ABC, BaseAPI, Constants):
         self,
         obs,
     ):
-        print(obs)
+        # print(obs)
         self.order_book = obs.get("order_book")
+
+        self.trade= obs.get("trade")
+        self.cur_price = self.trade.get("cur_price")
+        self.cur_volume = self.trade.get("cur_volume")
+
         self.statistics = obs.get("statistics")
         self.ma = self.statistics.get("ma")
         self.sma = self.statistics.get("sma")
         self.std = self.statistics.get("std")
 
         self.agent_info = obs.get("agent_info")
-        self.portfolio_ret = obs.get("portfolio_rets")
-
-        self.cur_price = obs.get("cur_price")
-        self.cur_volume = obs.get("cur_volume")
-
         self.cash = self.agent_info["cash"]
         self.asset_qtys = self.agent_info.get("asset_qtys")
+
+        self.portfolio_rets = obs.get("portfolio_rets")
+        self.portfolio_val = self.portfolio_rets.get("val")
+
+        pass
 
     # FIXME: participants shouldn't define act method
     def act(
@@ -171,7 +179,6 @@ class Agent(ABC, BaseAPI, Constants):
             decision=decision,
             trad_qty=trad_qty,
             trad_price=trad_price)
-        print(action)
         return action
 
     @property
