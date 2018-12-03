@@ -13,7 +13,7 @@ pip3 install -e .
 
 ## Seoul AI Market Framework
 
-Seoul AI Market is based ona real-time <a href="https://github.com/seoulai/gym">reinforcement learning</a> based method.
+Seoul AI Market is based ona real-time <a href="https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a> based method.
 
 
 ```python
