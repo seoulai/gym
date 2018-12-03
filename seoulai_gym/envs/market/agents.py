@@ -71,16 +71,18 @@ class Agent(ABC, BaseAPI, Constants):
         try:
             if type(index) == str:
                 key = index
+                index = self.action_names.index(index)
             else:
                 key = self.action_names[index]
             order_percent = self.actions[key]
-            return self.order(order_percent)
+            return self.order(index, order_percent)
         # FIXME:
         except IndexError:
             raise "index error!!!"
 
     def order(
         self,
+        index: int,
         order_percent: int = 0,
         ticker: str = "KRW-BTC",
     ):
@@ -116,7 +118,7 @@ class Agent(ABC, BaseAPI, Constants):
         if int(trad_qty*10000) == 0:
             decision = Constants.HOLD
 
-        return ticker, decision, trad_qty, trad_price
+        return index, ticker, decision, trad_qty, trad_price
 
     def validate(
         self,
@@ -147,10 +149,10 @@ class Agent(ABC, BaseAPI, Constants):
         self.cur_price = self.trade.get("cur_price")
         self.cur_volume = self.trade.get("cur_volume")
 
-        self.statistics = obs.get("statistics")
-        self.ma = self.statistics.get("ma")
-        self.sma = self.statistics.get("sma")
-        self.std = self.statistics.get("std")
+        # self.statistics = obs.get("statistics")
+        # self.ma = self.statistics.get("ma")
+        # self.sma = self.statistics.get("sma")
+        # self.std = self.statistics.get("std")
 
         self.agent_info = obs.get("agent_info")
         self.cash = self.agent_info["cash"]
@@ -170,8 +172,9 @@ class Agent(ABC, BaseAPI, Constants):
         self._get_common(obs)
         state = self.preprocess(obs)
         # TODO : simplify code.
-        ticker, decision, trad_qty, trad_price = self.algo(state)
+        index, ticker, decision, trad_qty, trad_price = self.algo(state)
         action = dict(
+            index=index,
             agent_id=self._agent_id,
             ticker=ticker,
             decision=decision,

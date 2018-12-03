@@ -89,6 +89,7 @@ class Market(BaseAPI):
 
     def step(
         self,
+        index,
         agent_id: int,
         ticker: str,
         decision: int,
