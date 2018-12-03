@@ -140,7 +140,8 @@ obs is short for observation.
 The datasets in obs are as follows:
 
 ```python
-order_book = obs.get("order_book")    # [Buy price, Current price, Sell price]
+order_book = obs.get("order_book")    # [Buy price, Remain quantity, Sell price, Remain quantity]
+trade = obs.get("trade")    # [Current price, Volume]
 statistics = obs.get("statistics")    # {Statistical value for agent's use}
 agent_info = obs.get("agent_info")    # {Cash, balance amount}
 portfolio_rets = obs.get("portfolio_rets")    # {Portfolio indicators based on algorithm performance}
