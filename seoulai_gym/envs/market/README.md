@@ -294,9 +294,7 @@ You can redifine rewards through the postprocess.
 ```
 
 #### DQN Example
-```python
-# link 1
-```
+<a href="https://github.com/seoulai/gym/blob/market/examples/market/dqn_example.py">dqn_example.py</a>
 
 #### Rule based Example
 <a href="https://github.com/seoulai/gym/blob/market/examples/market/mean_reverting_example.py">mean_reverting_example.py</a>
