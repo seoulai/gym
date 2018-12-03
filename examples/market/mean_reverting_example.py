@@ -67,7 +67,7 @@ class MeanRevertingAgent(Agent):
         print(state["buy_signal"], state["sell_signal"])
 
         if state["buy_signal"]: 
-            return self.action("buy_all")
+            return self.action("buy_20per")
         elif state["sell_signal"]:
             return self.action("sell_20per")
         else:
