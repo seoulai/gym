@@ -182,14 +182,19 @@ _get_common function calls agent's act function. obs takes raw data and saves it
         obs,
     ):
         self.order_book = obs.get("order_book")
+
+        self.trade= obs.get("trade")
+        self.cur_price = self.trade.get("cur_price")    # current price
+        self.cur_volume = self.trade.get("cur_volume")    # current volume
+
         self.statistics = obs.get("statistics")
 
         self.agent_info = obs.get("agent_info")
-        self.portfolio_ret = obs.get("portfolio_rets")
-
         self.cash = self.agent_info["cash"]
         self.asset_qtys = self.agent_info.get("asset_qtys")    # balance amount
-        self.cur_price = self.order_book[0+1]    # current price
+
+        self.portfolio_rets = obs.get("portfolio_rets")
+        self.portfolio_val = self.portfolio_rets.get("val")
 ```
 
 #### set_actions function defition
@@ -273,11 +278,12 @@ You can redifine rewards through the postprocess.
         your_reward = 0
 
         decision = action.get("decision")
-        order_book = obs.get("order_book")
-        cur_price = order_book[0+1]
+        trade = obs.get("trade")
+        cur_price = trade.get("cur_price")
 
-        next_order_book = obs.get("order_book")
-        next_price = next_order_book[0+1]
+        next_trade = next_obs.get("trade")
+        next_price = next_trade.get("cur_price")
+
         diff = next_price - cur_price
 
         if decision == Constants.BUY and diff > 0:

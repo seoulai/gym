@@ -159,8 +159,6 @@ class Agent(ABC, BaseAPI, Constants):
         self.portfolio_rets = obs.get("portfolio_rets")
         self.portfolio_val = self.portfolio_rets.get("val")
 
-        pass
-
     # FIXME: participants shouldn't define act method
     def act(
         self,
