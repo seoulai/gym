@@ -47,3 +47,10 @@ class DataBase():
             sharp=0.0,
         )
 
+        self.portfolio_log= dict(
+            timestamp="hh:mm:ss",
+            val=100000000.0,
+            mdd=0.0,
+            sharp=0.0,
+        )
+

@@ -27,36 +27,30 @@ class DataCrawler():
         """Load local data set.
         """
 
-        real_stream_data = []
-        data_size = 1000
+        upbit_csv = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), "upbit_scrap30.csv"))
+        df = pd.read_csv(upbit_csv)
+        data_size = len(df)
 
-        # TODO : csv file 
+        # preprocess
+        df[['ask_price', 'bid_price', 'cur_price']] = \
+            df[['ask_price', 'bid_price', 'cur_price']].astype(dtype=int)
+
+        # split
+        order_book = df[['ask_price', 'ask_size', 'bid_price', 'bid_size']]
+        order_book = order_book.to_dict(orient='records')
+        trade = df[['cur_price', 'cur_volume']]
+        trade = trade.to_dict(orient='records')
+        statistics = df[['macd_first', 'macd_second', 'macd_third', 'stoch_first', 'stoch_second', 'ma', 'sma', 'rsi', 'std']]
+        statistics = statistics.to_dict(orient='records')
+
+        real_stream_data = []
         for t in range(data_size):
             obs = dict(
-
-                order_book=dict(
-                    ask_price=np.random.random_integers(3_900_000, 5_000_000),
-                    ask_size=999999999999.0,
-                    bid_price=np.random.random_integers(3_900_000, 5_000_000),
-                    bid_size=999999999999.0),
-
-                trade=dict(
-                    cur_price=np.random.random_integers(3_900_000, 5_000_000),
-                    cur_volume=999999999999.0,
-                ),
-
-                statistics=dict(
-                    macd_first=np.random.random_integers(10_000, 11_000),
-                    macd_second=np.random.random_integers(10_000, 11_000),
-                    macd_third=np.random.random_integers(10_000, 11_000),
-                    stoch_first=np.random.random_integers(10_000, 11_000),
-                    stoch_second=np.random.random_integers(10_000, 11_000),
-                    ma=np.random.random_integers(3_900_000, 5_000_000),
-                    sma=np.random.random_integers(3_900_000, 5_000_000),
-                    rsi=np.random.random_integers(10_000, 11_000),
-                    std=np.random.random_integers(10_000, 11_000),
-                ),
-            )   
+                order_book=order_book[t],
+                trade=trade[t],
+                statistics=statistics[t],
+                )
             real_stream_data.append(obs)
 
         return real_stream_data

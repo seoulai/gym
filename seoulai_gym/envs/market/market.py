@@ -136,21 +136,17 @@ class Market(BaseAPI):
             agent_id, ticker, decision, trad_qty, trad_price)
 
 
-        # 2. Scrapping
-        self.crawler.scrap()
-
-
-        # 3. Data Select & Update
-        # 3-1. Select portfolio_rets
+        # 2. Data Select & Update
+        # 2-1. Select portfolio_rets
         portfolio_rets = self.db.portfolio_rets
         portfolio_val = portfolio_rets.get("val")
 
+        # 2-2. Update agent_info(Floating Point Problem)
         agent_info = self.db.agent_info
         cash = agent_info.get("cash")
         asset_qtys = agent_info.get("asset_qtys")
         asset_qty = asset_qtys[ticker]
 
-        # 3-2. Update agent_info(Floating Point Problem)
         trading_amt = round(ccld_price*ccld_qty, 4)
         fee = round(trading_amt*self.fee_rt, 4)    # fee = trading_amt x 0.0005
 
@@ -170,21 +166,30 @@ class Market(BaseAPI):
         self.db.agent_info["asset_qtys"] = asset_qtys 
 
 
-        # 4. Generate obs
+        # 3. Scrapping(order book, trade, statistics)
+        self.crawler.scrap()
         next_obs = dict(
             order_book=self.db.order_book,
             trade=self.db.trade,
             statistics=self.db.statistics,
-            agent_info=self.db.agent_info,
-            portfolio_rets=self.db.portfolio_rets,
-        )
+            )
 
 
-        # 5. Update portfolio_rets(Floating Point Problem)
+        # 4. Update portfolio_rets(Floating Point Problem)
         cur_price = self.db.trade.get("cur_price")
         asset_val = round(asset_qty * cur_price, 4)
         next_portfolio_val = round(cash + asset_val, 4) 
         self.db.portfolio_rets["val"] = next_portfolio_val
+        # TODO : df, mdd, sharp
+        # df = self.db.portfolio_log
+
+
+        # 5. Generate obs
+        next_obs.update(dict(
+            agent_info=self.db.agent_info,
+            portfolio_rets=self.db.portfolio_rets,
+            )
+        )
 
 
         # 6. Generate rewards(Floating Point Problem)
@@ -203,7 +208,7 @@ class Market(BaseAPI):
 
 
         # 7. Time sleep
-        time.sleep(0.1)
+        time.sleep(0.3)
 
         return next_obs, rewards, done, info 
 
