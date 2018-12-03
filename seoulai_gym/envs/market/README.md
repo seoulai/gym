@@ -24,21 +24,21 @@ from seoulai_gym.envs.market.base import Constants
 your_id = "seoul_ai"
 mode = Constants.LOCAL
 
-### Create your agent.
+""" Create your agent. """
 a1 = YourAgentClassName(
      your_id,
      )
 
-### Create your market environment. 
+""" Create your market environment. """ 
 env = gym.make("Market")
 
-### Select your id and mode to participate
+""" Select your id and mode to participate """
 env.participate(your_id, mode)
 
-### reset fetches the initial state of the crypto market.
+""" Reset fetches the initial state of the crypto market. """
 obs = env.reset()
 
-### Perform real-time reinforcement learning
+""" Perform real-time reinforcement learning """
 for t in count():
     # Call act for the agent to take an action
     action = a1.act(obs)
@@ -46,7 +46,7 @@ for t in count():
     # To send your action to market:  
     obs, rewards, done, _ = env.step(**action)
     
-    # We reccomend that rewards override user-defined fuctions
+    # We recommend that rewards override user-defined fuctions
     a1.postprocess(obs, action, next_obs, rewards)
 ```
 
