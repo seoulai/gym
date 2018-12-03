@@ -13,7 +13,7 @@ pip3 install -e .
 
 ## Seoul AI Market Framework
 
-Seoul AI Market is based ona real-time <a href="https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a> based method.
+Seoul AI Market is based on a real-time <a href="https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a>.
 
 
 ```python
@@ -24,21 +24,21 @@ from seoulai_gym.envs.market.base import Constants
 your_id = "seoul_ai"
 mode = Constants.LOCAL
 
-""" Create your agent. """
+# Create your agent.
 a1 = YourAgentClassName(
      your_id,
      )
 
-""" Create your market environment. """ 
+# Create your market environment.
 env = gym.make("Market")
 
-""" Select your id and mode to participate """
+# Select your id and mode to participate
 env.participate(your_id, mode)
 
-""" Reset fetches the initial state of the crypto market. """
+# Reset fetches the initial state of the crypto market.
 obs = env.reset()
 
-""" Perform real-time reinforcement learning """
+# Perform real-time reinforcement learning
 for t in count():
     # Call act for the agent to take an action
     action = a1.act(obs)
@@ -221,7 +221,7 @@ class YourAgentClassName(Agent):
         your_actions = dict(
             holding = 0,
             buy_all = +100,    # buy_all means that you will buy 100% of the purchase amount
-            sell_20per = -20,  # sell_20per means buy and sell 20% of the available volume
+            sell_20per = -20,  # sell_20per means you will sell 20% of the available volume
         )
         return your_actions    # You must return the actions dictionary you defined.
 ```
