@@ -16,8 +16,7 @@ pip3 install -e .
 Seoul AI Market is based ona real-time <a href="https://github.com/seoulai/gym">reinforcement learning</a> based method.
 
 
-{% highlight python %}
-
+```python
 import seoulai_gym as gym
 from itertools import count
 from seoulai_gym.envs.market.base import Constants
@@ -49,8 +48,7 @@ for t in count():
     
     # We reccomend that rewards override user-defined fuctions
     a1.postprocess(obs, action, next_obs, rewards)
-
-{% endhighlight %}
+```
 
 ## Setup details 
 
