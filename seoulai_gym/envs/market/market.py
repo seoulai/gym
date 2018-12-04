@@ -63,7 +63,7 @@ class Market(BaseAPI):
         obs = dict(
             order_book=self.db.order_book,
             trade=self.db.trade,
-            statistics=self.db.statistics,
+            # statistics=self.db.statistics,
             agent_info=self.db.agent_info,
             portfolio_rets=self.db.portfolio_rets,
         )
@@ -138,7 +138,8 @@ class Market(BaseAPI):
 
 
         # 2. Data Select & Update
-        # 2-1. Select portfolio_rets
+        # 2-1. Select cur_price and portfolio_rets
+        cur_price = self.db.trade.get("cur_price")
         portfolio_rets = self.db.portfolio_rets
         portfolio_val = portfolio_rets.get("val")
 
@@ -172,13 +173,13 @@ class Market(BaseAPI):
         next_obs = dict(
             order_book=self.db.order_book,
             trade=self.db.trade,
-            statistics=self.db.statistics,
+            # statistics=self.db.statistics,
             )
 
 
         # 4. Update portfolio_rets(Floating Point Problem)
-        cur_price = self.db.trade.get("cur_price")
-        asset_val = round(asset_qty * cur_price, 4)
+        next_price = self.db.trade.get("cur_price")
+        asset_val = round(asset_qty * next_price, 4)
         next_portfolio_val = round(cash + asset_val, 4) 
         self.db.portfolio_rets["val"] = next_portfolio_val
         # TODO : df, mdd, sharp
@@ -197,15 +198,20 @@ class Market(BaseAPI):
         return_amt = round(next_portfolio_val - portfolio_val, 4)
         return_per = round(((next_portfolio_val/portfolio_val)-1.0)*100.0, 2)
         return_sign = np.sign(return_amt)
+        change_price = next_price-cur_price
+        change_price_sign = np.sign(change_price)
+        hit= 1.0 if (decision == Constants.BUY and change_price_sign > 0) or (decision == Constants.SELL and change_price_sign < 0) else 0.0
         score_amt = round(next_portfolio_val - 100000000.0, 4)
-        score= round(((next_portfolio_val/100000000.0)-1.0)*100.0, 2)
+        score = round(((next_portfolio_val/100000000.0)-1.0)*100.0, 2)
 
         rewards = dict(
             return_amt=return_amt,
             return_per=return_per,
             return_sign=return_sign,
+            hit=hit,
             score_amt=score_amt,
-            score=score)
+            score=score,
+            )
 
 
         # 7. Time sleep

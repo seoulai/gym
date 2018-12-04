@@ -147,7 +147,7 @@ class Agent(ABC, BaseAPI, Constants):
 
         self.trade= obs.get("trade")
         self.cur_price = self.trade.get("cur_price")
-        self.cur_volume = self.trade.get("cur_volume")
+        self.volume = self.trade.get("volume")
 
         # self.statistics = obs.get("statistics")
         # self.ma = self.statistics.get("ma")

@@ -28,7 +28,8 @@ class DataCrawler():
         """
 
         upbit_csv = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), "upbit_scrap30.csv"))
+            # os.path.dirname(__file__), "upbit_scrap30.csv"))
+            os.path.dirname(__file__), "upbit_log.csv"))
         df = pd.read_csv(upbit_csv)
         data_size = len(df)
 
@@ -39,17 +40,17 @@ class DataCrawler():
         # split
         order_book = df[['ask_price', 'ask_size', 'bid_price', 'bid_size']]
         order_book = order_book.to_dict(orient='records')
-        trade = df[['cur_price', 'cur_volume']]
+        trade = df[['cur_price', 'volume']]
         trade = trade.to_dict(orient='records')
-        statistics = df[['macd_first', 'macd_second', 'macd_third', 'stoch_first', 'stoch_second', 'ma', 'sma', 'rsi', 'std']]
-        statistics = statistics.to_dict(orient='records')
+        # statistics = df[['macd_first', 'macd_second', 'macd_third', 'stoch_first', 'stoch_second', 'ma', 'sma', 'rsi', 'std']]
+        # statistics = statistics.to_dict(orient='records')
 
         real_stream_data = []
         for t in range(data_size):
             obs = dict(
                 order_book=order_book[t],
                 trade=trade[t],
-                statistics=statistics[t],
+                # statistics=statistics[t],
                 )
             real_stream_data.append(obs)
 
@@ -62,7 +63,7 @@ class DataCrawler():
 
         # UPDATE
         self.db.order_book = cur_data.get("order_book")
-        self.db.statistics = cur_data.get("statistics")
+        # self.db.statistics = cur_data.get("statistics")
         self.db.trade = cur_data.get("trade")
 
         # TODO : INSERT TO LOG TABLE
