@@ -7,6 +7,7 @@ seoulai.com
 import seoulai_gym as gym
 import numpy as np
 import time
+import random
 
 from seoulai_gym.envs.market.agents import Agent
 from seoulai_gym.envs.market.base import Constants
@@ -63,7 +64,7 @@ class DQNAgent(Agent):
     def replay(
         self,
     ):
-        minibatch = random.sample(self.memory)
+        minibatch = random.sample(self.memory, self.batch_size)
         loss_history = []
 
         for state, action, next_state, reward in minibatch:
@@ -129,7 +130,7 @@ class DQNAgent(Agent):
         ask_price = order_book.get("ask_price")
         bid_price = order_book.get("bid_price")
         cur_price = trade.get("cur_price")
-        volume = trade.get("cur_volume")
+        volume = trade.get("volume")
         cash = agent_info.get("cash")
         asset_qtys = agent_info.get("asset_qtys")
         asset_qty = asset_qtys["KRW-BTC"]
@@ -166,7 +167,7 @@ class DQNAgent(Agent):
         rewards,
     ):
         # define reward
-        reward = rewards.get("return_sign")
+        reward = rewards.get("hit")
 
         self.remember(
             obs,
@@ -202,7 +203,7 @@ if __name__ == "__main__":
         print(f"step {t}") 
         print("ORDER_BOOK", obs.get("order_book"))
         print("TRADE", obs.get("trade"))
-        print("STATISTICS", obs.get("statistics"))
+        # print("STATISTICS", obs.get("statistics"))
         print("AGENT_INFO", obs.get("agent_info"))
         print("PORTFOLIO_RETS", obs.get("portfolio_rets"))
 
