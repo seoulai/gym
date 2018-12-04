@@ -127,7 +127,6 @@ for t in count():
 action = a1.act(obs)
 ```
 The act function calls the following functions.
-- _get_common() = saves raw data fetched by obs to as an agent class variable
 - preprocess() = changes raw data fetched by obs to state
 - algo() = performs training as defined by the participant.
 
@@ -147,15 +146,16 @@ agent_info = obs.get("agent_info")    # {Cash, balance amount}
 portfolio_rets = obs.get("portfolio_rets")    # {Portfolio indicators based on algorithm performance}
 ```
 #### `rewards`
-There are 5 types of rewards
+There are 6 types of rewards
 
 ```python
 rewards = dict(
     return_amt=return_amt,    # Revenue from current action
     return_per=return_per,    # Yield from current action (current value of portfolio/ previous value of portfolio -1) * 100(%)
     return_sign=return_sign,    # 1 if profited from current action. -1 if loss. 0 if no change. 
-    score_amt=score_amt,    # Amount of revenue (or profit or loss) incurred to date relative to initial capital (10,000,0000 KRW)
-    score=score)    # Revenue (or profit or loss) incurred to date relative to initial capital (110,000,0000 KRW) (%)
+    hit=hit,    # 1 if you buy and price goes up or you sell and price goes down. else 0. 
+    score_amt=score_amt,    # Amount of revenue (or profit or loss) incurred to date relative to initial capital (100,000,000 KRW)
+    score=score)    # Revenue (or profit or loss) incurred to date relative to initial capital (100,000,000 KRW) (%)
 ```
 
 #### `done`
@@ -173,29 +173,6 @@ from seoulai_gym.envs.market.agents import Agent
 # Your agent must inherit from Seoul AI's agent class
 class YourAgentClassName(Agent):
     ...
-```
-
-#### _get_common() function
-_get_common function calls agent's act function. obs takes raw data and saves it as a variable in the agent's class.
-```python
-    def _get_common(
-        self,
-        obs,
-    ):
-        self.order_book = obs.get("order_book")
-
-        self.trade= obs.get("trade")
-        self.cur_price = self.trade.get("cur_price")    # current price
-        self.cur_volume = self.trade.get("cur_volume")    # current volume
-
-        self.statistics = obs.get("statistics")
-
-        self.agent_info = obs.get("agent_info")
-        self.cash = self.agent_info["cash"]
-        self.asset_qtys = self.agent_info.get("asset_qtys")    # balance amount
-
-        self.portfolio_rets = obs.get("portfolio_rets")
-        self.portfolio_val = self.portfolio_rets.get("val")
 ```
 
 #### set_actions function defition
