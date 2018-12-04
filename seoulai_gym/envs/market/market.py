@@ -200,7 +200,7 @@ class Market(BaseAPI):
         return_sign = np.sign(return_amt)
         change_price = next_price-cur_price
         change_price_sign = np.sign(change_price)
-        hit= 1.0 if (decision == Constants.BUY and change_price_sign > 0) or (decision == Constants.SELL and change_price_sign < 0) else 0.0
+        hit = 1.0 if (decision == Constants.BUY and change_price_sign > 0) or (decision == Constants.SELL and change_price_sign < 0) else 0.0
         score_amt = round(next_portfolio_val - 100000000.0, 4)
         score = round(((next_portfolio_val/100000000.0)-1.0)*100.0, 2)
 

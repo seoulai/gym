@@ -8,6 +8,7 @@ import seoulai_gym as gym
 import numpy as np
 import time
 import random
+import logging
 
 from seoulai_gym.envs.market.agents import Agent
 from seoulai_gym.envs.market.base import Constants
@@ -19,6 +20,7 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.models import load_model
 
+logging.basicConfig(level=logging.INFO)
 
 class DQNAgent(Agent):
     def __init__(
@@ -26,7 +28,7 @@ class DQNAgent(Agent):
         agent_id: str,
     ):
         super().__init__(agent_id)
-        self.state_size = 4
+        self.state_size = 2
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
@@ -35,6 +37,7 @@ class DQNAgent(Agent):
         self.learning_rate = 0.001
         self.model = self._build_model()
         self.batch_size = 32
+        self.win_cnt = 0
 
     def _build_model(
         self,
@@ -77,6 +80,7 @@ class DQNAgent(Agent):
             hist = self.model.fit(state, target_f, epochs=1, verbose=0)
             loss_history.append(hist.history['loss'])
 
+        logging.info(f"EPSILON {self.epsilon}")
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
@@ -134,14 +138,18 @@ class DQNAgent(Agent):
         cash = agent_info.get("cash")
         asset_qtys = agent_info.get("asset_qtys")
         asset_qty = asset_qtys["KRW-BTC"]
+        asset_val = round(asset_qty*cur_price, 4)
+        gap = abs(ask_price-bid_price)
+        pred_fee = round(cur_price*self.fee_rt, 4)
+        portfolio_val = portfolio_rets.get("val")
 
-        # nomalized data
-        ask_per = int( (ask_price/float(cur_price))*100.0)
-        bid_per = int( (bid_price/float(cur_price))*100.0)
-        cash_per = int( (cash/100000000.0)*100.0)
-        asset_per = int( (asset_qty/volume)*100.0)
+        # nomalized data        
+        cash_ratio = round(cash/portfolio_val, 2)
+        # asset_per = round(asset_val/portfolio_val, 2)
+        gap_per = round(gap/pred_fee-1, 2)
+        # asset_ratio = round(asset_val/cash, 2)
 
-        state = [ask_per, bid_per, cash_per, asset_per] 
+        state = [cash_ratio, gap_per] 
         state = np.reshape(state, [1, self.state_size])
 
         return state
@@ -151,6 +159,7 @@ class DQNAgent(Agent):
         state,
     ):
         # print(state.keys())
+        logging.info(f"STATE {state}")
 
         if np.random.rand() <= self.epsilon:
             return self.action(np.random.choice(range(self.action_spaces)))
@@ -168,6 +177,7 @@ class DQNAgent(Agent):
     ):
         # define reward
         reward = rewards.get("hit")
+        self.win_cnt += reward
 
         self.remember(
             obs,
@@ -200,21 +210,28 @@ if __name__ == "__main__":
     obs = env.reset()
 
     for t in count():    # Online RL
-        print(f"step {t}") 
-        print("ORDER_BOOK", obs.get("order_book"))
-        print("TRADE", obs.get("trade"))
-        # print("STATISTICS", obs.get("statistics"))
-        print("AGENT_INFO", obs.get("agent_info"))
-        print("PORTFOLIO_RETS", obs.get("portfolio_rets"))
+        logging.info(f"step {t}")
+        order_book = obs.get("order_book")
+        trade = obs.get("trade")
+        agent_info = obs.get("agent_info")
+        portfolio_rets = obs.get("portfolio_rets")
+
+        logging.info(f"ORDER_BOOK {order_book}")
+        logging.info(f"TRADE {trade}")
+        logging.info(f"AGENT_INFO {agent_info}")
+        logging.info(f"PORTFOLIO_RETS {portfolio_rets}")
 
         action = a1.act(obs)    # Local function
         next_obs, rewards, done, _= env.step(**action)
         a1.postprocess(obs, action, next_obs, rewards)
-        print("ACTION", action)
-        print("REWARDS", rewards)
+
+        win_ratio =  round( (a1.win_cnt/float(t+1))*100, 2)
+        logging.info(f"WIN_RATIO {win_ratio}")
+        logging.info(f"ACTION {action}")
+        logging.info(f"REWARDS {rewards}")
 
         if done:
             break
 
         obs = next_obs
-        print(f"==========================================================================================")
+        logging.info(f"==========================================================================================")
