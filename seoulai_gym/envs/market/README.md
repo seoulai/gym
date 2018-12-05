@@ -3,6 +3,9 @@
 install from source.
 
 ```bash
+virtualenv -p python3.6 your_virtual_env
+source your_virtual_env/bin/activate
+
 git clone -b market https://github.com/seoulai/gym.git
 
 cd gym
