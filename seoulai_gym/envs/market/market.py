@@ -213,8 +213,11 @@ class Market(BaseAPI):
             score=score,
             )
 
+        # 7. Done
+        if self.crawler.t  == len(self.crawler.data):
+            done = True
 
-        # 7. Time sleep
+        # 8. Time sleep
         time.sleep(0.3)
 
         return next_obs, rewards, done, info 

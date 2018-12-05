@@ -88,11 +88,11 @@ mode = Constants.LOCAL
 env = gym.make("Market")
 env.participate(your_id, mode)
 
-obs = env.reset()
-
 # You can use Episodes under LOCAL mode to train similar scenarios.
 EPISODES = 100
-for e in EPISODES: 
+for e in range(EPISODES): 
+    obs = env.reset()
+
     for t in count():
         action = a1.act(obs)
         next_obs, rewards, done, _ = env.step(**action)    # action is in dictionary format.
