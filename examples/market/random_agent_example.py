@@ -4,10 +4,8 @@ seoulai.com
 2018
 """
 
-import sys
 import seoulai_gym as gym
 import numpy as np
-import time
 
 from seoulai_gym.envs.market.agents import Agent
 from seoulai_gym.envs.market.base import Constants
@@ -20,26 +18,33 @@ class RandomAgent(Agent):
         self,
     )->dict:
 
-        # action_spaces = 1(ticker) * 2(buy, sell) * 100(%) + 1(hold) = 200+1 = 201
+        """ 1. You must define dictionary of actions! (key = action_name, value = order_parameters)
+            
+            your_actions = dict(
+                action_name1 = order_parameters 1,
+                action_name2 = order_parameters 2,
+                ...
+            )
 
-        """ 1. you must return dictionary of actions!
-            row1 : action_name1 = order_percent 1
-            row2 : action_name2 = order_percent 2
-            ...
+            2. Order parameters
+            order_parameters = +10 It means that your agent'll buy 10 bitcoins.
+            order_parameters = -20 It means that your agent'll sell 20 bitcoins.
 
-            2. If you want to add "hold" action, just define "your_hold_action_name = 0"
-            3. order_percent = +10 means that your agent'll buy 10% of possible quantity.
-               order_percent = -20 means that your agent'll sell 20% of possible quantity.
+            order_parameters = (+10, '%') It means buying 10% of the available amount.
+            order_parameters = (-20, '%') It  means selling 20% of the available amount.
+
+            3. If you want to add "hold" action, just define "your_hold_action_name = 0"
+
+            4. You must return dictionary of actions.
             
         """
 
-        # normal define
         your_actions = {}
 
         your_actions = dict(
             holding = 0,
-            buy_all = +100,
-            sell_all= -100,
+            buy_all = (+100, '%'),
+            sell_all= (-100, '%'),
         )
 
         return your_actions 
@@ -51,6 +56,7 @@ class RandomAgent(Agent):
         # print(state.keys())
 
         return self.action(np.random.choice(range(self.action_spaces)))
+
 
     def postprocess(
         self,
@@ -76,9 +82,7 @@ if __name__ == "__main__":
 
     for t in count():    # Online RL
         print(f"step {t}") 
-        print("ORDER_BOOK", obs.get("order_book"))
         print("TRADE", obs.get("trade"))
-        print("STATISTICS", obs.get("statistics"))
         print("AGENT_INFO", obs.get("agent_info"))
         print("PORTFOLIO_RETS", obs.get("portfolio_rets"))
 
