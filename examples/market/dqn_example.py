@@ -6,7 +6,6 @@ seoulai.com
 
 import seoulai_gym as gym
 import numpy as np
-import time
 import random
 import logging
 
@@ -90,28 +89,40 @@ class DQNAgent(Agent):
         self,
     )->dict:
 
-        # action_spaces = 1(ticker) * 2(buy, sell) * 100(%) + 1(hold) = 200+1 = 201
+        """ 1. You must define dictionary of actions! (key = action_name, value = order_parameters)
+            
+            your_actions = dict(
+                action_name1 = order_parameters 1,
+                action_name2 = order_parameters 2,
+                ...
+            )
 
-        """ 1. you must return dictionary of actions!
-            row1 : action_name1 = order_percent 1
-            row2 : action_name2 = order_percent 2
-            ...
+            2. Order parameters
+            order_parameters = +10 It means that your agent'll buy 10 bitcoins.
+            order_parameters = -20 It means that your agent'll sell 20 bitcoins.
 
-            2. If you want to add "hold" action, just define "your_hold_action_name = 0"
-            3. order_percent = +10 means that your agent'll buy 10% of possible quantity.
-               order_percent = -20 means that your agent'll sell 20% of possible quantity.
+            order_parameters = (+10, '%') It means buying 10% of the available amount.
+            order_parameters = (-20, '%') It  means selling 20% of the available amount.
+
+            3. If you want to add "hold" action, just define "your_hold_action_name = 0"
+
+            4. You must return dictionary of actions.
             
         """
 
-        # normal define
         your_actions = {}
 
+        # self.action_spaces = 9
         your_actions = dict(
             holding = 0,
-            buy1 = (+10, '%'),
-            buy2 = +20,
-            sell1 = -10,
-            sell2 = -20,
+            buy_10per = (+10, '%'),
+            buy_25per = (+25, '%'),
+            buy_50per = (+50, '%'),
+            buy_100per = (+100, '%'),
+            sell_10per = (-10, '%'),
+            sell_25per = (-25, '%'),
+            sell_50per = (-50, '%'),
+            sell_100per = (-100, '%'),
         )
 
         return your_actions 
@@ -156,6 +167,7 @@ class DQNAgent(Agent):
         state,
     ):
         # print(state.keys())
+
         logging.info(f"STATE {state}")
 
         if np.random.rand() <= self.epsilon:
@@ -176,12 +188,8 @@ class DQNAgent(Agent):
         reward = rewards.get("hit")
         self.win_cnt += reward
 
-        self.remember(
-            obs,
-            action,
-            next_obs,
-            reward,
-        )
+        self.remember(obs, action, next_obs, reward)
+
         if len(self.memory) > self.batch_size:
             self.replay()
 
@@ -208,6 +216,8 @@ if __name__ == "__main__":
 
     for t in count():    # Online RL
         logging.info(f"step {t}")
+
+        # Logging current observation
         order_book = obs.get("order_book")
         trade = obs.get("trade")
         agent_info = obs.get("agent_info")
@@ -222,13 +232,20 @@ if __name__ == "__main__":
         next_obs, rewards, done, _= env.step(**action)
         a1.postprocess(obs, action, next_obs, rewards)
 
+        # Logging action and rewards
+        logging.info(f"ACTION {action}")
+        logging.info(f"REWARDS {rewards}")
+
+        # Win ratio
         win_ratio =  round( (a1.win_cnt/float(t+1))*100, 2)
+        logging.info(f"WIN_RATIO {win_ratio}")
+
+        # Logging next observation
+        next_order_book = next_obs.get("order_book")
         next_trade = next_obs.get("trade")
         agent_info = next_obs.get("agent_info")
         portfolio_rets = next_obs.get("portfolio_rets")
-        logging.info(f"WIN_RATIO {win_ratio}")
-        logging.info(f"ACTION {action}")
-        logging.info(f"REWARDS {rewards}")
+        logging.info(f"NEXT ORDER_BOOK {next_order_book}")
         logging.info(f"NEXT TRADE {next_trade}")
         logging.info(f"NEXT AGENT_INFO {agent_info}")
         logging.info(f"NEXT PORTFOLIO_RETS {portfolio_rets}")
