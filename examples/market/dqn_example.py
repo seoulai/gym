@@ -107,14 +107,11 @@ class DQNAgent(Agent):
         your_actions = {}
 
         your_actions = dict(
-            buy_10per= +10,
-            buy_25per= +25,
-            buy_50per= +50,
-            buy_100per= +100,
-            sell_10per= -10,
-            sell_25per= -25,
-            sell_50per= -50,
-            sell_100per= -100,
+            holding = 0,
+            buy1 = (+10, '%'),
+            buy2 = +20,
+            sell1 = -10,
+            sell2 = -20,
         )
 
         return your_actions 
@@ -226,9 +223,15 @@ if __name__ == "__main__":
         a1.postprocess(obs, action, next_obs, rewards)
 
         win_ratio =  round( (a1.win_cnt/float(t+1))*100, 2)
+        next_trade = next_obs.get("trade")
+        agent_info = next_obs.get("agent_info")
+        portfolio_rets = next_obs.get("portfolio_rets")
         logging.info(f"WIN_RATIO {win_ratio}")
         logging.info(f"ACTION {action}")
         logging.info(f"REWARDS {rewards}")
+        logging.info(f"NEXT TRADE {next_trade}")
+        logging.info(f"NEXT AGENT_INFO {agent_info}")
+        logging.info(f"NEXT PORTFOLIO_RETS {portfolio_rets}")
 
         if done:
             break

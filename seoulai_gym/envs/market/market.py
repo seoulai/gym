@@ -64,6 +64,7 @@ class Market(BaseAPI):
             order_book=self.db.order_book,
             trade=self.db.trade,
             # statistics=self.db.statistics,
+            others=self.db.others,
             agent_info=self.db.agent_info,
             portfolio_rets=self.db.portfolio_rets,
         )
@@ -173,6 +174,7 @@ class Market(BaseAPI):
         next_obs = dict(
             order_book=self.db.order_book,
             trade=self.db.trade,
+            others=self.db.others,
             # statistics=self.db.statistics,
             )
 
@@ -196,16 +198,19 @@ class Market(BaseAPI):
 
         # 6. Generate rewards(Floating Point Problem)
         return_amt = round(next_portfolio_val - portfolio_val, 4)
-        return_per = round(((next_portfolio_val/portfolio_val)-1.0)*100.0, 2)
+        return_per = (next_portfolio_val/portfolio_val-1.0)*100.0
+        return_per = int(return_per*10000)/10000.0
         return_sign = np.sign(return_amt)
         change_price = next_price-cur_price
         change_price_sign = np.sign(change_price)
         hit = 1.0 if (decision == Constants.BUY and change_price_sign > 0) or (decision == Constants.SELL and change_price_sign < 0) else 0.0
         score_amt = round(next_portfolio_val - 100000000.0, 4)
-        score = round(((next_portfolio_val/100000000.0)-1.0)*100.0, 2)
+        score = (next_portfolio_val/100000000.0-1.0)*100.0
+        score = int(score*10000)/10000.0
 
         rewards = dict(
             return_amt=return_amt,
+            fee=fee,
             return_per=return_per,
             return_sign=return_sign,
             hit=hit,
