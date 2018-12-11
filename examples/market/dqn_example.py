@@ -52,14 +52,11 @@ class DQNAgent(Agent):
 
     def remember(
         self,
-        obs,
+        state,
         action,
-        next_obs,
+        next_state,
         reward,
     ):
-        state = self.preprocess(obs)
-        next_state = self.preprocess(next_obs)
-
         data = (state, action, next_state, reward)
         self.memory.append(data)
 
@@ -184,14 +181,36 @@ class DQNAgent(Agent):
         next_obs,
         rewards,
     ):
+        # logging
+        self.logging(obs, action, next_obs, rewards)
+
         # define reward
         reward = rewards.get("hit")
         self.win_cnt += reward
 
-        self.remember(obs, action, next_obs, reward)
+        # transform data
+        state = self.preprocess(obs)
+        next_state = self.preprocess(next_obs)
 
+        # remember
+        self.remember(state, action, next_state, reward)
+
+        # replay
         if len(self.memory) > self.batch_size:
             self.replay()
+
+
+    def logging(
+        self,
+        obs,
+        action,
+        next_obs,
+        rewards,
+    ):
+        logging.info(f"OBS : {obs}")
+        logging.info(f"ACTION : {action}")
+        logging.info(f"NEXT_OBS : {next_obs}")
+        logging.info(f"REWARDS : {rewards}")
 
 
     def load(self, name):
@@ -217,38 +236,13 @@ if __name__ == "__main__":
     for t in count():    # Online RL
         logging.info(f"step {t}")
 
-        # Logging current observation
-        order_book = obs.get("order_book")
-        trade = obs.get("trade")
-        agent_info = obs.get("agent_info")
-        portfolio_rets = obs.get("portfolio_rets")
-
-        logging.info(f"ORDER_BOOK {order_book}")
-        logging.info(f"TRADE {trade}")
-        logging.info(f"AGENT_INFO {agent_info}")
-        logging.info(f"PORTFOLIO_RETS {portfolio_rets}")
-
         action = a1.act(obs)    # Local function
         next_obs, rewards, done, _= env.step(**action)
         a1.postprocess(obs, action, next_obs, rewards)
 
-        # Logging action and rewards
-        logging.info(f"ACTION {action}")
-        logging.info(f"REWARDS {rewards}")
-
         # Win ratio
         win_ratio =  round( (a1.win_cnt/float(t+1))*100, 2)
         logging.info(f"WIN_RATIO {win_ratio}")
-
-        # Logging next observation
-        next_order_book = next_obs.get("order_book")
-        next_trade = next_obs.get("trade")
-        agent_info = next_obs.get("agent_info")
-        portfolio_rets = next_obs.get("portfolio_rets")
-        logging.info(f"NEXT ORDER_BOOK {next_order_book}")
-        logging.info(f"NEXT TRADE {next_trade}")
-        logging.info(f"NEXT AGENT_INFO {agent_info}")
-        logging.info(f"NEXT PORTFOLIO_RETS {portfolio_rets}")
 
         if done:
             break
