@@ -16,5 +16,4 @@ class Constants(object):
     HACKATHON = 1
     REAL = 2
 
-    BASE = 10_000
-    FEE_BASE = 1_000
+    BASE = 4

@@ -104,16 +104,6 @@ class Market(BaseAPI):
         else:
             raise Exception("invalid mode!!! : LOCAL = 0, HACKATHON = 1")
 
-    def validate_action(
-        self,
-        agent_id: int,
-        ticker: str,
-        decision: int,
-        trad_qty: float,
-        trad_price: float,
-    ):
-        return True
-
     def local_step(
         self,
         agent_id: int,
@@ -126,13 +116,8 @@ class Market(BaseAPI):
         rewards = {} 
         done = False
         info = {}
+        BASE = Constants.BASE
 
-        is_valid_order = self.validate_action(agent_id, ticker, decision, trad_qty, trad_price)
-        if not is_valid_order:
-            # reward...
-            # info...
-            pass
-        
         # 1. Conclude
         ccld_price, ccld_qty = self.conclude(
             agent_id, ticker, decision, trad_qty, trad_price)
@@ -140,7 +125,6 @@ class Market(BaseAPI):
 
         # 2. Data Select & Update
         # 2-1. Select cur_price and portfolio_rets
-        cur_price = self.db.trade.get("cur_price")
         portfolio_rets = self.db.portfolio_rets
         portfolio_val = portfolio_rets.get("val")
 
@@ -150,20 +134,20 @@ class Market(BaseAPI):
         asset_qtys = agent_info.get("asset_qtys")
         asset_qty = asset_qtys[ticker]
 
-        trading_amt = round(ccld_price*ccld_qty, 4)
-        fee = round(trading_amt*self.fee_rt, 4)    # fee = trading_amt x 0.0005
+        trading_amt = round(ccld_price*ccld_qty, BASE)
+        fee = round(trading_amt*self.fee_rt, BASE)    # fee = trading_amt x 0.0005
 
         if decision == Constants.BUY:
-            asset_val = round(trading_amt + fee, 4)
-            cash = round(cash - asset_val, 4)    # after buying, cash will decrease.
-            asset_qty = round(asset_qty + ccld_qty, 4)    # quantity of asset will increase.
+            asset_val = round(trading_amt + fee, BASE)
+            cash = round(cash - asset_val, BASE)    # after buying, cash will decrease.
+            asset_qty = round(asset_qty + ccld_qty, BASE)    # quantity of asset will increase.
             asset_qtys[ticker] = asset_qty
 
         elif decision == Constants.SELL:
-            asset_qty = round(asset_qty - ccld_qty, 4)    # quantity of asset will decrease.
+            asset_qty = round(asset_qty - ccld_qty, BASE)    # quantity of asset will decrease.
             asset_qtys[ticker] = asset_qty
-            asset_val = round(trading_amt - fee, 4)
-            cash = round(cash + asset_val, 4)    # after selling, cash will increase.
+            asset_val = round(trading_amt - fee, BASE)
+            cash = round(cash + asset_val, BASE)    # after selling, cash will increase.
 
         self.db.agent_info["cash"] = cash
         self.db.agent_info["asset_qtys"] = asset_qtys 
@@ -181,8 +165,8 @@ class Market(BaseAPI):
 
         # 4. Update portfolio_rets(Floating Point Problem)
         next_price = self.db.trade.get("cur_price")
-        asset_val = round(asset_qty * next_price, 4)
-        next_portfolio_val = round(cash + asset_val, 4) 
+        asset_val = round(asset_qty * next_price, BASE)
+        next_portfolio_val = round(cash + asset_val, BASE) 
         self.db.portfolio_rets["val"] = next_portfolio_val
         # TODO : df, mdd, sharp
         # df = self.db.portfolio_log
@@ -197,14 +181,19 @@ class Market(BaseAPI):
 
 
         # 6. Generate rewards(Floating Point Problem)
-        return_amt = round(next_portfolio_val - portfolio_val, 4)
+        return_amt = round(next_portfolio_val - portfolio_val, BASE)
         return_per = (next_portfolio_val/portfolio_val-1.0)*100.0
         return_per = int(return_per*10000)/10000.0
         return_sign = np.sign(return_amt)
-        change_price = next_price-cur_price
+        buy_ccld_price = round(ccld_price * (1 + self.fee_rt), BASE)
+        sell_ccld_price = round(ccld_price * (1 - self.fee_rt), BASE)
+        buy_change_price = round(next_price - buy_ccld_price, BASE)
+        sell_change_price = round(next_price - sell_ccld_price, BASE)
+        change_price = next_price-ccld_price
         change_price_sign = np.sign(change_price)
         hit = 1.0 if (decision == Constants.BUY and change_price_sign > 0) or (decision == Constants.SELL and change_price_sign < 0) else 0.0
-        score_amt = round(next_portfolio_val - 100000000.0, 4)
+        real_hit = 1.0 if (decision == Constants.BUY and np.sign(buy_change_price) > 0) or (decision == Constants.SELL and np.sign(sell_change_price) < 0) else 0.0
+        score_amt = round(next_portfolio_val - 100000000.0, BASE)
         score = (next_portfolio_val/100000000.0-1.0)*100.0
         score = int(score*10000)/10000.0
 
@@ -214,6 +203,7 @@ class Market(BaseAPI):
             return_per=return_per,
             return_sign=return_sign,
             hit=hit,
+            real_hit=real_hit,
             score_amt=score_amt,
             score=score,
             )

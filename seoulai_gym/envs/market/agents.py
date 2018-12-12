@@ -44,7 +44,6 @@ class Agent(ABC, BaseAPI, Constants):
         self.action_names = list(self.actions.keys())
         hold_action_key = hold_action_list[0]
         self.hold_action_index = self.action_names.index(hold_action_key)
-        print("!!!!!!!!!!!", self.hold_action_index)
         print(f"================================================================================================================")
         print(f"SEOUL AI HACKATHON FOR TRADING")
         print(f"actions_spaces = {self.action_spaces}")
@@ -83,10 +82,8 @@ class Agent(ABC, BaseAPI, Constants):
             if type(index) == str:
                 key = index
                 index = self.action_names.index(index)
-                print(index, key)
             else:
                 key = self.action_names[index]
-                print(index, key)
 
             parameters = self.actions[key]
             return self.orders(index, parameters)
@@ -264,7 +261,6 @@ class Agent(ABC, BaseAPI, Constants):
         self,
         obs,
     ):
-        print(obs)
         self.order_book = obs.get("order_book")
 
         self.trade = obs.get("trade")
