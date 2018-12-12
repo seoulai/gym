@@ -124,7 +124,7 @@ class Market(BaseAPI):
 
 
         # 2. Data Select & Update
-        # 2-1. Select cur_price and portfolio_rets
+        # 2-1. Select portfolio_rets
         portfolio_rets = self.db.portfolio_rets
         portfolio_val = portfolio_rets.get("val")
 
@@ -134,8 +134,8 @@ class Market(BaseAPI):
         asset_qtys = agent_info.get("asset_qtys")
         asset_qty = asset_qtys[ticker]
 
-        trading_amt = round(ccld_price*ccld_qty, BASE)
-        fee = round(trading_amt*self.fee_rt, BASE)    # fee = trading_amt x 0.0005
+        trading_amt = round(ccld_price * ccld_qty, BASE)
+        fee = round(trading_amt * self.fee_rt, BASE)    # fee = trading_amt x 0.0005
 
         if decision == Constants.BUY:
             asset_val = round(trading_amt + fee, BASE)
@@ -158,14 +158,15 @@ class Market(BaseAPI):
         next_obs = dict(
             order_book=self.db.order_book,
             trade=self.db.trade,
-            others=self.db.others,
+            # others=self.db.others,
             # statistics=self.db.statistics,
             )
 
 
         # 4. Update portfolio_rets(Floating Point Problem)
-        next_price = self.db.trade.get("cur_price")
-        asset_val = round(asset_qty * next_price, BASE)
+        # cur_price = next_obs["trade"]["price"][0]
+        cur_price = next_obs["trade"]["price"]    # price based next observation
+        asset_val = round(asset_qty * cur_price, BASE)
         next_portfolio_val = round(cash + asset_val, BASE) 
         self.db.portfolio_rets["val"] = next_portfolio_val
         # TODO : df, mdd, sharp
@@ -182,19 +183,19 @@ class Market(BaseAPI):
 
         # 6. Generate rewards(Floating Point Problem)
         return_amt = round(next_portfolio_val - portfolio_val, BASE)
-        return_per = (next_portfolio_val/portfolio_val-1.0)*100.0
+        return_per = (return_amt/portfolio_val)*100.0
         return_per = int(return_per*10000)/10000.0
         return_sign = np.sign(return_amt)
         buy_ccld_price = round(ccld_price * (1 + self.fee_rt), BASE)
         sell_ccld_price = round(ccld_price * (1 - self.fee_rt), BASE)
-        buy_change_price = round(next_price - buy_ccld_price, BASE)
-        sell_change_price = round(next_price - sell_ccld_price, BASE)
-        change_price = next_price-ccld_price
+        buy_change_price = round(cur_price - buy_ccld_price, BASE)
+        sell_change_price = round(cur_price - sell_ccld_price, BASE)
+        change_price = cur_price-ccld_price
         change_price_sign = np.sign(change_price)
         hit = 1.0 if (decision == Constants.BUY and change_price_sign > 0) or (decision == Constants.SELL and change_price_sign < 0) else 0.0
         real_hit = 1.0 if (decision == Constants.BUY and np.sign(buy_change_price) > 0) or (decision == Constants.SELL and np.sign(sell_change_price) < 0) else 0.0
         score_amt = round(next_portfolio_val - 100000000.0, BASE)
-        score = (next_portfolio_val/100000000.0-1.0)*100.0
+        score = (score_amt/100000000.0)*100.0
         score = int(score*10000)/10000.0
 
         rewards = dict(
