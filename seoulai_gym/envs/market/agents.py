@@ -4,6 +4,8 @@ James Park, laplacian.k@gmail.com
 seoulai.com
 2018
 """
+
+import logging
 from math import floor
 from abc import ABC
 from abc import abstractmethod
@@ -15,41 +17,14 @@ class Agent(ABC, BaseAPI, Constants):
     def __init__(
         self,
         agent_id: str,
-        agent_key: str = "",
+        actions: dict,
     ):
         self._agent_id = agent_id
-        # self._common_data_columns=["fee_rt", "cash", "asset_qtys", "cur_price", "order_book"]
-        # self._agent_key = agent_key
-        # data = dict(agent_id=agent_id)
+        self._set_actions(actions)
 
         # TODO : to tracking algo
         # data = dict(agent_id = agent_id)
         # self.api_post = ("submit", data)
-
-        self.actions = {}
-        self.actions = self.set_actions()
-
-        # validation
-        if type(self.actions) != dict:
-            raise AttributeError(f"you must return dictionary!!!")
-        self.action_spaces = len(self.actions)
-        if self.action_spaces == 0:
-            raise AttributeError(f"you didn't define actions!!!")
-        hold_action_list = [key for key, value in self.actions.items() if value == 0]
-        if len(hold_action_list) == 0:
-            raise AttributeError(f"you didn't define hold action!!! you must define : your_hold_action_name = 0")
-        if len(hold_action_list) > 1:
-            raise AttributeError(f"you defined duplicated hold action!!! Check your actions dictionary")
-
-        self.action_names = list(self.actions.keys())
-        hold_action_key = hold_action_list[0]
-        self.hold_action_index = self.action_names.index(hold_action_key)
-        print(f"================================================================================================================")
-        print(f"SEOUL AI HACKATHON FOR TRADING")
-        print(f"actions_spaces = {self.action_spaces}")
-        print(f"your_action_names = {self.action_names}")
-        # print(f"you can use common_columns in your agent class. common_columns = {self._common_data_columns}")
-        print(f"================================================================================================================\n")
 
         self.fee_rt = 0.05/100
 
@@ -67,11 +42,33 @@ class Agent(ABC, BaseAPI, Constants):
         state = obs
         return state
 
-    @abstractmethod
-    def set_actions(
+    def _set_actions(
         self,
+        actions:dict,
     ):
-        pass
+        # validate type of actions.
+        if type(actions) != dict:
+            raise AttributeError(f"you must return dictionary!!!")
+
+        # validate empty actions.
+        action_spaces = len(actions)
+        if action_spaces == 0:
+            raise AttributeError(f"you didn't define actions!!!")
+        self.action_spaces = action_spaces
+
+        # validate holding action.
+        hold_action_list = [key for key, value in actions.items() if value in [0, (0, '%')]]
+        if len(hold_action_list) == 0:
+            raise AttributeError(f"you didn't define hold action!!! you must define : your_hold_action_name = 0 or (0, '%')")
+        if len(hold_action_list) > 1:
+            raise AttributeError(f"you defined duplicated hold action!!! Check your actions dictionary")
+
+        self.actions = actions
+
+        self.action_names = list(self.actions.keys())
+        hold_action_key = hold_action_list[0]
+        self.hold_action_index = self.action_names.index(hold_action_key)
+
 
     # TODO: simplify code
     def action(
@@ -262,21 +259,6 @@ class Agent(ABC, BaseAPI, Constants):
         obs,
     ):
         self.order_book = obs.get("order_book")
-
-        self.trade = obs.get("trade")
-        if self.trade is None:
-            self.cur_price = obs.get("cur_price")
-            self.volume = obs.get("cur_volume")
-            obs.update(dict(trade={"cur_price":self.cur_price, "volume":self.volume}))
-        else:
-            self.cur_price = self.trade.get("cur_price")
-            self.volume = self.trade.get("volume")
-
-        # self.statistics = obs.get("statistics")
-        # self.ma = self.statistics.get("ma")
-        # self.sma = self.statistics.get("sma")
-        # self.std = self.statistics.get("std")
-
         self.agent_info = obs.get("agent_info")
         self.cash = self.agent_info["cash"]
         self.asset_qtys = self.agent_info.get("asset_qtys")
