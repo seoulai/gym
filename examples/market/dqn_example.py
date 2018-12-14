@@ -24,14 +24,15 @@ from keras.models import load_model
 
 logging.basicConfig(level=logging.INFO)
 
+
 class DQNAgent(Agent):
     def __init__(
         self,
         agent_id: str,
     ):
-        
+
         """ 1. You must define dictionary of actions! (key = action_name, value = order_parameters)
-            
+
             your_actions = dict(
                 action_name1 = order_parameters 1,
                 action_name2 = order_parameters 2,
@@ -42,23 +43,23 @@ class DQNAgent(Agent):
             order_parameters = +10 It means that your agent'll buy 10 bitcoins.
             order_parameters = -20 It means that your agent'll sell 20 bitcoins.
 
-            order_parameters = (+10, '%') It means buying 10% of the available amount.
-            order_parameters = (-20, '%') It  means selling 20% of the available amount.
+            order_parameters = (+10, "%") It means buying 10% of the available amount.
+            order_parameters = (-20, "%") It  means selling 20% of the available amount.
 
             3. If you want to add "hold" action, just define "your_hold_action_name = 0"
 
             4. You must return dictionary of actions.
         """
         your_actions = dict(
-            holding = 0,
-            buy_10per = (+10, '%'),
-            buy_25per = (+25, '%'),
-            buy_50per = (+50, '%'),
-            buy_100per = (+100, '%'),
-            sell_10per = (-10, '%'),
-            sell_25per = (-25, '%'),
-            sell_50per = (-50, '%'),
-            sell_100per = (-100, '%'),
+            holding=0,
+            buy_10per=(+10, "%"),
+            buy_25per=(+25, "%"),
+            buy_50per=(+50, "%"),
+            buy_100per=(+100, "%"),
+            sell_10per=(-10, "%"),
+            sell_25per=(-25, "%"),
+            sell_50per=(-50, "%"),
+            sell_100per=(-100, "%"),
         )
         super().__init__(agent_id, your_actions)
 
@@ -78,10 +79,10 @@ class DQNAgent(Agent):
     ):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
-        model.add(Dense(self.action_spaces, activation='linear'))
-        model.compile(loss='mse',
+        model.add(Dense(24, input_dim=self.state_size, activation="relu"))
+        model.add(Dense(24, activation="relu"))
+        model.add(Dense(self.action_spaces, activation="linear"))
+        model.compile(loss="mse",
                       optimizer=Adam(lr=self.learning_rate))
         return model
 
@@ -109,7 +110,7 @@ class DQNAgent(Agent):
             index = action.get("index")
             target_f[0][index] = target
             hist = self.model.fit(state, target_f, epochs=1, verbose=0)
-            loss_history.append(hist.history['loss'])
+            loss_history.append(hist.history["loss"])
 
         logging.info(f"EPSILON {self.epsilon}")
         if self.epsilon > self.epsilon_min:
@@ -128,7 +129,7 @@ class DQNAgent(Agent):
         agent_info = obs.get("agent_info")
         portfolio_rets = obs.get("portfolio_rets")
 
-        # time series data 
+        # time series data
         price_list_200 = trades.get("price")
         volume_list_200 = trades.get("volume")
 
@@ -137,17 +138,18 @@ class DQNAgent(Agent):
         volume5 = volume_list_200[:5]
 
         # slice timeseries data(util)
-        price_volume10 = trades_slicer(trades, start=0, end=10, keys=['price', 'volume'])
+        price_volume10 = trades_slicer(trades, start=0, end=10, keys=["price", "volume"])
         price10 = price_volume10["price"]
         volume10 = price_volume10["volume"]
-        trade40 = trades_slicer(trades, end=40, to='df')
-        trade200 = trades_slicer(trades, end=200, to='df')
+        trade40 = trades_slicer(trades, end=40, to="df")
+        trade200 = trades_slicer(trades, end=200, to="df")
 
         # get statistics (normal)
         ma5 = np.mean(price5)
         ma10 = np.mean(price10)
         ma40 = trade40.price.mean()
         ma200 = trade200.price.mean()
+        mv5 = np.mean(volume5)
 
         # get statistics (util)
         ohclv = get_ohclv(trade200)
@@ -171,7 +173,7 @@ class DQNAgent(Agent):
         portfolio_val = portfolio_rets.get("val")
         asset_val = round(asset_qty*cur_price, 4)
 
-        # nomalized data        
+        # nomalized data
         cash_ratio = round(cash/portfolio_val, 2)
         gap_per = round(gap/pred_fee-1, 2)
 
@@ -181,7 +183,7 @@ class DQNAgent(Agent):
 
         ma200_ratio = round(cur_price/ma200-1, 3)
 
-        state = [cash_ratio, gap_per, signal1, signal2, signal3, ma200_ratio] 
+        state = [cash_ratio, gap_per, signal1, signal2, signal3, ma200_ratio]
         state = np.reshape(state, [1, self.state_size])
 
         return state
@@ -210,11 +212,12 @@ class DQNAgent(Agent):
     ):
 
         self.logging(obs, action, next_obs, rewards)
+
         # define reward
-        reward = rewards.get("return_per")
-        price_10 = next_obs["trade"]["price"][:10]
-        timestamp_10 = next_obs["trade"]["timestamp"][:10]
-        # self.win_cnt += reward
+        reward = rewards.get("real_hit")
+
+        # win_ratio
+        self.win_cnt += reward
 
         # transform data
         state = self.preprocess(obs)
@@ -227,7 +230,6 @@ class DQNAgent(Agent):
         if len(self.memory) > self.batch_size:
             self.replay()
 
-
     def logging(
         self,
         obs,
@@ -236,10 +238,11 @@ class DQNAgent(Agent):
         rewards,
     ):
         # logging.info(f"OBS : {obs}")
+        agent_info = obs.get("agent_info")
+        logging.info(f"AGENT_INFO: {agent_info}")
         logging.info(f"ACTION : {action}")
         # logging.info(f"NEXT_OBS : {next_obs}")
         logging.info(f"REWARDS : {rewards}")
-
 
     def load(self, name):
         self.model.load_weights(name)
@@ -250,8 +253,8 @@ class DQNAgent(Agent):
 
 if __name__ == "__main__":
 
-    your_id = "dashboard"
-    mode = Constants.TEST    # participants can select mode 
+    your_id = "dqn"
+    mode = Constants.TEST    # participants can select mode
 
     a1 = DQNAgent(
          your_id,
@@ -265,12 +268,11 @@ if __name__ == "__main__":
         logging.info(f"step {t}")
 
         action = a1.act(obs)    # Local function
-        next_obs, rewards, done, _= env.step(**action)
+        next_obs, rewards, done, _ = env.step(**action)
         a1.postprocess(obs, action, next_obs, rewards)
 
-        time.sleep(1)
         # Win ratio
-        win_ratio =  round( (a1.win_cnt/float(t+1))*100, 2)
+        win_ratio = round((a1.win_cnt/float(t+1))*100, 2)
         logging.info(f"WIN_RATIO {win_ratio}")
 
         if done:
