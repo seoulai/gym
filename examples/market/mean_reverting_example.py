@@ -15,46 +15,24 @@ from itertools import count
 
 class MeanRevertingAgent(Agent):
 
-    def set_actions(
-        self,
-    )->dict:
-
-        # action_spaces = 1(ticker) * 2(buy, sell) * 100(%) + 1(hold) = 200+1 = 201
-
-        """ 1. you must return dictionary of actions!
-            row1 : action_name1 = order_percent 1
-            row2 : action_name2 = order_percent 2
-            ...
-
-            2. If you want to add "hold" action, just define "your_hold_action_name = 0"
-            3. order_percent = +10 means that your agent'll buy 10% of possible quantity.
-               order_percent = -20 means that your agent'll sell 20% of possible quantity.
-            
-        """
-
-        # normal define
-        your_actions = {}
-
-        your_actions = dict(
-            holding = 0,
-            buy_20per= +20,
-            sell_20per = -20,
-        )
-
-        return your_actions 
-
     def preprocess(
         self,
         obs,
     ):
-        cur_price = self.cur_price
-        ma = self.ma
-        std = self.std
+        # get data
+        trades = obs.get("trade")
+        cur_price = trades["price"][0]
+
+        n = 100
+        price_n= trades["price"][:n]
+
+        ma = np.mean(price_n)
+        std = np.std(price_n)
         thresh_hold = 1.0
 
         your_state = dict(
-            buy_signal=(cur_price > ma + std*thresh_hold),
-            sell_signal=(cur_price < ma - std*thresh_hold),
+            buy_signal=(cur_price > ma + std * thresh_hold),
+            sell_signal=(cur_price < ma - std * thresh_hold),
         )
 
         return your_state 
@@ -67,9 +45,9 @@ class MeanRevertingAgent(Agent):
         print(state["buy_signal"], state["sell_signal"])
 
         if state["buy_signal"]: 
-            return self.action("buy_20per")
+            return self.action("buy_0_1")
         elif state["sell_signal"]:
-            return self.action("sell_20per")
+            return self.action("sell_0_1")
         else:
             return self.action(0)    # you can use number of index.
 
@@ -86,10 +64,37 @@ class MeanRevertingAgent(Agent):
 if __name__ == "__main__":
 
     your_id = "mean_reverting"
-    mode = Constants.LOCAL    # participants can select mode 
+    mode = Constants.TEST    # participants can select mode 
+
+    """ 1. You must define dictionary of actions! (key = action_name, value = order_parameters)
+        
+        your_actions = dict(
+            action_name1 = order_parameters 1,
+            action_name2 = order_parameters 2,
+            ...
+        )
+
+        2. Order parameters
+        order_parameters = +10 It means that your agent'll buy 10 bitcoins.
+        order_parameters = -20 It means that your agent'll sell 20 bitcoins.
+
+        order_parameters = (+10, '%') It means buying 10% of the available amount.
+        order_parameters = (-20, '%') It  means selling 20% of the available amount.
+
+        3. If you want to add "hold" action, just define "your_hold_action_name = 0"
+
+        4. You must return dictionary of actions.
+    """
+
+    your_actions = dict(
+        holding = 0,
+        buy_0_1= +0.1,
+        sell_0_1 = -0.1,
+    )
 
     a1 = MeanRevertingAgent(
          your_id,
+         your_actions,
          )
 
     env = gym.make("Market")
@@ -98,11 +103,6 @@ if __name__ == "__main__":
 
     for t in count():    # Online RL
         print(f"step {t}") 
-        print("ORDER_BOOK", obs.get("order_book"))
-        print("TRADE", obs.get("trade"))
-        print("STATISTICS", obs.get("statistics"))
-        print("AGENT_INFO", obs.get("agent_info"))
-        print("PORTFOLIO_RETS", obs.get("portfolio_rets"))
 
         action = a1.act(obs)    # Local function
         next_obs, rewards, done, _= env.step(**action)
