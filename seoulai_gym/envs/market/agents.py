@@ -6,6 +6,7 @@ seoulai.com
 """
 
 import logging
+import numpy as np
 from math import floor
 from abc import ABC
 from abc import abstractmethod
@@ -41,6 +42,18 @@ class Agent(ABC, BaseAPI, Constants):
         state = obs
         return state
 
+    def _get_action_name(
+        self,
+        index:int,
+    ) -> str:
+        return self.action_names[index]
+
+    def _get_action_index(
+        self,
+        action_name:str,
+    ):
+        return self.action_names.index(action_name)
+
     def _set_actions(
         self,
         actions:dict,
@@ -69,23 +82,27 @@ class Agent(ABC, BaseAPI, Constants):
         self.hold_action_index = self.action_names.index(hold_action_key)
 
 
-    # TODO: simplify code
     def action(
         self,
-        index,
+        key,
     ):
-        try:
-            if type(index) == str:
-                key = index
-                index = self.action_names.index(index)
-            else:
-                key = self.action_names[index]
+        # validate type(key)
+        # if type(key) not in [str, int, np.int64]:
+        #     raise AttributeError(f"key({type(key)}) is invalid parameters! : type(key) = str or int")
 
-            parameters = self.actions[key]
-            return self.orders(index, parameters)
-        # FIXME:
-        except IndexError:
-            raise "index error!!!"
+        index = -1
+        action_name = ""
+
+        if type(key) == str:
+            action_name = key
+            index = self._get_action_index(action_name)
+        else:
+            index = key
+            action_name = self._get_action_name(index)
+
+        parameters = self.actions[action_name]
+
+        return self.orders(index, parameters)
 
     def orders(
         self,
