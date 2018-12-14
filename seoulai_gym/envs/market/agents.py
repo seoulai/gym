@@ -5,8 +5,6 @@ seoulai.com
 2018
 """
 
-import logging
-import numpy as np
 from math import floor
 from abc import ABC
 from abc import abstractmethod
@@ -44,19 +42,19 @@ class Agent(ABC, BaseAPI, Constants):
 
     def _get_action_name(
         self,
-        index:int,
+        index: int,
     ) -> str:
         return self.action_names[index]
 
     def _get_action_index(
         self,
-        action_name:str,
+        action_name: str,
     ):
         return self.action_names.index(action_name)
 
     def _set_actions(
         self,
-        actions:dict,
+        actions: dict,
     ):
         # validate type of actions.
         if type(actions) != dict:
@@ -69,9 +67,10 @@ class Agent(ABC, BaseAPI, Constants):
         self.action_spaces = action_spaces
 
         # validate holding action.
-        hold_action_list = [key for key, value in actions.items() if value in [0, (0, '%')]]
+        hold_action_list = [key for key, value in actions.items() if value in [0, (0, "%")]]
         if len(hold_action_list) == 0:
-            raise AttributeError(f"you didn't define hold action!!! you must define : your_hold_action_name = 0 or (0, '%')")
+            msg = """ you must define : your_hold_action_name = 0 or (0, "%") """
+            raise AttributeError(f"you didn't define hold action!!! : {msg}")
         if len(hold_action_list) > 1:
             raise AttributeError(f"you defined duplicated hold action!!! Check your actions dictionary")
 
@@ -80,7 +79,6 @@ class Agent(ABC, BaseAPI, Constants):
         self.action_names = list(self.actions.keys())
         hold_action_key = hold_action_list[0]
         self.hold_action_index = self.action_names.index(hold_action_key)
-
 
     def action(
         self,
@@ -118,13 +116,13 @@ class Agent(ABC, BaseAPI, Constants):
             qty = parameters[0]
             return self.order(index, qty)
 
-        elif len(parameters) == 2 and parameters[1] == '%':
+        elif len(parameters) == 2 and parameters[1] == "%":
             percent = parameters[0]
             return self.order_percent(index, percent)
 
         else:
-            raise AttributeError(f"order parameters are incorrect!! : order_parameters = int/float or tuple(int/float, '%')")
-
+            msg = """ order_parameters = int/float or tuple(int/float, "%") """
+            raise AttributeError(f"order parameters are incorrect!! : {msg}")
 
     def order(
         self,
@@ -140,7 +138,7 @@ class Agent(ABC, BaseAPI, Constants):
         trad_price = 0
         can_trade = False
 
-        # HOLD 
+        # HOLD
         if index == self.hold_action_index:
             return index, ticker, decision, trad_qty, trad_price
 
@@ -159,7 +157,7 @@ class Agent(ABC, BaseAPI, Constants):
                 trad_qty = floor(trad_qty*10000)/10000.0
                 can_trade = True
 
-        # SELL 
+        # SELL
         elif self.asset_qtys[ticker] > 0 and qty < 0:
             decision = Constants.SELL
             trad_price = self.order_book.get("bid_price")
@@ -193,7 +191,7 @@ class Agent(ABC, BaseAPI, Constants):
         if int(qty*100000) > int(qty*10000)*10:
             raise Exception("invalid order definition!!! : we support only the 4th decimal place")
 
-        if ticker not in ["KRW-BTC"]: 
+        if ticker not in ["KRW-BTC"]:
             raise Exception("invalid ticker!!! : ticker = KRW-BTC")
 
     def order_percent(
@@ -210,7 +208,7 @@ class Agent(ABC, BaseAPI, Constants):
         trad_price = 0
         can_trade = False
 
-        # HOLD 
+        # HOLD
         if index == self.hold_action_index:
             return index, ticker, decision, trad_qty, trad_price
 
@@ -227,7 +225,7 @@ class Agent(ABC, BaseAPI, Constants):
             trad_qty = floor(trad_qty*10000)/10000.0
             can_trade = True
 
-        # SELL 
+        # SELL
         elif self.asset_qtys[ticker] > 0 and percent < 0:
             decision = Constants.SELL
             trad_price = self.order_book.get("bid_price")
@@ -259,7 +257,7 @@ class Agent(ABC, BaseAPI, Constants):
         if int(percent*100) < 0 or int(percent*100) > 100*100:
             raise Exception("invalid order percent!!! : -100 <= percent <= 100")
 
-        if ticker not in ["KRW-BTC"]: 
+        if ticker not in ["KRW-BTC"]:
             raise Exception("invalid ticker!!! : ticker = KRW-BTC")
 
     @abstractmethod
@@ -281,7 +279,6 @@ class Agent(ABC, BaseAPI, Constants):
         self.portfolio_rets = obs.get("portfolio_rets")
         self.portfolio_val = self.portfolio_rets.get("val")
 
-    # FIXME: participants shouldn't define act method
     def act(
         self,
         obs,
@@ -292,6 +289,8 @@ class Agent(ABC, BaseAPI, Constants):
         self._get_common(obs)
         state = self.preprocess(obs)
         index, ticker, decision, trad_qty, trad_price = self.algo(state)
+
+        # action
         action = dict(
             index=index,
             agent_id=self._agent_id,
@@ -299,6 +298,7 @@ class Agent(ABC, BaseAPI, Constants):
             decision=decision,
             trad_qty=trad_qty,
             trad_price=trad_price)
+
         return action
 
     @property

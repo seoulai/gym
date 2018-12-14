@@ -5,16 +5,15 @@ seoulai.com
 2018
 """
 import pandas as pd
-import numpy as np
 import os
 
-from seoulai_gym.envs.market.base import Constants
-from seoulai_gym.envs.market.database import DataBase 
+from seoulai_gym.envs.market.database import DataBase
+
 
 class DataCrawler():
     def __init__(
         self,
-        db : DataBase
+        db: DataBase
     ):
 
         self.db = db
@@ -33,14 +32,14 @@ class DataCrawler():
         data_size = len(df)
 
         # preprocess
-        df[['ask_price', 'bid_price', 'price']] = \
-            df[['ask_price', 'bid_price', 'price']].astype(dtype=int)
+        df[["ask_price", "bid_price", "price"]] = \
+            df[["ask_price", "bid_price", "price"]].astype(dtype=int)
 
         # split
-        order_book = df[['ask_price', 'ask_size', 'bid_price', 'bid_size']]
-        order_book = order_book.to_dict(orient='records')
-        trade = df[['price', 'volume']]
-        trade = trade.to_dict(orient='records')
+        order_book = df[["ask_price", "ask_size", "bid_price", "bid_size"]]
+        order_book = order_book.to_dict(orient="records")
+        trade = df[["price", "volume"]]
+        trade = trade.to_dict(orient="records")
 
         real_stream_data = []
         for t in range(data_size):
@@ -64,4 +63,3 @@ class DataCrawler():
         # TODO : INSERT TO LOG TABLE
 
         self.t += 1
-

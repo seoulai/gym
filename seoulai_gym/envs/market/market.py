@@ -5,15 +5,13 @@ James Park, laplacian.k@gmail.com
 seoulai.com
 2018
 """
-import pandas as pd
 import numpy as np
 import time
 
-from seoulai_gym.envs.market.base import fee_rt, Constants
+from seoulai_gym.envs.market.base import fee_rt, Constants, TIME
 from seoulai_gym.envs.market.api import BaseAPI
-from seoulai_gym.envs.market.base import Constants
-from seoulai_gym.envs.market.crawler import DataCrawler 
-from seoulai_gym.envs.market.database import DataBase 
+from seoulai_gym.envs.market.crawler import DataCrawler
+from seoulai_gym.envs.market.database import DataBase
 
 
 class Market(BaseAPI):
@@ -93,7 +91,8 @@ class Market(BaseAPI):
         r = self._scrap()
         obs = {}
         obs.update(r)
-        obs.update( dict(
+        obs.update(
+            dict(
                 agent_info=self.db.agent_info,
                 portfolio_rets=self.db.portfolio_rets,)
             )
@@ -127,9 +126,9 @@ class Market(BaseAPI):
         trad_price: float,
     ):
         if self._mode in [Constants.LOCAL, Constants.TEST]:
-            return self.local_step(self._mode, agent_id, ticker, decision, trad_qty, trad_price) 
+            return self.local_step(self._mode, agent_id, ticker, decision, trad_qty, trad_price)
         elif self._mode == Constants.HACKATHON:
-            return self.api_step(agent_id, ticker, decision, trad_qty, trad_price) 
+            return self.api_step(agent_id, ticker, decision, trad_qty, trad_price)
         else:
             raise Exception("invalid mode!!! : LOCAL = 0, HACKATHON = 1")
 
@@ -143,7 +142,7 @@ class Market(BaseAPI):
         trad_price: int,
     ):
 
-        rewards = {} 
+        rewards = {}
         done = False
         info = {}
         BASE = Constants.BASE
@@ -151,7 +150,6 @@ class Market(BaseAPI):
         # 1. Conclude
         ccld_price, ccld_qty = self.conclude(
             agent_id, ticker, decision, trad_qty, trad_price)
-
 
         # 2. Data Select & Update
         # 2-1. Select portfolio_rets
@@ -180,8 +178,7 @@ class Market(BaseAPI):
             cash = round(cash + asset_val, BASE)    # after selling, cash will increase.
 
         self.db.agent_info["cash"] = cash
-        self.db.agent_info["asset_qtys"] = asset_qtys 
-
+        self.db.agent_info["asset_qtys"] = asset_qtys
 
         # 3. Scrapping(order book, trade, statistics)
         next_obs = {}
@@ -195,16 +192,14 @@ class Market(BaseAPI):
             r = self._scrap()
             next_obs.update(r)
 
-
         # 4. Update portfolio_rets(Floating Point Problem)
         # cur_price = next_obs["trade"]["price"][0]
         cur_price = next_obs["trade"]["price"][0]    # price based next observation
         asset_val = round(asset_qty * cur_price, BASE)
-        next_portfolio_val = round(cash + asset_val, BASE) 
+        next_portfolio_val = round(cash + asset_val, BASE)
         self.db.portfolio_rets["val"] = next_portfolio_val
         # TODO : df, mdd, sharp
         # df = self.db.portfolio_log
-
 
         # 5. Generate obs
         next_obs.update(dict(
@@ -212,7 +207,6 @@ class Market(BaseAPI):
             portfolio_rets=self.db.portfolio_rets,
             )
         )
-
 
         # 6. Generate rewards(Floating Point Problem)
         return_amt = round(next_portfolio_val - portfolio_val, BASE)
@@ -225,8 +219,10 @@ class Market(BaseAPI):
         sell_change_price = round(cur_price - sell_ccld_price, BASE)
         change_price = cur_price-ccld_price
         change_price_sign = np.sign(change_price)
-        hit = 1.0 if (decision == Constants.BUY and change_price_sign > 0) or (decision == Constants.SELL and change_price_sign < 0) else 0.0
-        real_hit = 1.0 if (decision == Constants.BUY and np.sign(buy_change_price) > 0) or (decision == Constants.SELL and np.sign(sell_change_price) < 0) else 0.0
+        hit = 1.0 if (decision == Constants.BUY and change_price_sign > 0) \
+            or (decision == Constants.SELL and change_price_sign < 0) else 0.0
+        real_hit = 1.0 if (decision == Constants.BUY and np.sign(buy_change_price) > 0) \
+            or (decision == Constants.SELL and np.sign(sell_change_price) < 0) else 0.0
         score_amt = round(next_portfolio_val - 100000000.0, BASE)
         score = (score_amt/100000000.0)*100.0
         score = int(score*10000)/10000.0
@@ -243,14 +239,13 @@ class Market(BaseAPI):
             )
 
         # 7. Done
-        if mode == Constants.LOCAL and self.crawler.t  == len(self.crawler.data):
+        if mode == Constants.LOCAL and self.crawler.t == len(self.crawler.data):
             done = True
 
         # 8. Time sleep
-        if mode == Constants.LOCAL:
-            time.sleep(0.3)
+        time.sleep(TIME)
 
-        return next_obs, rewards, done, info 
+        return next_obs, rewards, done, info
 
     def conclude(
         self,
@@ -303,4 +298,3 @@ class Market(BaseAPI):
         info = r.get("info")
 
         return next_obs, rewards, done, info
-

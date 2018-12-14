@@ -5,6 +5,7 @@ seoulai.com
 2018
 """
 
+
 class DataBase():
     def __init__(
         self,
@@ -30,7 +31,7 @@ class DataBase():
 
         self.agent_info = dict(
             cash=100000000.0,
-            asset_qtys={"KRW-BTC":0.0},
+            asset_qtys={"KRW-BTC": 0.0},
         )
 
         self.portfolio_rets = dict(
@@ -39,10 +40,9 @@ class DataBase():
             sharpe=0.0,
         )
 
-        self.trade_history= dict(
+        self.trade_history = dict(
             timestamp=[],
             cash=[],
             asset_qtys=[],
             val=[],
         )
-

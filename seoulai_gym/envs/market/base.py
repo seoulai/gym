@@ -5,6 +5,8 @@ seoulai.com
 """
 
 fee_rt = 0.05 / 100
+TIME = 0.3
+
 
 class Constants(object):
     """ Constants to share between classes and functions for market game.
