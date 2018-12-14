@@ -20,7 +20,6 @@ class BaseAPI():
         data,
     ):
         url = BASE_URL + cmd
-        print(url, json.dumps(data))
         headers = {"content-type": "application/json"}
         r = requests.post(url,
                           headers=headers,
@@ -38,9 +37,6 @@ class BaseAPI():
         conditions = [key+"="+value for key, value in data.items()]
         query = "?" + "&".join(conditions)
         url += query
-        print(url, json.dumps(data))
-        # headers = {"content-type": "application/json"}
-        # print(url, json.dumps(data))
         r = requests.get(url)
 
         if r.status_code == 200:
