@@ -1,5 +1,5 @@
 """
-Martin Kersner, m.kersner@gmail.com
+James Park, laplacian.k@gmail.com
 seoulai.com
 2018
 """
