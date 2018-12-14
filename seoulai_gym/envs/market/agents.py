@@ -102,29 +102,28 @@ class Agent(ABC, BaseAPI, Constants):
 
         parameters = self.actions[action_name]
 
-        return self.orders(index, parameters)
+        return self.order_tree(index, parameters)
 
-    def orders(
+    def order_tree(
         self,
         index: int,
-        parameters: tuple,
+        parameters,
         ticker: str = "KRW-BTC",
     ):
 
         if type(parameters) in [float, int]:
-            qty = parameters
-            return self.order(index, qty)
+            parameters = tuple([parameters])
 
-        elif type(parameters) == tuple and len(parameters) == 1 and type(parameters[0]) == float:
+        if len(parameters) == 1 and type(parameters[0]) in [float, int]:
             qty = parameters[0]
             return self.order(index, qty)
 
-        elif type(parameters) == tuple and len(parameters) == 2 and parameters[1] == '%':
+        elif len(parameters) == 2 and parameters[1] == '%':
             percent = parameters[0]
             return self.order_percent(index, percent)
 
         else:
-            raise AttributeError(f"parameters are incorrect!!")
+            raise AttributeError(f"order parameters are incorrect!! : order_parameters = int/float or tuple(int/float, '%')")
 
 
     def order(
