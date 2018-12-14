@@ -28,10 +28,41 @@ class DQNAgent(Agent):
     def __init__(
         self,
         agent_id: str,
-        actions: dict,
     ):
-        super().__init__(agent_id, actions)
-        self.state_size = 2
+        
+        """ 1. You must define dictionary of actions! (key = action_name, value = order_parameters)
+            
+            your_actions = dict(
+                action_name1 = order_parameters 1,
+                action_name2 = order_parameters 2,
+                ...
+            )
+
+            2. Order parameters
+            order_parameters = +10 It means that your agent'll buy 10 bitcoins.
+            order_parameters = -20 It means that your agent'll sell 20 bitcoins.
+
+            order_parameters = (+10, '%') It means buying 10% of the available amount.
+            order_parameters = (-20, '%') It  means selling 20% of the available amount.
+
+            3. If you want to add "hold" action, just define "your_hold_action_name = 0"
+
+            4. You must return dictionary of actions.
+        """
+        your_actions = dict(
+            holding = 0,
+            buy_10per = (+10, '%'),
+            buy_25per = (+25, '%'),
+            buy_50per = (+50, '%'),
+            buy_100per = (+100, '%'),
+            sell_10per = (-10, '%'),
+            sell_25per = (-25, '%'),
+            sell_50per = (-50, '%'),
+            sell_100per = (-100, '%'),
+        )
+        super().__init__(agent_id, your_actions)
+
+        self.state_size = 6
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
@@ -86,72 +117,40 @@ class DQNAgent(Agent):
 
         return loss_history
 
-    def set_actions(
-        self,
-    )->dict:
-
-        """ 1. You must define dictionary of actions! (key = action_name, value = order_parameters)
-            
-            your_actions = dict(
-                action_name1 = order_parameters 1,
-                action_name2 = order_parameters 2,
-                ...
-            )
-
-            2. Order parameters
-            order_parameters = +10 It means that your agent'll buy 10 bitcoins.
-            order_parameters = -20 It means that your agent'll sell 20 bitcoins.
-
-            order_parameters = (+10, '%') It means buying 10% of the available amount.
-            order_parameters = (-20, '%') It  means selling 20% of the available amount.
-
-            3. If you want to add "hold" action, just define "your_hold_action_name = 0"
-
-            4. You must return dictionary of actions.
-            
-        """
-
-        your_actions = {}
-
-        # self.action_spaces = 9
-        your_actions = dict(
-            holding = (0, '%'),
-            buy_10per = (+10, '%'),
-            buy_25per = (+25, '%'),
-            buy_50per = (+50, '%'),
-            buy_100per = (+100, '%'),
-            sell_10per = (-10, '%'),
-            sell_25per = (-25, '%'),
-            sell_50per = (-50, '%'),
-            sell_100per = (-100, '%'),
-        )
-
-        return your_actions 
-
     def preprocess(
         self,
         obs,
     ):
 
-        # logging.info(f"{obs}")
-
         # get data
         order_book = obs.get("order_book")
         trades = obs.get("trade")
-        # trade = trades_slicer(trades, end=10, to='df')
-        trade = trades_slicer(trades, end=10, to='df')
-        # logging.info(f"TRADE!!!!! {trade}")
-        ohclv = get_ohclv(trade)
-        # logging.info(f"{ohclv}")
-
         agent_info = obs.get("agent_info")
         portfolio_rets = obs.get("portfolio_rets")
 
         # time series data 
-        ask_price = order_book.get("ask_price")
-        bid_price = order_book.get("bid_price")
-        price_list = trades.get("price")
-        volume_list = trades.get("volume")
+        price_list_200 = trades.get("price")
+        volume_list_200 = trades.get("volume")
+
+        # slice timeseries data(normal)
+        price5 = price_list_200[:5]
+        volume5 = volume_list_200[:5]
+
+        # slice timeseries data(util)
+        price_volume10 = trades_slicer(trades, start=0, end=10, keys=['price', 'volume'])
+        price10 = price_volume10["price"]
+        volume10 = price_volume10["volume"]
+        trade40 = trades_slicer(trades, end=40, to='df')
+        trade200 = trades_slicer(trades, end=200, to='df')
+
+        # get statistics (normal)
+        ma5 = np.mean(price5)
+        ma10 = np.mean(price10)
+        ma40 = trade40.price.mean()
+        ma200 = trade200.price.mean()
+
+        # get statistics (util)
+        ohclv = get_ohclv(trade200)
 
         # agent data
         cash = agent_info.get("cash")
@@ -159,12 +158,12 @@ class DQNAgent(Agent):
         asset_qty = asset_qtys["KRW-BTC"]
 
         # the last limit order book
-        # ask_price = ask_price_list[0]
-        # bid_price = bid_price_list[0]
+        ask_price = order_book.get("ask_price")
+        bid_price = order_book.get("bid_price")
 
         # the last trade
-        cur_price = price_list[0]
-        volume = volume_list[0]
+        cur_price = price_list_200[0]
+        volume = volume_list_200[0]
 
         # target data
         gap = abs(ask_price-bid_price)
@@ -174,11 +173,15 @@ class DQNAgent(Agent):
 
         # nomalized data        
         cash_ratio = round(cash/portfolio_val, 2)
-        # asset_per = round(asset_val/portfolio_val, 2)
         gap_per = round(gap/pred_fee-1, 2)
-        # asset_ratio = round(asset_val/cash, 2)
 
-        state = [cash_ratio, gap_per] 
+        signal1 = 1.0 if ma5 > ma10 else 0.0
+        signal2 = 1.0 if ma5 > ma40 else 0.0
+        signal3 = 1.0 if ma5 > ma200 else 0.0
+
+        ma200_ratio = round(cur_price/ma200-1, 3)
+
+        state = [cash_ratio, gap_per, signal1, signal2, signal3, ma200_ratio] 
         state = np.reshape(state, [1, self.state_size])
 
         return state
@@ -247,45 +250,11 @@ class DQNAgent(Agent):
 
 if __name__ == "__main__":
 
-    """ 1. You must define dictionary of actions! (key = action_name, value = order_parameters)
-        
-        your_actions = dict(
-            action_name1 = order_parameters 1,
-            action_name2 = order_parameters 2,
-            ...
-        )
-
-        2. Order parameters
-        order_parameters = +10 It means that your agent'll buy 10 bitcoins.
-        order_parameters = -20 It means that your agent'll sell 20 bitcoins.
-
-        order_parameters = (+10, '%') It means buying 10% of the available amount.
-        order_parameters = (-20, '%') It  means selling 20% of the available amount.
-
-        3. If you want to add "hold" action, just define "your_hold_action_name = 0"
-
-        4. You must return dictionary of actions.
-        
-    """
-
-    your_actions = dict(
-        holding = 0,
-        buy_10per = (+10, '%'),
-        buy_25per = (+25, '%'),
-        buy_50per = (+50, '%'),
-        buy_100per = (+100, '%'),
-        sell_10per = (-10, '%'),
-        sell_25per = (-25, '%'),
-        sell_50per = (-50, '%'),
-        sell_100per = (-100, '%'),
-    )
-
     your_id = "dashboard"
     mode = Constants.TEST    # participants can select mode 
 
     a1 = DQNAgent(
          your_id,
-         your_actions,
          )
 
     env = gym.make("Market")
