@@ -4,6 +4,7 @@ seoulai.com
 2018
 """
 
+fee_rt = 0.05 / 100
 
 class Constants(object):
     """ Constants to share between classes and functions for market game.
@@ -13,7 +14,8 @@ class Constants(object):
     HOLD = 0
     DECISION = ["hold", "buy", "sell"]
     LOCAL = 0
-    HACKATHON = 1
-    REAL = 2
+    TEST = 1
+    HACKATHON = 2
+    REAL = 3
 
     BASE = 4

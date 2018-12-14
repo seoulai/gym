@@ -10,7 +10,7 @@ from math import floor
 from abc import ABC
 from abc import abstractmethod
 from seoulai_gym.envs.market.api import BaseAPI
-from seoulai_gym.envs.market.base import Constants
+from seoulai_gym.envs.market.base import Constants, fee_rt
 
 
 class Agent(ABC, BaseAPI, Constants):
@@ -21,12 +21,11 @@ class Agent(ABC, BaseAPI, Constants):
     ):
         self._agent_id = agent_id
         self._set_actions(actions)
+        self.fee_rt = fee_rt
 
         # TODO : to tracking algo
         # data = dict(agent_id = agent_id)
         # self.api_post = ("submit", data)
-
-        self.fee_rt = 0.05/100
 
     def preprocess(
         self,
