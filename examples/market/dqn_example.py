@@ -6,11 +6,14 @@ seoulai.com
 
 import seoulai_gym as gym
 import numpy as np
+import pandas as pd
 import random
 import logging
+import time
 
 from seoulai_gym.envs.market.agents import Agent
 from seoulai_gym.envs.market.base import Constants
+from seoulai_gym.envs.market.utils import trades_slicer, get_ohclv
 from itertools import count
 
 from collections import deque
@@ -25,8 +28,9 @@ class DQNAgent(Agent):
     def __init__(
         self,
         agent_id: str,
+        actions: dict,
     ):
-        super().__init__(agent_id)
+        super().__init__(agent_id, actions)
         self.state_size = 2
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
@@ -111,7 +115,7 @@ class DQNAgent(Agent):
 
         # self.action_spaces = 9
         your_actions = dict(
-            holding = 0,
+            holding = (0, '%'),
             buy_10per = (+10, '%'),
             buy_25per = (+25, '%'),
             buy_50per = (+50, '%'),
@@ -129,24 +133,44 @@ class DQNAgent(Agent):
         obs,
     ):
 
+        # logging.info(f"{obs}")
+
         # get data
         order_book = obs.get("order_book")
-        trade = obs.get("trade")
+        trades = obs.get("trade")
+        # trade = trades_slicer(trades, end=10, to='df')
+        trade = trades_slicer(trades, end=10, to='df')
+        # logging.info(f"TRADE!!!!! {trade}")
+        ohclv = get_ohclv(trade)
+        # logging.info(f"{ohclv}")
+
         agent_info = obs.get("agent_info")
         portfolio_rets = obs.get("portfolio_rets")
 
-        # base data
+        # time series data 
         ask_price = order_book.get("ask_price")
         bid_price = order_book.get("bid_price")
-        cur_price = trade.get("cur_price")
-        volume = trade.get("volume")
+        price_list = trades.get("price")
+        volume_list = trades.get("volume")
+
+        # agent data
         cash = agent_info.get("cash")
         asset_qtys = agent_info.get("asset_qtys")
         asset_qty = asset_qtys["KRW-BTC"]
-        asset_val = round(asset_qty*cur_price, 4)
+
+        # the last limit order book
+        # ask_price = ask_price_list[0]
+        # bid_price = bid_price_list[0]
+
+        # the last trade
+        cur_price = price_list[0]
+        volume = volume_list[0]
+
+        # target data
         gap = abs(ask_price-bid_price)
         pred_fee = round(cur_price*self.fee_rt, 4)
         portfolio_val = portfolio_rets.get("val")
+        asset_val = round(asset_qty*cur_price, 4)
 
         # nomalized data        
         cash_ratio = round(cash/portfolio_val, 2)
@@ -181,12 +205,13 @@ class DQNAgent(Agent):
         next_obs,
         rewards,
     ):
-        # logging
-        self.logging(obs, action, next_obs, rewards)
 
+        self.logging(obs, action, next_obs, rewards)
         # define reward
-        reward = rewards.get("hit")
-        self.win_cnt += reward
+        reward = rewards.get("return_per")
+        price_10 = next_obs["trade"]["price"][:10]
+        timestamp_10 = next_obs["trade"]["timestamp"][:10]
+        # self.win_cnt += reward
 
         # transform data
         state = self.preprocess(obs)
@@ -207,9 +232,9 @@ class DQNAgent(Agent):
         next_obs,
         rewards,
     ):
-        logging.info(f"OBS : {obs}")
+        # logging.info(f"OBS : {obs}")
         logging.info(f"ACTION : {action}")
-        logging.info(f"NEXT_OBS : {next_obs}")
+        # logging.info(f"NEXT_OBS : {next_obs}")
         logging.info(f"REWARDS : {rewards}")
 
 
@@ -222,11 +247,45 @@ class DQNAgent(Agent):
 
 if __name__ == "__main__":
 
-    your_id = "dqn"
-    mode = Constants.LOCAL    # participants can select mode 
+    """ 1. You must define dictionary of actions! (key = action_name, value = order_parameters)
+        
+        your_actions = dict(
+            action_name1 = order_parameters 1,
+            action_name2 = order_parameters 2,
+            ...
+        )
+
+        2. Order parameters
+        order_parameters = +10 It means that your agent'll buy 10 bitcoins.
+        order_parameters = -20 It means that your agent'll sell 20 bitcoins.
+
+        order_parameters = (+10, '%') It means buying 10% of the available amount.
+        order_parameters = (-20, '%') It  means selling 20% of the available amount.
+
+        3. If you want to add "hold" action, just define "your_hold_action_name = 0"
+
+        4. You must return dictionary of actions.
+        
+    """
+
+    your_actions = dict(
+        holding = 0,
+        buy_10per = (+10, '%'),
+        buy_25per = (+25, '%'),
+        buy_50per = (+50, '%'),
+        buy_100per = (+100, '%'),
+        sell_10per = (-10, '%'),
+        sell_25per = (-25, '%'),
+        sell_50per = (-50, '%'),
+        sell_100per = (-100, '%'),
+    )
+
+    your_id = "dashboard"
+    mode = Constants.TEST    # participants can select mode 
 
     a1 = DQNAgent(
          your_id,
+         your_actions,
          )
 
     env = gym.make("Market")
@@ -240,6 +299,7 @@ if __name__ == "__main__":
         next_obs, rewards, done, _= env.step(**action)
         a1.postprocess(obs, action, next_obs, rewards)
 
+        time.sleep(1)
         # Win ratio
         win_ratio =  round( (a1.win_cnt/float(t+1))*100, 2)
         logging.info(f"WIN_RATIO {win_ratio}")
