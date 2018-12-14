@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import time
 
-from seoulai_gym.envs.market.base import Constants
+from seoulai_gym.envs.market.base import fee_rt, Constants
 from seoulai_gym.envs.market.api import BaseAPI
 from seoulai_gym.envs.market.base import Constants
 from seoulai_gym.envs.market.crawler import DataCrawler 
@@ -32,8 +32,8 @@ class Market(BaseAPI):
 
     def participate(
         self,
-        agent_id: str="your_id",
-        mode: int=Constants.LOCAL,
+        agent_id: str,
+        mode: int=Constants.TEST,
     ):
         self._agent_id = agent_id
         self._mode = mode
@@ -43,17 +43,17 @@ class Market(BaseAPI):
     ):
         if self._mode == Constants.LOCAL:
             return self.local_reset()
+        elif self._mode == Constants.TEST:
+            return self.test_reset()
         elif self._mode == Constants.HACKATHON:
             return self.api_reset()
         else:
-            raise Exception("invalid mode!!! : LOCAL = 0, HACKATHON = 1")
+            raise Exception("invalid mode!!! : mode in [Constants.TEST, Constants.HACKATHON]")
 
     def local_reset(
         self,
     ):
         # initialize variables for local excution
-
-        self.fee_rt = 0.05/100
 
         self.db = DataBase()
 
@@ -63,11 +63,40 @@ class Market(BaseAPI):
         obs = dict(
             order_book=self.db.order_book,
             trade=self.db.trade,
-            # statistics=self.db.statistics,
-            others=self.db.others,
             agent_info=self.db.agent_info,
             portfolio_rets=self.db.portfolio_rets,
         )
+
+        return obs
+
+    def _scrap(
+        self,
+    ):
+        data = dict(
+            agent_id=self._agent_id,
+            )
+        r = self.api_get("scrap", data)
+
+        return r
+
+    def test_reset(
+        self,
+    ):
+        # initialize variables for local excution
+
+        self.db = DataBase()
+
+        data = dict(exchange=self.exchange)
+        r = self.api_get("select", data)
+        self.fee_rt = r.get("fee_rt")
+
+        r = self._scrap()
+        obs = {}
+        obs.update(r)
+        obs.update( dict(
+                agent_info=self.db.agent_info,
+                portfolio_rets=self.db.portfolio_rets,)
+            )
 
         return obs
 
@@ -97,8 +126,8 @@ class Market(BaseAPI):
         trad_qty: float,
         trad_price: float,
     ):
-        if self._mode == Constants.LOCAL:
-            return self.local_step(agent_id, ticker, decision, trad_qty, trad_price) 
+        if self._mode in [Constants.LOCAL, Constants.TEST]:
+            return self.local_step(self._mode, agent_id, ticker, decision, trad_qty, trad_price) 
         elif self._mode == Constants.HACKATHON:
             return self.api_step(agent_id, ticker, decision, trad_qty, trad_price) 
         else:
@@ -106,6 +135,7 @@ class Market(BaseAPI):
 
     def local_step(
         self,
+        mode,
         agent_id: int,
         ticker: str,
         decision: int,
@@ -135,7 +165,7 @@ class Market(BaseAPI):
         asset_qty = asset_qtys[ticker]
 
         trading_amt = round(ccld_price * ccld_qty, BASE)
-        fee = round(trading_amt * self.fee_rt, BASE)    # fee = trading_amt x 0.0005
+        fee = round(trading_amt * fee_rt, BASE)    # fee = trading_amt x 0.0005
 
         if decision == Constants.BUY:
             asset_val = round(trading_amt + fee, BASE)
@@ -154,18 +184,21 @@ class Market(BaseAPI):
 
 
         # 3. Scrapping(order book, trade, statistics)
-        self.crawler.scrap()
-        next_obs = dict(
-            order_book=self.db.order_book,
-            trade=self.db.trade,
-            # others=self.db.others,
-            # statistics=self.db.statistics,
-            )
+        next_obs = {}
+        if mode == Constants.LOCAL:
+            self.crawler.scrap()
+            next_obs = dict(
+                order_book=self.db.order_book,
+                trade=self.db.trade,
+                )
+        elif mode == Constants.TEST:
+            r = self._scrap()
+            next_obs.update(r)
 
 
         # 4. Update portfolio_rets(Floating Point Problem)
         # cur_price = next_obs["trade"]["price"][0]
-        cur_price = next_obs["trade"]["price"]    # price based next observation
+        cur_price = next_obs["trade"]["price"][0]    # price based next observation
         asset_val = round(asset_qty * cur_price, BASE)
         next_portfolio_val = round(cash + asset_val, BASE) 
         self.db.portfolio_rets["val"] = next_portfolio_val
@@ -186,8 +219,8 @@ class Market(BaseAPI):
         return_per = (return_amt/portfolio_val)*100.0
         return_per = int(return_per*10000)/10000.0
         return_sign = np.sign(return_amt)
-        buy_ccld_price = round(ccld_price * (1 + self.fee_rt), BASE)
-        sell_ccld_price = round(ccld_price * (1 - self.fee_rt), BASE)
+        buy_ccld_price = round(ccld_price * (1 + fee_rt), BASE)
+        sell_ccld_price = round(ccld_price * (1 - fee_rt), BASE)
         buy_change_price = round(cur_price - buy_ccld_price, BASE)
         sell_change_price = round(cur_price - sell_ccld_price, BASE)
         change_price = cur_price-ccld_price
@@ -210,11 +243,12 @@ class Market(BaseAPI):
             )
 
         # 7. Done
-        if self.crawler.t  == len(self.crawler.data):
+        if mode == Constants.LOCAL and self.crawler.t  == len(self.crawler.data):
             done = True
 
         # 8. Time sleep
-        time.sleep(0.3)
+        if mode == Constants.LOCAL:
+            time.sleep(0.3)
 
         return next_obs, rewards, done, info 
 
@@ -270,12 +304,3 @@ class Market(BaseAPI):
 
         return next_obs, rewards, done, info
 
-    def scrap(
-        self,
-        start_time,
-        end_time,
-    ) -> None:
-        data = dict(start_time=start_time,
-                    end_time=end_time)
-        data = self.api_get("scrap", data)
-        return data 
