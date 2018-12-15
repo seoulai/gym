@@ -5,7 +5,7 @@ seoulai.com
 """
 
 fee_rt = 0.05 / 100
-TIME = 0.3
+TIME = 1
 
 
 class Constants(object):
