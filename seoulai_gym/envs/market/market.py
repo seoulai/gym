@@ -74,6 +74,7 @@ class Market(BaseAPI):
             agent_id=self._agent_id,
             )
         r = self.api_get("scrap", data)
+        time.sleep(TIME)
 
         return r
 
@@ -114,6 +115,8 @@ class Market(BaseAPI):
         r = self.api_get("reset", data)
         obs = r.get("obs")
 
+        time.sleep(TIME)
+
         return obs
 
     def step(
@@ -130,7 +133,7 @@ class Market(BaseAPI):
         elif self._mode == Constants.HACKATHON:
             return self.api_step(agent_id, ticker, decision, trad_qty, trad_price)
         else:
-            raise Exception("invalid mode!!! : LOCAL = 0, HACKATHON = 1")
+            raise Exception("invalid mode!!! : mode in [Constants.TEST, Constants.HACKATHON]")
 
     def local_step(
         self,
@@ -210,22 +213,22 @@ class Market(BaseAPI):
 
         # 6. Generate rewards(Floating Point Problem)
         return_amt = round(next_portfolio_val - portfolio_val, BASE)
-        return_per = (return_amt/portfolio_val)*100.0
-        return_per = int(return_per*10000)/10000.0
+        return_per = (return_amt / portfolio_val)*100.0
+        return_per = int(return_per * 10000)/10000.0
         return_sign = np.sign(return_amt)
         buy_ccld_price = round(ccld_price * (1 + fee_rt), BASE)
         sell_ccld_price = round(ccld_price * (1 - fee_rt), BASE)
         buy_change_price = round(cur_price - buy_ccld_price, BASE)
         sell_change_price = round(cur_price - sell_ccld_price, BASE)
-        change_price = cur_price-ccld_price
+        change_price = cur_price - ccld_price
         change_price_sign = np.sign(change_price)
         hit = 1.0 if (decision == Constants.BUY and change_price_sign > 0) \
             or (decision == Constants.SELL and change_price_sign < 0) else 0.0
         real_hit = 1.0 if (decision == Constants.BUY and np.sign(buy_change_price) > 0) \
             or (decision == Constants.SELL and np.sign(sell_change_price) < 0) else 0.0
         score_amt = round(next_portfolio_val - 100000000.0, BASE)
-        score = (score_amt/100000000.0)*100.0
-        score = int(score*10000)/10000.0
+        score = (score_amt / 100000000.0) * 100.0
+        score = int(score * 10000) / 10000.0
 
         rewards = dict(
             return_amt=return_amt,
@@ -241,9 +244,6 @@ class Market(BaseAPI):
         # 7. Done
         if mode == Constants.LOCAL and self.crawler.t == len(self.crawler.data):
             done = True
-
-        # 8. Time sleep
-        time.sleep(TIME)
 
         return next_obs, rewards, done, info
 
@@ -296,5 +296,6 @@ class Market(BaseAPI):
         rewards = r.get("rewards")
         done = r.get("done")
         info = r.get("info")
+        time.sleep(TIME)
 
         return next_obs, rewards, done, info
